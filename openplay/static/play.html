@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0d1014">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23151a20%27/%3E%3Cpath d=%27M8 25h16M12 25l3-9 7-5%27 stroke=%27%235cc8ff%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2722%27 cy=%2711%27 r=%272.5%27 fill=%27%23ff8a3d%27/%3E%3C/svg%3E">
+<title>Play with the robot arm</title>
+<link rel="stylesheet" href="/static/play.css">
+<script type="module" src="/static/play.js"></script>
+</head>
+<body>
+<div id="conn" class="conn" hidden>Connecting…</div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<!-- ============================================================ lobby -->
+<section id="lobby" class="screen" hidden>
+  <header class="hero">
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path d="M14 54h36M22 54l6-18 14-10" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="42" cy="26" r="5" fill="#ff8a3d"/><circle cx="28" cy="36" r="4" fill="currentColor"/></svg>
+    </div>
+    <div>
+      <h1>Play with the robot arm</h1>
+      <p class="sub">Your phone is the remote. Take turns, <span id="turnLen">10 min</span> each.</p>
+    </div>
+  </header>
+
+  <div class="card now" id="nowCard">
+    <div class="now-row">
+      <span class="label">Now playing</span>
+      <span class="now-time" id="nowTime"></span>
+    </div>
+    <div class="now-name" id="nowName">Nobody yet: it could be you!</div>
+    <div class="meter" id="nowMeterWrap" hidden><div class="meter-fill" id="nowMeter"></div></div>
+  </div>
+
+  <div class="card join" id="joinCard">
+    <label class="label" for="name">Your name</label>
+    <input id="name" type="text" maxlength="24" autocomplete="nickname" autocapitalize="words" enterkeyhint="go" placeholder="e.g. Priya">
+    <button id="joinBtn" class="btn primary big">Join the queue</button>
+  </div>
+
+  <div class="card queued" id="queuedCard" hidden>
+    <div class="pos-row">
+      <div class="pos"><span class="pos-hash">#</span><span id="pos">1</span></div>
+      <div>
+        <div class="pos-title" id="posTitle">You're in line</div>
+        <div class="pos-eta" id="eta"></div>
+      </div>
+    </div>
+    <p class="small muted" id="queuedHint">Keep this page open: the controls appear here when it's your turn.</p>
+    <button id="leaveBtn" class="btn ghost">Leave the queue</button>
+  </div>
+
+  <p class="safety">⚠️ Stay out of the arm's reach. The staff can stop it any time.</p>
+
+  <div class="card" id="queueCard" hidden>
+    <div class="label">In the queue</div>
+    <ol class="queue" id="queue"></ol>
+  </div>
+
+  <div class="card how">
+    <div class="label">How it works</div>
+    <ol class="steps">
+      <li><b>Join</b> with your name and wait for your turn.</li>
+      <li><b>Drive</b> by tilting your phone or with thumb sticks.</li>
+      <li><b>Show off</b>: dance moves, type what it should do, record your own moves, grab a block.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================================================ turn -->
+<section id="turn" class="screen turn" hidden>
+  <header class="topbar">
+    <div class="ring" id="ring" aria-label="time left">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="ring-bg" cx="24" cy="24" r="21"/><circle class="ring-fg" id="ringFg" cx="24" cy="24" r="21"/></svg>
+      <span class="ring-txt" id="ringTxt">10:00</span>
+    </div>
+    <div class="tb-mid">
+      <div class="tb-title" id="tbTitle">Your turn<span id="tbName"></span></div>
+      <div class="armpill" id="armPill"><i></i><span>connecting</span></div>
+    </div>
+    <button id="endBtn" class="btn tiny ghost">End turn</button>
+  </header>
+
+  <main class="tabbody">
+    <!-- ---------------------------------------------------- drive -->
+    <div class="tab" id="tab-drive" data-tab="drive">
+      <div class="seg" id="driveModes" role="tablist">
+        <button data-mode="tilt" role="tab">📱 Tilt</button>
+        <button data-mode="sticks" role="tab">🕹️ Sticks</button>
+        <button data-mode="joints" role="tab">🎚️ Joints</button>
+      </div>
+      <div class="busybar" id="busyBar" hidden><span id="busyTxt"></span><span class="small">tap STOP to take over</span></div>
+
+      <div class="mode" id="mode-tilt">
+        <div class="sensor-gate" id="sensorGate">
+          <p>Tilt your phone to steer the arm. First, let this page read your motion sensors.</p>
+          <button id="sensorsBtn" class="btn primary big">Enable motion sensors</button>
+          <p class="small muted" id="sensorMsg"></p>
+        </div>
+        <div class="pad" id="tiltPad" hidden>
+          <div class="cross v"></div><div class="cross h"></div>
+          <div class="dot" id="tiltDot"></div>
+          <span class="pad-lbl t">tilt forward: away</span>
+          <span class="pad-lbl l">left</span><span class="pad-lbl r">right</span>
+          <span class="pad-lbl b">tilt back: toward you</span>
+          <div class="pad-cta" id="padCta">Hold &amp; tilt</div>
+        </div>
+        <div class="row" id="zRow" hidden>
+          <button class="btn hold" id="zUp">▲ Up</button>
+          <button class="btn hold" id="zDown">▼ Down</button>
+        </div>
+        <p class="small muted center" id="tiltHint" hidden>The arm moves only while your thumb is on the pad. Where you hold your phone when you press is "still".</p>
+      </div>
+
+      <div class="mode" id="mode-sticks" hidden>
+        <div class="sticks">
+          <div class="stickwrap">
+            <div class="stick" id="stickL"><div class="knob"></div>
+              <span class="st-lbl t">away</span><span class="st-lbl b">toward</span><span class="st-lbl l">◀</span><span class="st-lbl r">▶</span></div>
+            <span class="small muted">move around</span>
+          </div>
+          <div class="stickwrap">
+            <div class="stick" id="stickR"><div class="knob"></div>
+              <span class="st-lbl t">up</span><span class="st-lbl b">down</span><span class="st-lbl l">⟲</span><span class="st-lbl r">⟳</span></div>
+            <span class="small muted">up/down + twist</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode" id="mode-joints" hidden>
+        <p class="small muted">Drag a bar left or right to turn one joint. Let go to stop.</p>
+        <div class="jogs" id="jogs"></div>
+      </div>
+
+      <div class="speed seg small-seg" id="speedSeg">
+        <button data-speed="0.5">🐢 Slow</button>
+        <button data-speed="1">🐇 Normal</button>
+      </div>
+
+      <div class="card grip">
+        <div class="grip-row">
+          <button class="btn" id="gripClose">✊ Close</button>
+          <input type="range" id="gripSlider" min="0" max="1" step="0.05" value="1" aria-label="gripper opening">
+          <button class="btn" id="gripOpen">🖐️ Open</button>
+        </div>
+      </div>
+      <button class="btn wide" id="readyBtn">🏠 Ready pose</button>
+    </div>
+
+    <!-- ---------------------------------------------------- moves -->
+    <div class="tab" id="tab-moves" data-tab="moves" hidden>
+      <h2>Moves</h2>
+      <p class="lead">Tap one and watch the arm.</p>
+      <div class="moves" id="moves"></div>
+    </div>
+
+    <!-- ---------------------------------------------------- say -->
+    <div class="tab" id="tab-say" data-tab="say" hidden>
+      <h2>Say it</h2>
+      <p class="lead">Tell the arm what to do in your own words.</p>
+      <div class="card sayform">
+        <textarea id="sayText" maxlength="200" rows="2" placeholder="e.g. pretend to be a sleepy cat" enterkeyhint="send"></textarea>
+        <div class="say-foot"><span class="small muted" id="sayCount">0/200</span>
+          <button class="btn primary" id="sayBtn">✨ Do it</button></div>
+      </div>
+      <div class="card sayprog" id="sayProg" hidden>
+        <div class="sp-head"><span class="sp-icon" id="spIcon">🤖</span>
+          <div><div class="sp-stage" id="spStage"></div><div class="sp-text small muted" id="spText"></div></div></div>
+        <div class="meter" id="spMeterWrap" hidden><div class="meter-fill" id="spMeter"></div></div>
+        <p class="sp-note small" id="spNote" hidden></p>
+      </div>
+      <div class="chips" id="sayChips"></div>
+    </div>
+
+    <!-- ---------------------------------------------------- poses -->
+    <div class="tab" id="tab-poses" data-tab="poses" hidden>
+      <h2>My moves</h2>
+      <p class="lead">Drive the arm somewhere, save the pose, repeat. Then play them all as one smooth move.</p>
+      <button class="btn primary big" id="poseSave">📍 Save this pose</button>
+      <ol class="poses" id="poses"></ol>
+      <p class="small muted center" id="posesEmpty">No poses yet. Go to Drive, move the arm, come back and save.</p>
+      <div class="card seqcard" id="seqCard">
+        <div class="label">Play my sequence</div>
+        <div class="row">
+          <button class="btn" id="seqGentle">🌊 Gentle</button>
+          <button class="btn" id="seqLively">⚡ Lively</button>
+        </div>
+        <div class="seqstat" id="seqStat" hidden></div>
+        <ul class="seqnotes" id="seqNotes"></ul>
+        <button class="btn tiny ghost" id="poseClear">Clear all poses</button>
+      </div>
+    </div>
+
+    <!-- ---------------------------------------------------- grab -->
+    <div class="tab" id="tab-grab" data-tab="grab" hidden>
+      <h2>Grab</h2>
+      <p class="lead">Pick where the block is and where it should go.</p>
+      <div class="label">From</div>
+      <div class="spots" id="spotsFrom"></div>
+      <div class="label">To</div>
+      <div class="spots" id="spotsTo"></div>
+      <div class="grab-sum" id="grabSum">Choose a "from" and a "to" spot.</div>
+      <button class="btn primary big" id="grabBtn" disabled>🦾 Grab it</button>
+    </div>
+  </main>
+
+  <footer class="dock">
+    <button class="stop" id="stopBtn">■ STOP</button>
+    <nav class="tabs" id="tabs">
+      <button data-tab="drive"><span>🕹️</span>Drive</button>
+      <button data-tab="moves"><span>💃</span>Moves</button>
+      <button data-tab="say"><span>💬</span>Say it</button>
+      <button data-tab="poses"><span>📍</span>Poses</button>
+      <button data-tab="grab"><span>🦾</span>Grab</button>
+    </nav>
+  </footer>
+</section>
+
+<!-- ============================================================ thanks -->
+<section id="thanks" class="screen thanks" hidden>
+  <div class="confetti" aria-hidden="true">🎉</div>
+  <h1 id="thanksTitle">Thanks for playing!</h1>
+  <p class="sub" id="thanksWhy"></p>
+  <button class="btn primary big" id="againBtn">Join again</button>
+  <button class="btn ghost" id="lobbyBtn">Just watch</button>
+  <p class="safety">⚠️ Stay out of the arm's reach. The staff can stop it any time.</p>
+</section>
+</body>
+</html>
