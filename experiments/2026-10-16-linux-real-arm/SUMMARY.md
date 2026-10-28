@@ -34,7 +34,7 @@ Drive the physical OpenYAM arm from an Ubuntu laptop, interface with it properly
 - The arm can arrive with joint 1 about 180° off home (−3.10 rad, outside the −150° to +180° range). Folded doesn't mean home: probe joint 1 at every session start.
 - Keyboard teleop is Cartesian (Pink IK). From the folded home, j2 and j3 sit *on* their lower limits, so the IK fails ("QP solver did not find a solution") and pushes the wrist into its limit. **Start any Cartesian control from a "ready" pose.**
 - DimOS does **not** check position limits on raw trajectories, so our armctl gate is the only one. Never send single-point targets (they jump at 1 rad/s).
-- The PD control has no gravity feedforward. Expect a steady sag of about 0.03 rad on j2/j3 and about 0.06 rad on the wrist (kp 10), so arrival tolerances must be per joint.
+- ~~The PD control has no gravity feedforward.~~ **Correction 2026-10-28:** DimOS does feed gravity forward (`gravity_comp=True`, pinocchio on `yam_gripper_gravity.urdf`), but the model misses part of the load; see [2026-10-28-laptop-systems-check](../2026-10-28-laptop-systems-check/LOG.md) 12:55. Expect a steady sag of about 0.03 rad on j2/j3 and about 0.06 rad on the wrist (kp 10), so arrival tolerances must be per joint.
 - Repeatability is excellent: repeated runs end within 0.001-0.002 rad of each other.
 - Gripper motor −2.9 rad = fully open (DimOS opens it during startup calibration); about 0 = closed.
 - Motor temperatures stayed at 26-34 °C over about 10 powered sessions.

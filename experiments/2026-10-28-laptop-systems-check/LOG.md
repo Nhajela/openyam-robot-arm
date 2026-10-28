@@ -131,3 +131,12 @@ Every check short of torque passed: CAN link, all 7 motors, deps, 291 unit tests
 - That also explains `grip=1.0` at raw −1.201: the −1.201 came from the probe *before* the coordinator started. After calibration the gripper sat open at −2.91, so 1.0 was a correct measurement. The earlier "commanded default" guess was wrong. armctl's `grip` is the measured DimOS `arm/gripper` value (`armctl/backend.py:1011`). The gripper task has no default target, and nothing moves at shutdown.
 - **Decision (safety):** before every coordinator start, keep hands and objects out of the gripper jaws, because the start-up sweep moves them. Also, a grasped object would be released at start-up. The `DimosBackend` docstring now records the gripper mapping as measured.
 
+### 13:05 Commit, j4 hold test (sim), open play on the sim, parallel agents
+- Committed and pushed `f89c234` to `fork/main`.
+- Corrected the "no gravity feedforward" lines in the 16 Oct SUMMARY.md and LOG.md (left struck through, with a pointer here).
+- **[j4_hold_test.py](j4_hold_test.py):** for j4 at 0, −0.3, +0.3 and +0.7 (j2 0.5, j3 0.8), it does `move_joints`, holds, logs at 10 Hz (daemon q, plus j4 tau and temperatures from the read-only console), then `home`. It prints the model's j4 gravity torque beside the measured error. The model torque is 2.38 / 2.56 / 1.98 / 1.19 N·m for those four poses, so the spread can tell model-proportional sag from a constant offset.
+  - Sim run (`--hold 5`, DimOS sim on 224.0.0.124:7450, daemon :8791): all 4 poses and home OK, errors 0 (the mock arm doesn't sag). [logs/j4-hold-20261028-125124.csv](logs/j4-hold-20261028-125124.csv).
+  - ⏳ Real run: `--console http://127.0.0.1:8090 --hold 120`, about 10 min of torque, only with Naman at the arm.
+- **Open play on the DimOS sim** (window `openplay`, pane `%3`): `.venv/bin/python -m openplay.server --daemon ws://127.0.0.1:8791/armctl --host-ip 192.168.100.191 --turn 300`. It says `Connected to the arm (dimos backend); auto-play off`. Display: http://127.0.0.1:8451. Phones: the QR code, `https://192.168.100.191:8450/?k=...` (self-signed certificate). Log: [logs/openplay-sim.log](logs/openplay-sim.log).
+- **Decision:** three coding agents in separate git worktrees, mock/pytest only, no CAN, no zenoh: (a) a j4/wrist kp/kd override for `armctl.dimos_coordinator`, (b) a flowing spline ease for pose sequences, (c) chess mode in open play.
+

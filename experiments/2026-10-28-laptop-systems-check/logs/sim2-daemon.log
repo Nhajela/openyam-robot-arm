@@ -1,0 +1,55 @@
+07:21:24.502 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 12:51:24 INFO DimosBackend connected: DimOS SIM (mock_whole_body) on 224.0.0.124:7450, coordinator pid 24362, can None; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 12:51:24 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'mock_whole_body'}, 'simulation': True, 'can_port': None, 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.7, 'yam_joint2': 0.7, 'yam_joint3': 0.7, 'yam_joint4': 0.7, 'yam_joint5': 0.7, 'yam_joint6': 0.7}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 24362, 'scout_addr': '224.0.0.124:7450'}
+2026-10-28 12:51:24 INFO armctl armctl/0 on ws://127.0.0.1:8791/armctl (backend dimos)
+2026-10-28 12:51:24 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 12:51:24 INFO [c1 script] hello name='j4-hold-test' from 127.0.0.1
+2026-10-28 12:51:24 INFO [c1 script] acquire (auto-approved)
+2026-10-28 12:51:24 INFO [c1 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:51:25 INFO DimosBackend: move_joints#1 -> DimOS trajectory 51 points (from 501 samples), 5.00 s
+2026-10-28 12:51:25 INFO [c1 script] do move_joints -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.00 s
+2026-10-28 12:51:30 INFO [c1 script] done move_joints (max error 0.0000 rad)
+2026-10-28 12:51:35 INFO DimosBackend: move_joints#2 -> DimOS trajectory 21 points (from 189 samples), 1.88 s
+2026-10-28 12:51:35 INFO [c1 script] do move_joints -> [0.0, 0.5, 0.8, -0.3, 0.0, 0.0] in 1.88 s
+2026-10-28 12:51:37 INFO [c1 script] done move_joints (max error 0.0000 rad)
+2026-10-28 12:51:42 INFO DimosBackend: move_joints#3 -> DimOS trajectory 39 points (from 376 samples), 3.75 s
+2026-10-28 12:51:42 INFO [c1 script] do move_joints -> [0.0, 0.5, 0.8, 0.3, 0.0, 0.0] in 3.75 s
+2026-10-28 12:51:45 INFO [c1 script] done move_joints (max error 0.0000 rad)
+2026-10-28 12:51:51 INFO DimosBackend: move_joints#4 -> DimOS trajectory 26 points (from 251 samples), 2.50 s
+2026-10-28 12:51:51 INFO [c1 script] do move_joints -> [0.0, 0.5, 0.8, 0.7, 0.0, 0.0] in 2.50 s
+2026-10-28 12:51:53 INFO [c1 script] done move_joints (max error 0.0000 rad)
+2026-10-28 12:51:58 INFO DimosBackend: home#5 -> DimOS trajectory 83 points (from 814 samples), 8.13 s
+2026-10-28 12:51:58 INFO [c1 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.13 s
+2026-10-28 12:52:06 INFO [c1 script] done home (max error 0.0000 rad)
+2026-10-28 12:52:06 INFO lease revoked by c1 script (release) (was c1 script); stopped
+2026-10-28 12:52:06 INFO [c1 script] disconnected
+2026-10-28 12:52:23 INFO [c2 openplay] hello name='open play' from 127.0.0.1
+2026-10-28 12:52:23 INFO [c2 openplay] acquire (auto-approved)
+2026-10-28 12:52:23 INFO [c2 openplay] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:54:48 INFO DimosBackend: ready#6 -> DimOS trajectory 51 points (from 501 samples), 5.00 s
+2026-10-28 12:54:48 INFO [c2 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.00 s
+2026-10-28 12:54:53 INFO [c2 openplay] done ready (max error 0.0000 rad)
+2026-10-28 12:54:57 INFO [c2 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 12:55:09 INFO [c2 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:55:18 INFO [c2 openplay] do gripper 0.05
+2026-10-28 12:55:18 INFO [c2 openplay] do gripper 0.35
+2026-10-28 12:55:18 INFO [c2 openplay] do gripper 0.45
+2026-10-28 12:55:18 INFO [c2 openplay] do gripper 0.55
+2026-10-28 12:55:19 INFO [c2 openplay] do gripper 0.70
+2026-10-28 12:55:19 INFO [c2 openplay] do gripper 0.85
+2026-10-28 12:55:19 INFO [c2 openplay] do gripper 1.00
+2026-10-28 12:55:19 INFO [c2 openplay] do gripper 0.95
+2026-10-28 12:55:20 INFO [c2 openplay] do gripper 0.30
+2026-10-28 12:55:20 INFO [c2 openplay] do gripper 0.00
+2026-10-28 12:55:22 INFO [c2 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 12:55:22 INFO [c2 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:55:24 INFO [c2 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 12:55:29 INFO [c2 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:55:34 INFO [c2 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 12:55:39 INFO [c2 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:56:35 INFO [c2 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 12:56:35 INFO [c2 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:56:39 INFO [c2 openplay] do stop
+2026-10-28 12:56:39 INFO DimosBackend: ready#7 -> DimOS trajectory 82 points (from 810 samples), 8.09 s
+2026-10-28 12:56:39 INFO [c2 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 8.09 s
+2026-10-28 12:56:47 INFO [c2 openplay] done ready (max error 0.0000 rad)
