@@ -1,0 +1,119 @@
+08:53:16.655 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 14:23:16 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 84538, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 14:23:16 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 84538, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 14:23:16 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 14:23:16 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 14:23:16 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 14:23:35 INFO [c1 openplay] hello name='open play' from 127.0.0.1
+2026-10-28 14:23:35 INFO [c1 openplay] acquire (auto-approved)
+2026-10-28 14:23:35 INFO [c1 openplay] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 14:26:43 INFO DimosBackend: ready#1 -> DimOS trajectory 51 points (from 501 samples), 5.00 s
+2026-10-28 14:26:43 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.00 s
+2026-10-28 14:26:50 INFO [c1 openplay] done ready (max error 0.0486 rad)
+2026-10-28 14:27:41 INFO [c1 openplay] playable.validate 'grand-reveal': ok
+2026-10-28 14:27:41 INFO [c1 openplay] playable.validate 'grand-reveal': ok
+2026-10-28 14:27:41 INFO [c1 openplay] playable.play 'grand-reveal' (16.3 s): waiting for operator confirmation
+2026-10-28 14:27:41 INFO DimosBackend: playable:grand-reveal#2 -> DimOS trajectory 172 points (from 1684 samples), 16.83 s
+2026-10-28 14:27:41 INFO [c1 openplay] playable 'grand-reveal' confirmed by console: playing 16.8 s
+2026-10-28 14:27:59 INFO [c1 openplay] done playable:grand-reveal (max error 0.0372 rad)
+2026-10-28 14:28:10 INFO DimosBackend: ready#3 -> DimOS trajectory 8 points (from 48 samples), 0.47 s
+2026-10-28 14:28:10 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.47 s
+2026-10-28 14:28:12 INFO [c1 openplay] done ready (max error 0.0532 rad)
+2026-10-28 14:28:19 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 14:28:21 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 14:28:22 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 14:28:23 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 14:28:37 INFO [c1 openplay] playable.validate 'nod': ok
+2026-10-28 14:28:37 INFO [c1 openplay] playable.validate 'nod': ok
+2026-10-28 14:28:37 INFO [c1 openplay] playable.play 'nod' (9.8 s): waiting for operator confirmation
+2026-10-28 14:28:37 INFO DimosBackend: playable:nod#4 -> DimOS trajectory 122 points (from 1038 samples), 10.37 s
+2026-10-28 14:28:37 INFO [c1 openplay] playable 'nod' confirmed by console: playing 10.4 s
+2026-10-28 14:28:49 INFO [c1 openplay] done playable:nod (max error 0.0483 rad)
+2026-10-28 14:28:54 INFO [c1 openplay] playable.validate 'happy-dance': ok
+2026-10-28 14:28:54 INFO [c1 openplay] playable.validate 'happy-dance': ok
+2026-10-28 14:28:54 INFO [c1 openplay] playable.play 'happy-dance' (10.9 s): waiting for operator confirmation
+2026-10-28 14:28:54 INFO DimosBackend: playable:happy-dance#5 -> DimOS trajectory 134 points (from 1144 samples), 11.43 s
+2026-10-28 14:28:54 INFO [c1 openplay] playable 'happy-dance' confirmed by console: playing 11.4 s
+2026-10-28 14:29:07 INFO [c1 openplay] done playable:happy-dance (max error 0.0380 rad)
+2026-10-28 14:29:13 INFO [c1 openplay] playable.validate 'curious-sniff': ok
+2026-10-28 14:29:13 INFO [c1 openplay] playable.validate 'curious-sniff': ok
+2026-10-28 14:29:13 INFO [c1 openplay] playable.play 'curious-sniff' (28.7 s): waiting for operator confirmation
+2026-10-28 14:29:13 INFO DimosBackend: playable:curious-sniff#6 -> DimOS trajectory 315 points (from 2916 samples), 29.15 s
+2026-10-28 14:29:13 INFO [c1 openplay] playable 'curious-sniff' confirmed by console: playing 29.2 s
+2026-10-28 14:29:44 INFO [c1 openplay] done playable:curious-sniff (max error 0.0490 rad)
+2026-10-28 14:29:51 INFO [c1 openplay] playable.validate 'peekaboo': ok
+2026-10-28 14:29:51 INFO [c1 openplay] playable.validate 'peekaboo': ok
+2026-10-28 14:29:51 INFO [c1 openplay] playable.play 'peekaboo' (28.5 s): waiting for operator confirmation
+2026-10-28 14:29:51 INFO DimosBackend: playable:peekaboo#7 -> DimOS trajectory 304 points (from 2901 samples), 29.00 s
+2026-10-28 14:29:51 INFO [c1 openplay] playable 'peekaboo' confirmed by console: playing 29.0 s
+2026-10-28 14:30:22 INFO [c1 openplay] done playable:peekaboo (max error 0.0486 rad)
+2026-10-28 14:30:30 INFO [c1 openplay] playable.validate 'sleepy-stretch': ok
+2026-10-28 14:30:30 INFO [c1 openplay] playable.validate 'sleepy-stretch': ok
+2026-10-28 14:30:30 INFO [c1 openplay] playable.play 'sleepy-stretch' (32.4 s): waiting for operator confirmation
+2026-10-28 14:30:30 INFO DimosBackend: playable:sleepy-stretch#8 -> DimOS trajectory 334 points (from 3292 samples), 32.91 s
+2026-10-28 14:30:30 INFO [c1 openplay] playable 'sleepy-stretch' confirmed by console: playing 32.9 s
+2026-10-28 14:31:04 INFO [c1 openplay] done playable:sleepy-stretch (max error 0.0479 rad)
+2026-10-28 14:31:19 INFO [c1 openplay] do stop
+2026-10-28 14:31:19 INFO DimosBackend: ready#9 -> DimOS trajectory 9 points (from 54 samples), 0.53 s
+2026-10-28 14:31:19 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.53 s
+2026-10-28 14:31:22 INFO [c1 openplay] done ready (max error 0.0559 rad)
+2026-10-28 14:31:58 INFO DimosBackend: ready#10 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 14:31:58 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 14:32:00 INFO [c1 openplay] done ready (max error 0.0555 rad)
+2026-10-28 14:33:01 INFO [c1 openplay] do stop
+2026-10-28 14:33:01 INFO lease revoked by c1 openplay (release) (was c1 openplay); stopped
+2026-10-28 14:33:01 INFO [c1 openplay] disconnected
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_sansio_impl.py", line 409, in run_asgi
+    result = await self.app(self.scope, self.receive, self.send)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1216, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2791, in app
+    await route.handle(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 356, in handle
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 191, in app
+    await wrap_app_handling_exceptions(app, session)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 188, in app
+    await func(session)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 829, in app
+    await dependant.call(**solved_result.values)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 923, in ws_endpoint
+    text = await ws.receive_text()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/websockets.py", line 124, in receive_text
+    raise WebSocketDisconnected('WebSocket is not connected. Need to call "accept" first.')
+starlette.websockets.WebSocketDisconnected: WebSocket is not connected. Need to call "accept" first.
+2026-10-28 14:33:04 INFO [c2 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 14:33:04 INFO [c2 script] acquire (auto-approved)
+2026-10-28 14:33:04 INFO [c2 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 14:33:04 INFO DimosBackend: home#11 -> DimOS trajectory 84 points (from 823 samples), 8.22 s
+2026-10-28 14:33:04 INFO [c2 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.22 s
+2026-10-28 14:33:14 INFO [c2 script] done home (max error 0.0257 rad)
+2026-10-28 14:33:14 INFO lease revoked by c2 script (release) (was c2 script); stopped
+2026-10-28 14:33:14 INFO [c2 script] disconnected

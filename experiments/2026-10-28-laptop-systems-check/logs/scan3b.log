@@ -1,0 +1,38 @@
+backend=dimos start q=[-0.007, 0.484, 0.773, 0.038, 0.002, 0.011]
+-> behind j1=-1.40 [-1.4, 0.9, 1.0, -0.3, 0, 0]
+-> behind j1=-1.75 [-1.75, 0.9, 1.0, -0.3, 0, 0]
+-> behind j1=-2.10 [-2.1, 0.9, 1.0, -0.3, 0, 0]
+-> behind j1=-2.45 [-2.45, 0.9, 1.0, -0.3, 0, 0]
+-> behind j1=+1.40 [1.4, 0.9, 1.0, -0.3, 0, 0]
+-> behind j1=+1.75 [1.75, 0.9, 1.0, -0.3, 0, 0]
+   (verify refused, holding where it got to: move_joints did not reach target: j1 error 0.179 rad > 0.02; stopped)
+-> behind j1=+2.10 [2.1, 0.9, 1.0, -0.3, 0, 0]
+   (verify refused, holding where it got to: move_joints did not reach target: j1 error 0.529 rad > 0.02; stopped)
+-> behind j1=+2.45 [2.45, 0.9, 1.0, -0.3, 0, 0]
+   (verify refused, holding where it got to: internal error: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad)
+-> behind j1=+2.80 [2.8, 0.9, 1.0, -0.3, 0, 0]
+   (verify refused, holding where it got to: internal error: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad)
+-> behind j1=+2.95 [2.95, 0.9, 1.0, -0.3, 0, 0]
+   (verify refused, holding where it got to: internal error: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad)
+wrote 703 frames to experiments/2026-10-28-laptop-systems-check/scan3b-local
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/experiments/2026-10-28-laptop-systems-check/scan_record.py", line 160, in <module>
+    asyncio.run(main(ap.parse_args()))
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/experiments/2026-10-28-laptop-systems-check/scan_record.py", line 138, in main
+    await arm.do("ready", timeout=90)
+  File "/home/naman/openyam-robot-arm/interfaces/client.py", line 146, in do
+    ack = await asyncio.wait_for(fut, 10.0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+interfaces.client.Refused: internal error: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad

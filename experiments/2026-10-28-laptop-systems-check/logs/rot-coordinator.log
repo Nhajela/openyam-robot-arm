@@ -1,0 +1,74 @@
+armctl.dimos_coordinator: mode=REAL can=can0 adapter=openyam_damiao bus=224.0.0.123:7449 tasks=['eef_twist_arm', 'joint_trajectory', 'openyam_gripper'] ik_margin=0.1 joint_vel=0.3 traj_vel_limit=0.5 twist_timeout=0.3 planner=False gains[OVERRIDE j4]: kp=[80,80,80,22,10,10] kd=[5,5,5,2,1.5,1.5]
+REAL ARM: Ctrl-C stops the coordinator but may leave torque on: run tools/disable_all.py after.
+10:49:14.738 [inf][dination/module_coordinator.py] Building the blueprint
+10:49:14.739 [inf][dination/module_coordinator.py] Starting the modules
+10:49:15.254 [inf][ation/worker_manager_python.py] Worker pool started. n_workers=2
+10:49:15.255 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+10:49:16.341 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+10:49:16.350 [inf][dimos/control/coordinator.py  ] ControlCoordinator initialized at 100.0Hz
+10:49:16.351 [inf][/coordination/python_worker.py] Deployed module. module=ArmctlTwistCoordinator module_id=0 worker_id=0
+10:49:16.357 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+10:49:16.431 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+10:49:19.443 [war][e/whole_body/damiao/adapter.py] Clamping Damiao joint feedback at position limit hardware_id=openyam joint=yam_joint2 limit=0.0 value=-0.0005722133211261138
+10:49:19.444 [inf][dimos/control/coordinator.py  ] Added hardware openyam with joints: ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6', 'arm/gripper']
+10:49:20.375 [inf][dimos/control/coordinator.py  ] Added task eef_twist_arm
+10:49:20.375 [inf][ectory_task/trajectory_task.py] JointTrajectoryTask joint_trajectory initialized for joints: ('yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6')
+10:49:20.375 [inf][dimos/control/coordinator.py  ] Added task joint_trajectory
+10:49:20.377 [inf][dimos/control/coordinator.py  ] Added task openyam_gripper
+10:49:20.377 [inf][dimos/control/tick_loop.py    ] TickLoop started at 100.0Hz
+10:49:20.383 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=gripper_command
+10:49:20.383 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=ee_twist_command
+10:49:20.384 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=joint_command
+10:49:20.384 [inf][dimos/control/coordinator.py  ] ControlCoordinator started at 100.0Hz
+10:49:22.369 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 51 points, duration=4.990s
+10:49:27.375 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:49:28.937 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 29 points, duration=2.740s
+10:49:31.696 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:49:34.738 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 24 points, duration=2.150s
+10:49:36.904 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:49:39.957 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 24 points, duration=2.220s
+10:49:42.192 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:49:45.249 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 24 points, duration=2.230s
+10:49:47.491 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:49:50.527 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 22 points, duration=1.940s
+10:49:52.478 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:49:55.539 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 30 points, duration=2.830s
+10:49:58.380 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:50:01.407 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 21 points, duration=1.830s
+10:50:03.245 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:50:06.309 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 24 points, duration=2.220s
+10:50:08.542 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:50:11.558 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 24 points, duration=2.230s
+10:50:13.800 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:50:16.839 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 24 points, duration=2.240s
+10:50:19.088 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:50:22.147 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 25 points, duration=2.400s
+10:50:24.557 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+10:51:03.083 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 39 points, duration=3.750s
+10:51:06.844 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:27:44.848 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 37 points, duration=3.520s
+11:27:48.386 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:27:49.929 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 57 points, duration=5.590s
+11:27:55.521 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:27:59.046 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 15 points, duration=1.350s
+11:28:00.406 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:03.955 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 16 points, duration=1.450s
+11:28:05.413 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:08.966 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 30 points, duration=2.860s
+11:28:11.845 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:15.393 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 17 points, duration=1.490s
+11:28:16.895 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:20.426 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 21 points, duration=1.950s
+11:28:22.385 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:25.945 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 21 points, duration=1.940s
+11:28:27.895 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:31.433 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 21 points, duration=1.960s
+11:28:33.401 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:36.962 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 85 points, duration=8.380s
+11:28:45.358 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:48.891 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 75 points, duration=7.350s
+11:28:56.252 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:28:59.817 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 37 points, duration=3.530s
+11:29:03.352 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+11:36:55.998 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 81 points, duration=7.960s
+11:37:03.969 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory

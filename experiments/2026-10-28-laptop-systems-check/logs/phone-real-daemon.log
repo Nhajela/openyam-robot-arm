@@ -1,0 +1,987 @@
+08:08:30.744 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 13:38:30 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 59463, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 13:38:30 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 59463, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 13:38:30 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 13:38:30 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 13:38:30 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 13:38:32 INFO [c1 openplay] hello name='open play' from 127.0.0.1
+2026-10-28 13:38:32 INFO [c1 openplay] acquire (auto-approved)
+2026-10-28 13:38:32 INFO [c1 openplay] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 13:38:36 INFO [c2 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:38:36 INFO [c2 script] disconnected
+2026-10-28 13:38:55 INFO DimosBackend: ready#1 -> DimOS trajectory 51 points (from 500 samples), 4.99 s
+2026-10-28 13:38:55 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.99 s
+2026-10-28 13:39:02 INFO [c1 openplay] done ready (max error 0.0486 rad)
+2026-10-28 13:39:05 INFO DimosBackend: ready#2 -> DimOS trajectory 9 points (from 54 samples), 0.53 s
+2026-10-28 13:39:05 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.53 s
+2026-10-28 13:39:07 INFO [c1 openplay] done ready (max error 0.0597 rad)
+2026-10-28 13:39:21 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.29 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.28 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.25 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.24 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:23 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.23 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:25 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:26 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:39:29 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:29 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:39:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:32 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:33 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:34 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:39:35 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:36 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:39:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:39 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:40 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:41 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:42 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:43 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:39:57 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:57 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:58 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c3 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:39:59 INFO [c3 script] disconnected
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:39:59 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:00 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:40:03 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:40:03 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:40:15 INFO DimosBackend: home#3 -> DimOS trajectory 107 points (from 1053 samples), 10.52 s
+2026-10-28 13:40:15 INFO [c1 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 10.52 s
+2026-10-28 13:40:27 INFO [c1 openplay] done home (max error 0.0319 rad)
+2026-10-28 13:40:37 INFO DimosBackend: ready#4 -> DimOS trajectory 50 points (from 487 samples), 4.86 s
+2026-10-28 13:40:37 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.86 s
+2026-10-28 13:40:44 INFO [c1 openplay] done ready (max error 0.0486 rad)
+2026-10-28 13:40:44 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:40:50 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:40:50 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:40:58 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:03 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:05 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:05 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:15 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:21 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:30 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:33 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:34 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:34 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:42 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:43 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:47 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.29 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:47 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.28 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:47 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:47 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.25 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:47 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:47 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.24 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:47 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:48 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:49 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:49 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:49 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:49 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:49 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:49 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:49 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:49 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:50 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:50 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:51 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:52 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:53 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:54 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:54 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:54 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:54 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:54 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:54 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:54 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:55 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:56 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:57 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:41:57 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:41:57 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:42:01 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:42:01 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:42:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:01 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:02 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:03 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:04 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:04 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:04 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:04 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:04 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:42:04 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:42:04 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:42:05 INFO DimosBackend: home#5 -> DimOS trajectory 84 points (from 830 samples), 8.29 s
+2026-10-28 13:42:05 INFO [c1 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.29 s
+2026-10-28 13:42:15 INFO [c1 openplay] done home (max error 0.0231 rad)
+2026-10-28 13:42:16 INFO DimosBackend: ready#6 -> DimOS trajectory 50 points (from 487 samples), 4.86 s
+2026-10-28 13:42:16 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.86 s
+2026-10-28 13:42:23 INFO [c1 openplay] done ready (max error 0.0490 rad)
+2026-10-28 13:42:24 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:42:37 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:42:37 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:42:45 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:42:47 INFO [c1 openplay] do gripper 0.95
+2026-10-28 13:42:48 INFO [c1 openplay] do gripper 0.55
+2026-10-28 13:42:48 INFO [c1 openplay] do gripper 0.40
+2026-10-28 13:42:48 INFO [c1 openplay] do gripper 0.35
+2026-10-28 13:42:48 INFO [c1 openplay] do gripper 0.40
+2026-10-28 13:42:49 INFO [c1 openplay] do gripper 0.85
+2026-10-28 13:42:49 INFO [c1 openplay] do gripper 1.00
+2026-10-28 13:42:49 INFO [c1 openplay] do gripper 0.95
+2026-10-28 13:42:50 INFO [c1 openplay] do gripper 0.75
+2026-10-28 13:42:50 INFO [c1 openplay] do gripper 0.45
+2026-10-28 13:42:50 INFO [c1 openplay] do gripper 0.25
+2026-10-28 13:42:50 INFO [c1 openplay] do gripper 0.20
+2026-10-28 13:42:51 INFO [c1 openplay] do gripper 0.40
+2026-10-28 13:42:51 INFO [c1 openplay] do gripper 0.80
+2026-10-28 13:42:51 INFO [c1 openplay] do gripper 0.95
+2026-10-28 13:42:52 INFO [c1 openplay] do gripper 1.00
+2026-10-28 13:42:52 INFO [c1 openplay] do gripper 0.95
+2026-10-28 13:42:52 INFO [c1 openplay] do gripper 0.85
+2026-10-28 13:42:53 INFO [c1 openplay] do gripper 0.90
+2026-10-28 13:42:53 INFO [c1 openplay] do gripper 1.00
+2026-10-28 13:42:54 INFO [c1 openplay] do gripper 0.95
+2026-10-28 13:42:54 INFO [c1 openplay] do gripper 0.85
+2026-10-28 13:42:54 INFO [c1 openplay] do gripper 0.75
+2026-10-28 13:42:54 INFO [c1 openplay] do gripper 0.65
+2026-10-28 13:42:55 INFO [c1 openplay] do gripper 0.55
+2026-10-28 13:42:55 INFO [c1 openplay] do gripper 0.50
+2026-10-28 13:42:55 INFO [c1 openplay] do gripper 0.50
+2026-10-28 13:42:59 INFO [c1 openplay] do gripper 0.80
+2026-10-28 13:42:59 INFO [c1 openplay] do gripper 1.00
+2026-10-28 13:42:59 INFO [c1 openplay] do gripper 1.00
+2026-10-28 13:43:13 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:43:21 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.28 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.25 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.24 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:22 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.22 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.21 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.20 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:23 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:24 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:25 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.19 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:26 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:27 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:28 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:28 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:28 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:28 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:43:28 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:43:28 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:28 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:28 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:28 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:29 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:30 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:31 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:31 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:43:31 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:43:33 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:34 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:35 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:36 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:37 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.18 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 13:43:38 INFO [c1 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-28 13:43:38 INFO [c1 openplay] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 13:44:38 INFO [c1 openplay] do stop
+2026-10-28 13:44:38 INFO DimosBackend: ready#7 -> DimOS trajectory 29 points (from 272 samples), 2.71 s
+2026-10-28 13:44:38 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.71 s
+2026-10-28 13:44:42 INFO [c1 openplay] done ready (max error 0.0380 rad)
+2026-10-28 13:44:51 INFO [c4 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:44:51 INFO [c4 script] disconnected
+2026-10-28 13:46:15 INFO [c1 openplay] playable.validate 'shimmy': ok
+2026-10-28 13:46:29 INFO [c1 openplay] playable.validate 'shimmy': ok
+2026-10-28 13:46:29 INFO [c1 openplay] playable.play 'shimmy' (11.6 s): waiting for operator confirmation
+2026-10-28 13:46:29 INFO DimosBackend: playable:shimmy#8 -> DimOS trajectory 133 points (from 1206 samples), 12.05 s
+2026-10-28 13:46:29 INFO [c1 openplay] playable 'shimmy' confirmed by console: playing 12.1 s
+2026-10-28 13:46:42 INFO [c1 openplay] done playable:shimmy (max error 0.0360 rad)
+2026-10-28 13:47:42 INFO [c1 openplay] do stop
+2026-10-28 13:47:42 INFO DimosBackend: ready#9 -> DimOS trajectory 8 points (from 47 samples), 0.46 s
+2026-10-28 13:47:42 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.46 s
+2026-10-28 13:47:44 INFO [c1 openplay] done ready (max error 0.0540 rad)
+2026-10-28 13:48:49 INFO DimosBackend: ready#10 -> DimOS trajectory 9 points (from 59 samples), 0.58 s
+2026-10-28 13:48:49 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.58 s
+2026-10-28 13:48:52 INFO [c1 openplay] done ready (max error 0.0536 rad)
+2026-10-28 13:48:52 INFO DimosBackend: ready#11 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:48:52 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:48:54 INFO [c1 openplay] done ready (max error 0.0566 rad)
+2026-10-28 13:48:54 INFO DimosBackend: ready#12 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:48:54 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:48:56 INFO [c1 openplay] done ready (max error 0.0566 rad)
+2026-10-28 13:48:56 INFO DimosBackend: ready#13 -> DimOS trajectory 9 points (from 59 samples), 0.58 s
+2026-10-28 13:48:56 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.58 s
+2026-10-28 13:48:58 INFO [c1 openplay] done ready (max error 0.0563 rad)
+2026-10-28 13:48:58 INFO DimosBackend: ready#14 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:48:58 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:49:01 INFO [c1 openplay] done ready (max error 0.0563 rad)
+2026-10-28 13:49:01 INFO DimosBackend: ready#15 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:49:01 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:49:03 INFO [c1 openplay] done ready (max error 0.0563 rad)
+2026-10-28 13:49:03 INFO DimosBackend: ready#16 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:49:03 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:49:05 INFO [c1 openplay] done ready (max error 0.0528 rad)
+2026-10-28 13:49:05 INFO DimosBackend: ready#17 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:49:05 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:49:07 INFO [c1 openplay] done ready (max error 0.0563 rad)
+2026-10-28 13:49:07 INFO DimosBackend: ready#18 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:49:07 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:49:10 INFO [c1 openplay] done ready (max error 0.0528 rad)
+2026-10-28 13:49:10 INFO DimosBackend: ready#19 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:49:10 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:49:12 INFO [c1 openplay] done ready (max error 0.0536 rad)
+2026-10-28 13:49:12 INFO DimosBackend: ready#20 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:49:12 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:49:14 INFO [c1 openplay] done ready (max error 0.0532 rad)
+2026-10-28 13:49:14 INFO DimosBackend: ready#21 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:49:14 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:49:16 INFO [c1 openplay] done ready (max error 0.0536 rad)
+2026-10-28 13:49:16 INFO DimosBackend: ready#22 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:49:16 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:49:19 INFO [c1 openplay] done ready (max error 0.0532 rad)
+2026-10-28 13:49:19 INFO DimosBackend: ready#23 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:49:19 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:49:21 INFO [c1 openplay] done ready (max error 0.0566 rad)
+2026-10-28 13:49:21 INFO DimosBackend: ready#24 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:49:21 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:49:23 INFO [c1 openplay] done ready (max error 0.0532 rad)
+2026-10-28 13:49:23 INFO DimosBackend: ready#25 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:49:23 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:49:25 INFO [c1 openplay] done ready (max error 0.0563 rad)
+2026-10-28 13:49:25 INFO DimosBackend: ready#26 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:49:25 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:49:28 INFO [c1 openplay] done ready (max error 0.0498 rad)
+2026-10-28 13:49:49 INFO [c1 openplay] playable.validate 'wave-hello': ok
+2026-10-28 13:49:55 INFO [c1 openplay] playable.validate 'wave-hello': ok
+2026-10-28 13:49:55 INFO [c1 openplay] playable.play 'wave-hello' (12.4 s): waiting for operator confirmation
+2026-10-28 13:49:55 INFO DimosBackend: playable:wave-hello#27 -> DimOS trajectory 145 points (from 1295 samples), 12.94 s
+2026-10-28 13:49:55 INFO [c1 openplay] playable 'wave-hello' confirmed by console: playing 12.9 s
+2026-10-28 13:50:06 INFO [c1 openplay] do stop
+2026-10-28 13:50:09 INFO [c1 openplay] playable.validate 'robot-dance': ok
+2026-10-28 13:50:09 INFO [c1 openplay] playable.validate 'robot-dance': ok
+2026-10-28 13:50:09 INFO [c1 openplay] REFUSED playable.play: playable path leaves the envelope: j1 velocity 0.563 rad/s at t=7.53 s > cap 0.300 rad/s (224 samples over); j3 velocity 0.477 rad/s at t=4.08 s > cap 0.300 rad/s (198 samples over); j4 velocity 0.550 rad/s at t=5.70 s > cap 0.300 rad/s (159 samples over); j6 velocity 0.563 rad/s at t=9.46 s > cap 0.300 rad/s (220 samples over); j1 acceleration 1.600 rad/s^2 at t=1.88 s > cap 1.000 rad/s^2 (108 samples over); j3 acceleration 1.800 rad/s^2 at t=4.62 s > cap 1.000 rad/s^2 (148 samples over); j4 acceleration 1.600 rad/s^2 at t=3.23 s > cap 1.000 rad/s^2 (78 samples over); j6 acceleration 1.500 rad/s^2 at t=8.67 s > cap 1.000 rad/s^2 (80 samples over)
+2026-10-28 13:50:16 INFO [c1 openplay] playable.validate 'disco-point': ok
+2026-10-28 13:50:16 INFO [c1 openplay] playable.validate 'disco-point': ok
+2026-10-28 13:50:16 INFO [c1 openplay] REFUSED playable.play: playable path leaves the envelope: j1 velocity 0.564 rad/s at t=6.57 s > cap 0.300 rad/s (585 samples over); j2 velocity 0.563 rad/s at t=17.68 s > cap 0.300 rad/s (335 samples over); j3 velocity 0.560 rad/s at t=1.84 s > cap 0.300 rad/s (830 samples over); j4 velocity 0.422 rad/s at t=6.57 s > cap 0.300 rad/s (567 samples over); j6 velocity 0.321 rad/s at t=4.08 s > cap 0.300 rad/s (108 samples over); j4 acceleration 1.800 rad/s^2 at t=3.75 s > cap 1.000 rad/s^2 (185 samples over); j6 acceleration 1.800 rad/s^2 at t=4.44 s > cap 1.000 rad/s^2 (183 samples over)
+2026-10-28 13:50:18 INFO [c1 openplay] playable.validate 'high-five-offer': ok
+2026-10-28 13:50:18 INFO [c1 openplay] playable.validate 'high-five-offer': ok
+2026-10-28 13:50:18 INFO [c1 openplay] REFUSED playable.play: playable path leaves the envelope: j2 velocity 0.534 rad/s at t=1.43 s > cap 0.300 rad/s (430 samples over); j3 velocity 0.560 rad/s at t=1.47 s > cap 0.300 rad/s (402 samples over); j4 velocity 0.429 rad/s at t=4.96 s > cap 0.300 rad/s (127 samples over); j6 velocity 0.429 rad/s at t=6.01 s > cap 0.300 rad/s (171 samples over); j2 acceleration 1.600 rad/s^2 at t=10.99 s > cap 1.000 rad/s^2 (53 samples over); j4 acceleration 1.600 rad/s^2 at t=4.45 s > cap 1.000 rad/s^2 (96 samples over); j6 acceleration 1.600 rad/s^2 at t=5.51 s > cap 1.000 rad/s^2 (130 samples over)
+2026-10-28 13:50:19 INFO [c1 openplay] playable.validate 'high-five-offer': ok
+2026-10-28 13:50:19 INFO [c1 openplay] playable.validate 'high-five-offer': ok
+2026-10-28 13:50:19 INFO [c1 openplay] REFUSED playable.play: playable path leaves the envelope: j2 velocity 0.534 rad/s at t=1.43 s > cap 0.300 rad/s (430 samples over); j3 velocity 0.560 rad/s at t=1.47 s > cap 0.300 rad/s (402 samples over); j4 velocity 0.429 rad/s at t=4.96 s > cap 0.300 rad/s (127 samples over); j6 velocity 0.429 rad/s at t=6.01 s > cap 0.300 rad/s (171 samples over); j2 acceleration 1.600 rad/s^2 at t=10.99 s > cap 1.000 rad/s^2 (53 samples over); j4 acceleration 1.600 rad/s^2 at t=4.45 s > cap 1.000 rad/s^2 (96 samples over); j6 acceleration 1.600 rad/s^2 at t=5.51 s > cap 1.000 rad/s^2 (130 samples over)
+2026-10-28 13:50:21 INFO [c1 openplay] do stop
+2026-10-28 13:50:25 INFO [c1 openplay] playable.validate 'peekaboo': ok
+2026-10-28 13:50:25 INFO [c1 openplay] playable.validate 'peekaboo': ok
+2026-10-28 13:50:25 INFO [c1 openplay] REFUSED playable.play: playable path leaves the envelope: j1 velocity 0.341 rad/s at t=17.76 s > cap 0.300 rad/s (38 samples over); j3 velocity 0.477 rad/s at t=17.74 s > cap 0.300 rad/s (554 samples over); j4 velocity 0.555 rad/s at t=8.43 s > cap 0.300 rad/s (814 samples over); j5 velocity 0.341 rad/s at t=17.76 s > cap 0.300 rad/s (38 samples over); j1 acceleration 1.300 rad/s^2 at t=17.21 s > cap 1.000 rad/s^2 (16 samples over); j3 acceleration 1.800 rad/s^2 at t=17.21 s > cap 1.000 rad/s^2 (44 samples over); j4 acceleration 1.700 rad/s^2 at t=3.43 s > cap 1.000 rad/s^2 (213 samples over); j5 acceleration 1.300 rad/s^2 at t=17.21 s > cap 1.000 rad/s^2 (16 samples over)
+2026-10-28 13:50:30 INFO [c1 openplay] playable.validate 'peekaboo': ok
+2026-10-28 13:50:30 INFO [c1 openplay] playable.validate 'peekaboo': ok
+2026-10-28 13:50:30 INFO [c1 openplay] REFUSED playable.play: playable path leaves the envelope: j1 velocity 0.341 rad/s at t=17.76 s > cap 0.300 rad/s (38 samples over); j3 velocity 0.477 rad/s at t=17.74 s > cap 0.300 rad/s (554 samples over); j4 velocity 0.555 rad/s at t=8.43 s > cap 0.300 rad/s (814 samples over); j5 velocity 0.341 rad/s at t=17.76 s > cap 0.300 rad/s (38 samples over); j1 acceleration 1.300 rad/s^2 at t=17.21 s > cap 1.000 rad/s^2 (16 samples over); j3 acceleration 1.800 rad/s^2 at t=17.21 s > cap 1.000 rad/s^2 (44 samples over); j4 acceleration 1.700 rad/s^2 at t=3.43 s > cap 1.000 rad/s^2 (213 samples over); j5 acceleration 1.300 rad/s^2 at t=17.21 s > cap 1.000 rad/s^2 (16 samples over)
+2026-10-28 13:50:37 INFO DimosBackend: home#28 -> DimOS trajectory 100 points (from 984 samples), 9.83 s
+2026-10-28 13:50:37 INFO [c1 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 9.83 s
+2026-10-28 13:50:49 INFO [c1 openplay] done home (max error 0.0223 rad)
+2026-10-28 13:50:50 INFO DimosBackend: ready#29 -> DimOS trajectory 50 points (from 488 samples), 4.87 s
+2026-10-28 13:50:50 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.87 s
+2026-10-28 13:50:57 INFO [c1 openplay] done ready (max error 0.0486 rad)
+2026-10-28 13:50:59 INFO [c1 openplay] playable.validate 'shake-no': ok
+2026-10-28 13:50:59 INFO [c1 openplay] playable.validate 'shake-no': ok
+2026-10-28 13:50:59 INFO [c1 openplay] REFUSED playable.play: playable path leaves the envelope: j1 velocity 0.563 rad/s at t=2.88 s > cap 0.300 rad/s (552 samples over); j3 velocity 0.429 rad/s at t=0.51 s > cap 0.300 rad/s (78 samples over); j4 velocity 0.477 rad/s at t=10.41 s > cap 0.300 rad/s (113 samples over); j5 velocity 0.450 rad/s at t=2.88 s > cap 0.300 rad/s (419 samples over); j1 acceleration 1.800 rad/s^2 at t=7.77 s > cap 1.000 rad/s^2 (294 samples over); j3 acceleration 1.600 rad/s^2 at t=0.00 s > cap 1.000 rad/s^2 (52 samples over); j4 acceleration 1.800 rad/s^2 at t=9.86 s > cap 1.000 rad/s^2 (78 samples over); j5 acceleration 1.400 rad/s^2 at t=6.54 s > cap 1.000 rad/s^2 (146 samples over)
+2026-10-28 13:51:30 INFO [c1 openplay] do stop
+2026-10-28 13:51:30 INFO DimosBackend: ready#30 -> DimOS trajectory 9 points (from 54 samples), 0.53 s
+2026-10-28 13:51:30 INFO [c1 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.53 s
+2026-10-28 13:51:32 INFO [c1 openplay] done ready (max error 0.0566 rad)
+2026-10-28 13:51:55 INFO [c1 openplay] do stop
+2026-10-28 13:51:55 INFO lease revoked by c1 openplay (release) (was c1 openplay); stopped
+2026-10-28 13:51:55 INFO [c1 openplay] disconnected
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_sansio_impl.py", line 409, in run_asgi
+    result = await self.app(self.scope, self.receive, self.send)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1216, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2791, in app
+    await route.handle(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 356, in handle
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 191, in app
+    await wrap_app_handling_exceptions(app, session)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 188, in app
+    await func(session)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 829, in app
+    await dependant.call(**solved_result.values)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 923, in ws_endpoint
+    text = await ws.receive_text()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/websockets.py", line 124, in receive_text
+    raise WebSocketDisconnected('WebSocket is not connected. Need to call "accept" first.')
+starlette.websockets.WebSocketDisconnected: WebSocket is not connected. Need to call "accept" first.
+2026-10-28 13:51:59 INFO [c5 openplay] hello name='open play' from 127.0.0.1
+2026-10-28 13:51:59 INFO [c5 openplay] acquire (auto-approved)
+2026-10-28 13:51:59 INFO [c5 openplay] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 13:52:01 INFO [c6 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:52:01 INFO [c6 script] disconnected
+2026-10-28 13:52:33 INFO DimosBackend: ready#31 -> DimOS trajectory 9 points (from 59 samples), 0.58 s
+2026-10-28 13:52:33 INFO [c5 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.58 s
+2026-10-28 13:52:35 INFO [c5 openplay] done ready (max error 0.0536 rad)
+2026-10-28 13:52:35 INFO DimosBackend: ready#32 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-28 13:52:35 INFO [c5 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.56 s
+2026-10-28 13:52:37 INFO [c5 openplay] done ready (max error 0.0563 rad)
+2026-10-28 13:52:37 INFO DimosBackend: ready#33 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:52:37 INFO [c5 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:52:39 INFO [c5 openplay] done ready (max error 0.0563 rad)
+2026-10-28 13:52:39 INFO DimosBackend: ready#34 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-28 13:52:39 INFO [c5 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.57 s
+2026-10-28 13:52:41 INFO [c5 openplay] done ready (max error 0.0563 rad)
+2026-10-28 13:52:42 INFO DimosBackend: ready#35 -> DimOS trajectory 9 points (from 59 samples), 0.58 s
+2026-10-28 13:52:42 INFO [c5 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.58 s
+2026-10-28 13:52:44 INFO [c5 openplay] done ready (max error 0.0498 rad)
+2026-10-28 13:53:23 INFO [c5 openplay] playable.validate 'wave-hello': ok
+2026-10-28 13:53:23 INFO [c5 openplay] playable.validate 'wave-hello': ok
+2026-10-28 13:53:23 INFO [c5 openplay] playable.play 'wave-hello' (12.4 s): waiting for operator confirmation
+2026-10-28 13:53:23 INFO DimosBackend: playable:wave-hello#36 -> DimOS trajectory 145 points (from 1295 samples), 12.94 s
+2026-10-28 13:53:23 INFO [c5 openplay] playable 'wave-hello' confirmed by console: playing 12.9 s
+2026-10-28 13:53:34 INFO [c5 openplay] do stop
+2026-10-28 13:53:36 INFO [c5 openplay] playable.validate 'nod': ok
+2026-10-28 13:53:36 INFO [c5 openplay] playable.validate 'nod': ok
+2026-10-28 13:53:37 INFO [c5 openplay] playable.play 'nod' (9.8 s): waiting for operator confirmation
+2026-10-28 13:53:37 INFO DimosBackend: playable:nod#37 -> DimOS trajectory 131 points (from 1128 samples), 11.27 s
+2026-10-28 13:53:37 INFO [c5 openplay] playable 'nod' confirmed by console: playing 11.3 s
+2026-10-28 13:53:47 INFO [c5 openplay] do stop
+2026-10-28 13:54:14 INFO [c5 openplay] do stop
+2026-10-28 13:54:14 INFO DimosBackend: ready#38 -> DimOS trajectory 11 points (from 72 samples), 0.71 s
+2026-10-28 13:54:14 INFO [c5 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.71 s
+2026-10-28 13:54:16 INFO [c5 openplay] done ready (max error 0.0479 rad)
+2026-10-28 13:55:44 INFO [c5 openplay] playable.validate 'cha-cha-slide': ok
+2026-10-28 13:55:44 INFO [c5 openplay] playable.validate 'cha-cha-slide': ok
+2026-10-28 13:55:44 INFO [c5 openplay] playable.play 'cha-cha-slide' (11.7 s): waiting for operator confirmation
+2026-10-28 13:55:44 INFO DimosBackend: playable:cha-cha-slide#39 -> DimOS trajectory 137 points (from 1224 samples), 12.23 s
+2026-10-28 13:55:44 INFO [c5 openplay] playable 'cha-cha-slide' confirmed by console: playing 12.2 s
+2026-10-28 13:55:58 INFO [c5 openplay] done playable:cha-cha-slide (max error 0.0444 rad)
+2026-10-28 13:56:00 INFO [c5 openplay] do stop
+2026-10-28 13:56:08 INFO [c5 openplay] playable.validate 'robot-dance': ok
+2026-10-28 13:56:08 INFO [c5 openplay] playable.validate 'robot-dance': ok
+2026-10-28 13:56:08 INFO [c5 openplay] playable.play 'robot-dance' (27.5 s): waiting for operator confirmation
+2026-10-28 13:56:08 INFO DimosBackend: playable:robot-dance#40 -> DimOS trajectory 296 points (from 2800 samples), 27.99 s
+2026-10-28 13:56:08 INFO [c5 openplay] playable 'robot-dance' confirmed by console: playing 28.0 s
+2026-10-28 13:56:29 INFO [c5 openplay] do stop
+2026-10-28 13:56:31 INFO [c5 openplay] playable.validate 'conductor': ok
+2026-10-28 13:56:31 INFO [c5 openplay] playable.validate 'conductor': ok
+2026-10-28 13:56:31 INFO [c5 openplay] REFUSED playable.play: playable path leaves the envelope: j1 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over); j5 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over)
+2026-10-28 13:56:39 INFO [c5 openplay] playable.validate 'conductor': ok
+2026-10-28 13:56:39 INFO [c5 openplay] playable.validate 'conductor': ok
+2026-10-28 13:56:39 INFO [c5 openplay] REFUSED playable.play: playable path leaves the envelope: j1 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over); j5 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over)
+2026-10-28 13:56:50 INFO [c5 openplay] playable.validate 'curious-sniff': ok
+2026-10-28 13:56:50 INFO [c5 openplay] playable.validate 'curious-sniff': ok
+2026-10-28 13:56:50 INFO [c5 openplay] playable.play 'curious-sniff' (28.7 s): waiting for operator confirmation
+2026-10-28 13:56:50 INFO DimosBackend: playable:curious-sniff#41 -> DimOS trajectory 339 points (from 3171 samples), 31.70 s
+2026-10-28 13:56:50 INFO [c5 openplay] playable 'curious-sniff' confirmed by console: playing 31.7 s
+2026-10-28 13:57:16 INFO [c5 openplay] do stop
+2026-10-28 13:57:18 INFO [c5 openplay] playable.validate 'conductor': ok
+2026-10-28 13:57:18 INFO [c5 openplay] playable.validate 'conductor': ok
+2026-10-28 13:57:18 INFO [c5 openplay] REFUSED playable.play: playable path leaves the envelope: j1 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over); j5 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over)
+2026-10-28 13:57:24 INFO [c5 openplay] playable.validate 'conductor': ok
+2026-10-28 13:57:24 INFO [c5 openplay] playable.validate 'conductor': ok
+2026-10-28 13:57:24 INFO [c5 openplay] REFUSED playable.play: playable path leaves the envelope: j1 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over); j5 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over)
+2026-10-28 13:58:00 INFO [c5 openplay] do stop
+2026-10-28 13:58:00 INFO lease revoked by c5 openplay (release) (was c5 openplay); stopped
+2026-10-28 13:58:00 INFO [c5 openplay] disconnected
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_sansio_impl.py", line 409, in run_asgi
+    result = await self.app(self.scope, self.receive, self.send)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1216, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2791, in app
+    await route.handle(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 356, in handle
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 191, in app
+    await wrap_app_handling_exceptions(app, session)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 188, in app
+    await func(session)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 829, in app
+    await dependant.call(**solved_result.values)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 923, in ws_endpoint
+    text = await ws.receive_text()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/websockets.py", line 124, in receive_text
+    raise WebSocketDisconnected('WebSocket is not connected. Need to call "accept" first.')
+starlette.websockets.WebSocketDisconnected: WebSocket is not connected. Need to call "accept" first.
+2026-10-28 13:58:03 INFO [c7 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:58:03 INFO [c7 script] acquire (auto-approved)
+2026-10-28 13:58:03 INFO [c7 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 13:58:03 INFO DimosBackend: home#42 -> DimOS trajectory 114 points (from 1127 samples), 11.26 s
+2026-10-28 13:58:03 INFO [c7 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 11.26 s
+2026-10-28 13:58:16 INFO [c7 script] done home (max error 0.0315 rad)
+2026-10-28 13:58:16 INFO lease revoked by c7 script (release) (was c7 script); stopped
+2026-10-28 13:58:16 INFO [c7 script] disconnected

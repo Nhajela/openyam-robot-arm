@@ -1,0 +1,10 @@
+backend=dimos start q=[-0.002, 0.0, 0.003, 0.021, 0.02, 0.011]
+-> right-mid [-0.4049, 1.6986, 1.5921, -1.4623, -0.0, 0.0]
+-> right-near [-0.7359, 1.6626, 1.5538, -1.4611, 0.0019, 0.0]
+-> right-far [-0.5317, 2.0547, 1.9781, -1.4894, -0.0, 0.0]
+-> centre-far [-0.1749, 1.8538, 1.7032, -1.4198, -0.0003, 0.0]
+   (verify refused, holding where it got to: move_joints did not reach target: j2 error 0.053 rad > 0.05; stopped)
+-> centre-near [-0.1797, 1.3996, 1.301, -1.4736, 0.0, 0.0]
+-> left-mid [0.1421, 1.6157, 1.5021, -1.4558, 0.0, 0.0]
+-> right-mid-low [-0.405, 1.697, 1.3537, -1.2267, 0.0, 0.0]
+wrote 575 frames to experiments/2026-10-28-laptop-systems-check/scan1-local

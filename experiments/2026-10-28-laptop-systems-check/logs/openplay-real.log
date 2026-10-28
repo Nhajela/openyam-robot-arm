@@ -1,0 +1,224 @@
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8091/armctl, turn 600 s, auto-play off)
+13:38:32 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+13:38:32 INFO openplay operator: Open play has the arm
+13:38:55 INFO openplay join: Naman joined the queue
+13:38:55 INFO openplay operator: Getting the arm ready
+13:39:02 INFO openplay turn: Naman's turn
+13:44:38 INFO openplay turn_end: Naman's turn is over (no moves for a while)
+13:45:10 INFO openplay join: Naman joined the queue
+13:45:10 INFO openplay turn: Naman's turn
+13:46:00 INFO openplay say: Naman asked: "Do a shimmy"
+13:46:00 INFO openplay say: Claude is choreographing…
+13:46:15 INFO httpx2 HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+13:46:15 INFO openplay say: Do a shimmy is waiting for the operator
+13:46:29 INFO openplay operator: Operator approved Do a shimmy
+13:46:29 INFO openplay say: Playing Do a shimmy (12 s)
+13:47:42 INFO openplay turn_end: Naman's turn is over (no moves for a while)
+13:48:49 INFO openplay join: Player 1 joined the queue
+13:48:49 INFO openplay operator: Getting the arm ready
+13:48:52 INFO openplay operator: Getting the arm ready
+13:48:54 INFO openplay operator: Getting the arm ready
+13:48:56 INFO openplay operator: Getting the arm ready
+13:48:58 INFO openplay operator: Getting the arm ready
+13:49:01 INFO openplay operator: Getting the arm ready
+13:49:03 INFO openplay operator: Getting the arm ready
+13:49:05 INFO openplay operator: Getting the arm ready
+13:49:07 INFO openplay operator: Getting the arm ready
+13:49:10 INFO openplay operator: Getting the arm ready
+13:49:12 INFO openplay operator: Getting the arm ready
+13:49:14 INFO openplay operator: Getting the arm ready
+13:49:16 INFO openplay operator: Getting the arm ready
+13:49:19 INFO openplay operator: Getting the arm ready
+13:49:21 INFO openplay operator: Getting the arm ready
+13:49:23 INFO openplay operator: Getting the arm ready
+13:49:25 INFO openplay operator: Getting the arm ready
+13:49:28 INFO openplay turn: Player 1's turn
+13:49:49 INFO openplay move: Wave hello is waiting for the operator
+13:49:55 INFO openplay operator: Operator approved Wave hello
+13:49:55 INFO openplay move: Playing Wave hello (12 s)
+13:49:56 INFO openplay operator: Auto-play on: moves play without approval
+13:50:06 INFO openplay stop: Player 1 pressed stop
+13:50:09 INFO openplay move: Playing Robot dance (18 s)
+13:50:16 INFO openplay move: Playing Disco point (19 s)
+13:50:18 INFO openplay move: Playing High five? (15 s)
+13:50:19 INFO openplay move: Playing High five? (15 s)
+13:50:21 INFO openplay stop: Player 1 pressed stop
+13:50:25 INFO openplay move: Playing Peekaboo (18 s)
+13:50:30 INFO openplay move: Playing Peekaboo (18 s)
+13:50:59 INFO openplay move: Playing No no no (12 s)
+13:51:30 INFO openplay turn_end: Player 1's turn is over (left)
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8091/armctl, turn 600 s, auto-play off)
+13:51:59 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+13:51:59 INFO openplay operator: Open play has the arm
+13:52:08 INFO openplay operator: Auto-play on: moves play without approval
+13:52:32 INFO openplay join: Player 1 joined the queue
+13:52:33 INFO openplay operator: Getting the arm ready
+13:52:35 INFO openplay operator: Getting the arm ready
+13:52:37 INFO openplay operator: Getting the arm ready
+13:52:39 INFO openplay operator: Getting the arm ready
+13:52:42 INFO openplay operator: Getting the arm ready
+13:52:44 INFO openplay turn: Player 1's turn
+13:53:23 INFO openplay move: Playing Wave hello (12 s)
+13:53:34 INFO openplay stop: Player 1 pressed stop
+13:53:36 INFO openplay move: Playing Nod yes (10 s)
+13:53:47 INFO openplay stop: Player 1 pressed stop
+13:54:14 INFO openplay turn_end: Player 1's turn is over (left)
+13:55:01 INFO openplay join: Player 1 joined the queue
+13:55:01 INFO openplay turn: Player 1's turn
+13:55:25 INFO openplay say: Player 1 asked: "Do the cha cha slide"
+13:55:25 INFO openplay say: Claude is choreographing…
+13:55:44 INFO httpx2 HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+13:55:44 INFO openplay say: Playing Do the cha cha slide (12 s)
+13:56:00 INFO openplay stop: Player 1 pressed stop
+13:56:08 INFO openplay move: Playing Robot dance (28 s)
+13:56:29 INFO openplay stop: Player 1 pressed stop
+13:56:31 INFO openplay move: Playing Conductor (27 s)
+13:56:39 INFO openplay move: Playing Conductor (27 s)
+13:56:50 INFO openplay move: Playing Curious sniff (29 s)
+13:57:16 INFO openplay stop: Player 1 pressed stop
+13:57:18 INFO openplay move: Playing Conductor (27 s)
+13:57:24 INFO openplay move: Playing Conductor (27 s)
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8091/armctl, turn 600 s, auto-play off)
+13:59:15 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+13:59:15 INFO openplay operator: Open play has the arm
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8091/armctl, turn 600 s, auto-play off)
+14:23:35 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+14:23:35 INFO openplay operator: Open play has the arm
+14:26:43 INFO openplay join: Naman joined the queue
+14:26:43 INFO openplay operator: Getting the arm ready
+14:26:50 INFO openplay turn: Naman's turn
+14:27:26 INFO openplay say: Naman asked: "Show me the coolest thing you can do"
+14:27:26 INFO openplay say: Claude is choreographing…
+14:27:30 INFO openplay operator: Auto-play on: moves play without approval
+14:27:41 INFO httpx2 HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+14:27:41 INFO openplay say: Playing Show me the coolest thing you… (16 s)
+14:28:37 INFO openplay move: Playing Nod yes (10 s)
+14:28:54 INFO openplay move: Playing Happy dance (11 s)
+14:29:13 INFO openplay move: Playing Curious sniff (29 s)
+14:29:51 INFO openplay move: Playing Peekaboo (28 s)
+14:30:30 INFO openplay move: Playing Sleepy stretch (32 s)
+14:31:19 INFO openplay turn_end: Naman's turn is over (left)
+14:31:57 INFO openplay join: Naman joined the queue
+14:31:58 INFO openplay operator: Getting the arm ready
+14:31:58 INFO openplay leave: Naman left
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8091/armctl, turn 600 s, auto-play off)
+17:21:44 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+17:21:44 INFO openplay operator: Open play has the arm
+17:23:53 INFO openplay join: Amita joined the queue
+17:23:53 INFO openplay operator: Getting the arm ready
+17:24:00 INFO openplay turn: Amita's turn
+17:25:06 INFO openplay stop: Amita pressed stop
+17:25:28 INFO openplay move: Sleepy stretch is waiting for the operator
+17:25:34 INFO openplay operator: Auto-play on: moves play without approval
+17:25:34 INFO openplay operator: Operator approved Sleepy stretch
+17:25:34 INFO openplay move: Playing Sleepy stretch (32 s)
+17:26:46 INFO openplay turn_end: Amita's turn is over (left)
+17:26:54 INFO openplay join: Amita joined the queue
+17:26:54 INFO openplay operator: Getting the arm ready
+17:26:56 INFO openplay operator: Getting the arm ready
+17:26:58 INFO openplay operator: Getting the arm ready
+17:27:01 INFO openplay operator: Getting the arm ready
+17:27:03 INFO openplay operator: Getting the arm ready
+17:27:05 INFO openplay operator: Getting the arm ready
+17:27:07 INFO openplay operator: Getting the arm ready
+17:27:10 INFO openplay operator: Getting the arm ready
+17:27:12 INFO openplay operator: Getting the arm ready
+17:27:14 INFO openplay operator: Getting the arm ready
+17:27:17 INFO openplay operator: Getting the arm ready
+17:27:18 WARNING openplay ready before the first turn: E-STOP
+17:27:18 INFO openplay operator: Open play lost the arm
+17:27:18 INFO openplay estop: E-STOP is on
+17:27:18 INFO openplay estop: E-STOP pressed on the laptop
+17:27:21 INFO openplay estop: E-STOP reset
+17:27:23 INFO openplay operator: Open play has the arm
+17:27:24 INFO openplay operator: Getting the arm ready
+17:27:26 INFO openplay turn: Amita's turn
+17:27:48 INFO openplay say: Amita asked: "Do a shimmy"
+17:27:48 INFO openplay say: Claude is choreographing…
+17:28:02 INFO httpx2 HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+17:28:02 INFO openplay say: Playing Do a shimmy (13 s)
+17:28:30 INFO openplay say: Amita asked: "Do a salute 3 times in quick succession"
+17:28:30 INFO openplay say: Claude is choreographing…
+17:28:42 INFO httpx2 HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+17:28:42 INFO openplay say: Playing Do a salute 3 times in quick… (8 s)
+17:29:01 INFO openplay say: Amita asked: "Do a salute 3 times in quick succession, turn your wrist more"
+17:29:01 INFO openplay say: Claude is choreographing…
+17:29:15 INFO httpx2 HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+17:29:15 INFO openplay say: Playing Do a salute 3 times in quick… (11 s)
+17:29:44 INFO openplay say: Amita asked: "Do a salute 3 times in quick succession, turn your wrist more and your elbow even more. Go crazy do full body movement t"
+17:29:44 INFO openplay say: Claude is choreographing…
+17:29:59 INFO httpx2 HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+17:29:59 INFO openplay say: Playing Do a salute 3 times in quick… (17 s)
+17:30:30 INFO openplay say: Amita asked: "Can you pick up the shoe in front of u (check camera)"
+17:30:30 INFO openplay say: Claude is choreographing…
+17:30:45 INFO httpx2 HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+17:30:45 INFO openplay say: Playing Can you pick up the shoe in… (13 s)
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8091/armctl, turn 600 s, auto-play off)
+17:32:00 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+17:32:00 INFO openplay operator: Open play has the arm
+17:32:19 INFO openplay join: Amita joined the queue
+17:32:19 INFO openplay operator: Getting the arm ready
+17:32:21 INFO openplay operator: Getting the arm ready
+17:32:23 INFO openplay operator: Getting the arm ready
+17:32:25 INFO openplay operator: Getting the arm ready
+17:32:28 INFO openplay operator: Getting the arm ready
+17:32:30 INFO openplay operator: Getting the arm ready
+17:32:32 INFO openplay operator: Getting the arm ready
+17:32:34 INFO openplay operator: Getting the arm ready
+17:32:37 INFO openplay operator: Getting the arm ready
+17:32:39 INFO openplay operator: Getting the arm ready
+17:32:39 INFO openplay operator: Operator removed Amita
+17:32:50 INFO openplay join: Naman joined the queue
+17:32:51 INFO openplay operator: Getting the arm ready
+17:32:53 INFO openplay operator: Getting the arm ready
+17:32:55 INFO openplay operator: Getting the arm ready
+17:32:57 INFO openplay operator: Getting the arm ready
+17:33:00 INFO openplay operator: Getting the arm ready
+17:33:02 INFO openplay operator: Getting the arm ready
+17:33:04 INFO openplay operator: Getting the arm ready
+17:33:06 INFO openplay operator: Auto-play on: moves play without approval
+17:33:06 INFO openplay operator: Getting the arm ready
+17:33:09 INFO openplay operator: Getting the arm ready
+17:33:11 INFO openplay operator: Getting the arm ready
+17:33:13 INFO openplay operator: Getting the arm ready
+17:33:16 INFO openplay operator: Getting the arm ready
+17:33:18 INFO openplay operator: Getting the arm ready
+17:33:20 INFO openplay operator: Getting the arm ready
+17:33:22 INFO openplay operator: Getting the arm ready
+17:33:25 INFO openplay operator: Getting the arm ready
+17:33:27 INFO openplay operator: Getting the arm ready
+17:33:29 INFO openplay operator: Getting the arm ready
+17:33:31 INFO openplay operator: Getting the arm ready
+17:33:34 INFO openplay operator: Getting the arm ready
+17:33:36 INFO openplay operator: Getting the arm ready
+17:33:38 INFO openplay operator: Getting the arm ready
+17:33:40 INFO openplay operator: Getting the arm ready
+17:33:43 INFO openplay operator: Getting the arm ready
+17:33:45 INFO openplay operator: Getting the arm ready
+17:33:47 INFO openplay operator: Getting the arm ready
+17:33:48 INFO openplay operator: Operator removed Naman
+17:33:49 WARNING openplay ready before the first turn: E-STOP
+17:33:49 INFO openplay operator: Open play lost the arm
+17:33:49 INFO openplay estop: E-STOP is on
+17:33:49 INFO openplay estop: E-STOP pressed on the laptop
+17:33:52 INFO openplay estop: E-STOP reset
+17:33:54 INFO openplay operator: Open play has the arm
+17:34:34 INFO openplay join: Carta joined the queue
+17:34:35 INFO openplay operator: Getting the arm ready
+17:34:37 INFO openplay turn: Carta's turn
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8091/armctl, turn 600 s, auto-play off)
+17:35:29 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+17:35:29 INFO openplay operator: Open play has the arm
+17:35:33 INFO openplay join: Carta joined the queue
+17:35:33 INFO openplay operator: Getting the arm ready
+17:35:47 INFO openplay turn: Carta's turn
+17:42:43 INFO openplay stop: Carta pressed stop
+17:42:44 INFO openplay stop: Carta pressed stop
+17:43:27 INFO openplay turn_end: Carta's turn is over (left)

@@ -24,3 +24,24 @@ open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0
 open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8791/armctl, turn 300 s, auto-play auto)
 13:06:32 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
 13:06:32 INFO openplay operator: Open play has the arm
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8791/armctl, turn 300 s, auto-play auto)
+13:32:09 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+13:32:09 INFO openplay operator: Open play has the arm
+13:33:09 INFO openplay join: Naman joined the queue
+13:33:09 INFO openplay operator: Getting the arm ready
+13:33:14 INFO openplay turn: Naman's turn
+13:33:26 INFO openplay stop: Naman pressed stop
+13:33:27 INFO openplay stop: Naman pressed stop
+13:33:29 INFO openplay stop: Naman pressed stop
+13:34:38 INFO openplay stop: Naman pressed stop
+13:35:59 INFO openplay move: Nod yes is waiting for the operator
+13:36:02 INFO openplay operator: Operator approved Nod yes
+13:36:02 INFO openplay move: Playing Nod yes (10 s)
+13:36:05 INFO openplay operator: Auto-play on: moves play without approval
+13:36:07 INFO openplay operator: Auto-play off: the operator approves each move
+13:36:10 INFO openplay stop: Naman pressed stop
+13:36:51 INFO openplay stop: Naman pressed stop
+13:36:52 INFO openplay stop: Naman pressed stop
+13:36:54 INFO openplay leave: Naman left
+13:36:54 INFO openplay turn_end: Naman's turn is over (left)

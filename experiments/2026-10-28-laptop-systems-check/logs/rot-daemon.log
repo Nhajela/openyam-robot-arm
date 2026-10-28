@@ -1,0 +1,104 @@
+10:49:21.862 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 16:19:22 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 129696, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 16:19:22 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 129696, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 16:19:22 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 16:19:22 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 16:19:22 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 16:19:22 INFO [c1 script] hello name='wristcam-scan' from 127.0.0.1
+2026-10-28 16:19:22 INFO [c1 script] acquire (auto-approved)
+2026-10-28 16:19:22 INFO [c1 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 16:19:22 INFO DimosBackend: ready#1 -> DimOS trajectory 51 points (from 500 samples), 4.99 s
+2026-10-28 16:19:22 INFO [c1 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.99 s
+2026-10-28 16:19:28 INFO [c1 script] done ready (max error 0.0467 rad)
+2026-10-28 16:19:28 INFO DimosBackend: move_joints#2 -> DimOS trajectory 29 points (from 275 samples), 2.74 s
+2026-10-28 16:19:28 INFO [c1 script] do move_joints -> [-0.35, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.74 s
+2026-10-28 16:19:33 INFO [c1 script] done move_joints (max error 0.0484 rad)
+2026-10-28 16:19:34 INFO DimosBackend: move_joints#3 -> DimOS trajectory 24 points (from 216 samples), 2.15 s
+2026-10-28 16:19:34 INFO [c1 script] do move_joints -> [0.0, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.15 s
+2026-10-28 16:19:38 INFO [c1 script] done move_joints (max error 0.0484 rad)
+2026-10-28 16:19:39 INFO DimosBackend: move_joints#4 -> DimOS trajectory 24 points (from 223 samples), 2.22 s
+2026-10-28 16:19:39 INFO [c1 script] do move_joints -> [0.35, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.22 s
+2026-10-28 16:19:43 INFO [c1 script] done move_joints (max error 0.0484 rad)
+2026-10-28 16:19:45 INFO DimosBackend: move_joints#5 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 16:19:45 INFO [c1 script] do move_joints -> [0.7, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.23 s
+2026-10-28 16:19:49 INFO [c1 script] done move_joints (max error 0.0484 rad)
+2026-10-28 16:19:50 INFO DimosBackend: move_joints#6 -> DimOS trajectory 22 points (from 195 samples), 1.94 s
+2026-10-28 16:19:50 INFO [c1 script] do move_joints -> [1.0, 0.9, 1.0, -0.3, 0.0, 0.0] in 1.94 s
+2026-10-28 16:19:54 INFO [c1 script] done move_joints (max error 0.0484 rad)
+2026-10-28 16:19:55 INFO DimosBackend: move_joints#7 -> DimOS trajectory 30 points (from 284 samples), 2.83 s
+2026-10-28 16:19:55 INFO [c1 script] do move_joints -> [1.0, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.83 s
+2026-10-28 16:19:59 INFO [c1 script] done move_joints (max error 0.0332 rad)
+2026-10-28 16:20:01 INFO DimosBackend: move_joints#8 -> DimOS trajectory 21 points (from 184 samples), 1.83 s
+2026-10-28 16:20:01 INFO [c1 script] do move_joints -> [0.7, 0.9, 1.0, 0.2, 0.0, 0.0] in 1.83 s
+2026-10-28 16:20:04 INFO [c1 script] done move_joints (max error 0.0436 rad)
+2026-10-28 16:20:06 INFO DimosBackend: move_joints#9 -> DimOS trajectory 24 points (from 223 samples), 2.22 s
+2026-10-28 16:20:06 INFO [c1 script] do move_joints -> [0.35, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.22 s
+2026-10-28 16:20:10 INFO [c1 script] done move_joints (max error 0.0439 rad)
+2026-10-28 16:20:11 INFO DimosBackend: move_joints#10 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 16:20:11 INFO [c1 script] do move_joints -> [0.0, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.23 s
+2026-10-28 16:20:15 INFO [c1 script] done move_joints (max error 0.0439 rad)
+2026-10-28 16:20:16 INFO DimosBackend: move_joints#11 -> DimOS trajectory 24 points (from 225 samples), 2.24 s
+2026-10-28 16:20:16 INFO [c1 script] do move_joints -> [-0.35, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.24 s
+2026-10-28 16:20:20 INFO [c1 script] done move_joints (max error 0.0443 rad)
+2026-10-28 16:20:22 INFO DimosBackend: ready#12 -> DimOS trajectory 25 points (from 241 samples), 2.40 s
+2026-10-28 16:20:22 INFO [c1 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.40 s
+2026-10-28 16:20:26 INFO [c1 script] done ready (max error 0.0483 rad)
+2026-10-28 16:20:26 INFO lease revoked by c1 script (release) (was c1 script); stopped
+2026-10-28 16:20:26 INFO [c1 script] disconnected
+2026-10-28 16:21:02 INFO [c2 script] hello name='capture-pose' from 127.0.0.1
+2026-10-28 16:21:03 INFO [c2 script] acquire (auto-approved)
+2026-10-28 16:21:03 INFO [c2 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 16:21:03 INFO DimosBackend: move_joints#13 -> DimOS trajectory 39 points (from 376 samples), 3.75 s
+2026-10-28 16:21:03 INFO [c2 script] do move_joints -> [0.0, 1.082, 0.748, -0.186, 0.0, 0.0] in 3.75 s
+2026-10-28 16:21:08 INFO [c2 script] done move_joints (max error 0.0473 rad)
+2026-10-28 16:21:08 INFO lease revoked by c2 script (release) (was c2 script); stopped
+2026-10-28 16:21:08 INFO [c2 script] disconnected
+2026-10-28 16:57:44 INFO [c3 script] hello name='wristcam-scan' from 127.0.0.1
+2026-10-28 16:57:44 INFO [c3 script] acquire (auto-approved)
+2026-10-28 16:57:44 INFO [c3 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 16:57:44 INFO DimosBackend: ready#14 -> DimOS trajectory 37 points (from 353 samples), 3.52 s
+2026-10-28 16:57:44 INFO [c3 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 3.52 s
+2026-10-28 16:57:49 INFO [c3 script] done ready (max error 0.0376 rad)
+2026-10-28 16:57:49 INFO DimosBackend: move_joints#15 -> DimOS trajectory 57 points (from 560 samples), 5.59 s
+2026-10-28 16:57:49 INFO [c3 script] do move_joints -> [-0.45, 1.082, 0.748, -0.186, 0.0, 0.0] in 5.59 s
+2026-10-28 16:57:57 INFO [c3 script] done move_joints (max error 0.0469 rad)
+2026-10-28 16:57:59 INFO DimosBackend: move_joints#16 -> DimOS trajectory 15 points (from 136 samples), 1.35 s
+2026-10-28 16:57:59 INFO [c3 script] do move_joints -> [-0.3, 1.082, 0.748, -0.186, 0.0, 0.0] in 1.35 s
+2026-10-28 16:58:01 INFO [c3 script] done move_joints (max error 0.0473 rad)
+2026-10-28 16:58:03 INFO DimosBackend: move_joints#17 -> DimOS trajectory 16 points (from 146 samples), 1.45 s
+2026-10-28 16:58:03 INFO [c3 script] do move_joints -> [-0.15, 1.082, 0.748, -0.186, 0.0, 0.0] in 1.45 s
+2026-10-28 16:58:06 INFO [c3 script] done move_joints (max error 0.0473 rad)
+2026-10-28 16:58:08 INFO DimosBackend: move_joints#18 -> DimOS trajectory 30 points (from 287 samples), 2.86 s
+2026-10-28 16:58:08 INFO [c3 script] do move_joints -> [0.15, 1.082, 0.748, -0.186, 0.0, 0.0] in 2.86 s
+2026-10-28 16:58:13 INFO [c3 script] done move_joints (max error 0.0469 rad)
+2026-10-28 16:58:15 INFO DimosBackend: move_joints#19 -> DimOS trajectory 17 points (from 150 samples), 1.49 s
+2026-10-28 16:58:15 INFO [c3 script] do move_joints -> [0.3, 1.082, 0.748, -0.186, 0.0, 0.0] in 1.49 s
+2026-10-28 16:58:18 INFO [c3 script] done move_joints (max error 0.0473 rad)
+2026-10-28 16:58:20 INFO DimosBackend: move_joints#20 -> DimOS trajectory 21 points (from 196 samples), 1.95 s
+2026-10-28 16:58:20 INFO [c3 script] do move_joints -> [0.5, 1.082, 0.748, -0.186, 0.0, 0.0] in 1.95 s
+2026-10-28 16:58:23 INFO [c3 script] done move_joints (max error 0.0473 rad)
+2026-10-28 16:58:25 INFO DimosBackend: move_joints#21 -> DimOS trajectory 21 points (from 195 samples), 1.94 s
+2026-10-28 16:58:25 INFO [c3 script] do move_joints -> [0.7, 1.082, 0.748, -0.186, 0.0, 0.0] in 1.94 s
+2026-10-28 16:58:29 INFO [c3 script] done move_joints (max error 0.0473 rad)
+2026-10-28 16:58:31 INFO DimosBackend: move_joints#22 -> DimOS trajectory 21 points (from 197 samples), 1.96 s
+2026-10-28 16:58:31 INFO [c3 script] do move_joints -> [0.9, 1.082, 0.748, -0.186, 0.0, 0.0] in 1.96 s
+2026-10-28 16:58:34 INFO [c3 script] done move_joints (max error 0.0473 rad)
+2026-10-28 16:58:36 INFO DimosBackend: move_joints#23 -> DimOS trajectory 85 points (from 839 samples), 8.38 s
+2026-10-28 16:58:36 INFO [c3 script] do move_joints -> [0.0, 1.082, 0.748, -0.186, -0.4, 0.0] in 8.38 s
+2026-10-28 16:58:46 INFO [c3 script] done move_joints (max error 0.0405 rad)
+2026-10-28 16:58:48 INFO DimosBackend: move_joints#24 -> DimOS trajectory 75 points (from 736 samples), 7.35 s
+2026-10-28 16:58:48 INFO [c3 script] do move_joints -> [0.0, 1.082, 0.748, -0.186, 0.4, 0.0] in 7.35 s
+2026-10-28 16:58:57 INFO [c3 script] done move_joints (max error 0.0405 rad)
+2026-10-28 16:58:59 INFO DimosBackend: ready#25 -> DimOS trajectory 37 points (from 354 samples), 3.53 s
+2026-10-28 16:58:59 INFO [c3 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 3.53 s
+2026-10-28 16:59:04 INFO [c3 script] done ready (max error 0.0376 rad)
+2026-10-28 16:59:04 INFO lease revoked by c3 script (release) (was c3 script); stopped
+2026-10-28 16:59:04 INFO [c3 script] disconnected
+2026-10-28 17:06:55 INFO [c4 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 17:06:55 INFO [c4 script] acquire (auto-approved)
+2026-10-28 17:06:55 INFO [c4 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 17:06:55 INFO DimosBackend: home#26 -> DimOS trajectory 81 points (from 797 samples), 7.96 s
+2026-10-28 17:06:55 INFO [c4 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 7.96 s
+2026-10-28 17:07:05 INFO [c4 script] done home (max error 0.0257 rad)
+2026-10-28 17:07:05 INFO lease revoked by c4 script (release) (was c4 script); stopped
+2026-10-28 17:07:05 INFO [c4 script] disconnected

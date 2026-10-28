@@ -1,0 +1,435 @@
+08:28:56.997 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 13:58:57 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 70002, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 13:58:57 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.7, 'yam_joint2': 0.7, 'yam_joint3': 0.7, 'yam_joint4': 0.7, 'yam_joint5': 0.7, 'yam_joint6': 0.7}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 70002, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 13:58:57 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 13:58:57 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 13:58:57 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+2026-10-28 13:59:15 INFO [c1 openplay] hello name='open play' from 127.0.0.1
+2026-10-28 13:59:15 INFO [c1 openplay] acquire (auto-approved)
+2026-10-28 13:59:15 INFO [c1 openplay] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 13:59:18 INFO [c2 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:59:18 INFO [c2 script] disconnected
+2026-10-28 14:08:24 INFO [c1 openplay] do stop
+2026-10-28 14:08:24 INFO lease revoked by c1 openplay (release) (was c1 openplay); stopped
+2026-10-28 14:08:24 INFO [c1 openplay] disconnected
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_sansio_impl.py", line 409, in run_asgi
+    result = await self.app(self.scope, self.receive, self.send)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1216, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2791, in app
+    await route.handle(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 356, in handle
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 191, in app
+    await wrap_app_handling_exceptions(app, session)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 188, in app
+    await func(session)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 829, in app
+    await dependant.call(**solved_result.values)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 923, in ws_endpoint
+    text = await ws.receive_text()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/websockets.py", line 124, in receive_text
+    raise WebSocketDisconnected('WebSocket is not connected. Need to call "accept" first.')
+starlette.websockets.WebSocketDisconnected: WebSocket is not connected. Need to call "accept" first.
+2026-10-28 14:08:27 INFO [c3 script] hello name='wristcam-scan' from 127.0.0.1
+2026-10-28 14:08:27 INFO [c3 script] acquire (auto-approved)
+2026-10-28 14:08:27 INFO [c3 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 14:08:27 INFO DimosBackend: ready#1 -> DimOS trajectory 32 points (from 251 samples), 2.50 s
+2026-10-28 14:08:27 INFO [c3 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.50 s
+2026-10-28 14:08:31 INFO [c3 script] done ready (max error 0.0483 rad)
+2026-10-28 14:08:31 INFO DimosBackend: move_joints#2 -> DimOS trajectory 96 points (from 946 samples), 9.45 s
+2026-10-28 14:08:31 INFO [c3 script] do move_joints -> [-0.405, 1.699, 1.592, -1.462, 0.0, 0.0] in 9.45 s
+2026-10-28 14:08:42 INFO [c3 script] done move_joints (max error 0.0340 rad)
+2026-10-28 14:08:44 INFO DimosBackend: move_joints#3 -> DimOS trajectory 23 points (from 213 samples), 2.12 s
+2026-10-28 14:08:44 INFO [c3 script] do move_joints -> [-0.736, 1.663, 1.554, -1.461, 0.002, 0.0] in 2.12 s
+2026-10-28 14:08:48 INFO [c3 script] done move_joints (max error 0.0329 rad)
+2026-10-28 14:08:50 INFO DimosBackend: move_joints#4 -> DimOS trajectory 28 points (from 264 samples), 2.63 s
+2026-10-28 14:08:50 INFO [c3 script] do move_joints -> [-0.532, 2.055, 1.978, -1.489, 0.0, 0.0] in 2.63 s
+2026-10-28 14:08:54 INFO [c3 script] done move_joints (max error 0.0370 rad)
+2026-10-28 14:08:56 INFO DimosBackend: move_joints#5 -> DimOS trajectory 24 points (from 225 samples), 2.24 s
+2026-10-28 14:08:56 INFO [c3 script] do move_joints -> [-0.175, 1.854, 1.703, -1.42, -0.0, 0.0] in 2.24 s
+2026-10-28 14:09:00 INFO [c3 script] REFUSED move_joints: move_joints did not reach target: j2 error 0.053 rad > 0.05; stopped
+2026-10-28 14:09:02 INFO DimosBackend: move_joints#6 -> DimOS trajectory 33 points (from 319 samples), 3.18 s
+2026-10-28 14:09:02 INFO [c3 script] do move_joints -> [-0.18, 1.4, 1.301, -1.474, 0.0, 0.0] in 3.18 s
+2026-10-28 14:09:06 INFO [c3 script] done move_joints (max error 0.0330 rad)
+2026-10-28 14:09:08 INFO DimosBackend: move_joints#7 -> DimOS trajectory 22 points (from 202 samples), 2.01 s
+2026-10-28 14:09:08 INFO [c3 script] do move_joints -> [0.142, 1.616, 1.502, -1.456, 0.0, 0.0] in 2.01 s
+2026-10-28 14:09:12 INFO [c3 script] done move_joints (max error 0.0317 rad)
+2026-10-28 14:09:14 INFO DimosBackend: move_joints#8 -> DimOS trajectory 35 points (from 339 samples), 3.38 s
+2026-10-28 14:09:14 INFO [c3 script] do move_joints -> [-0.405, 1.697, 1.354, -1.227, 0.0, 0.0] in 3.38 s
+2026-10-28 14:09:19 INFO [c3 script] done move_joints (max error 0.0177 rad)
+2026-10-28 14:09:21 INFO DimosBackend: ready#9 -> DimOS trajectory 42 points (from 386 samples), 3.85 s
+2026-10-28 14:09:21 INFO [c3 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 3.85 s
+2026-10-28 14:09:26 INFO [c3 script] done ready (max error 0.0360 rad)
+2026-10-28 14:09:26 INFO lease revoked by c3 script (release) (was c3 script); stopped
+2026-10-28 14:09:26 INFO [c3 script] disconnected
+2026-10-28 14:11:25 INFO [c4 script] hello name='wristcam-scan' from 127.0.0.1
+2026-10-28 14:11:25 INFO [c4 script] acquire (auto-approved)
+2026-10-28 14:11:25 INFO [c4 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 14:11:25 INFO DimosBackend: ready#10 -> DimOS trajectory 8 points (from 34 samples), 0.33 s
+2026-10-28 14:11:25 INFO [c4 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.33 s
+2026-10-28 14:11:27 INFO [c4 script] done ready (max error 0.0494 rad)
+2026-10-28 14:11:27 INFO DimosBackend: move_joints#11 -> DimOS trajectory 89 points (from 874 samples), 8.73 s
+2026-10-28 14:11:27 INFO [c4 script] do move_joints -> [-1.4, 0.9, 1.0, -0.3, 0.0, 0.0] in 8.73 s
+2026-10-28 14:11:37 INFO [c4 script] done move_joints (max error 0.0480 rad)
+2026-10-28 14:11:39 INFO DimosBackend: move_joints#12 -> DimOS trajectory 23 points (from 215 samples), 2.14 s
+2026-10-28 14:11:39 INFO [c4 script] do move_joints -> [-1.05, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.14 s
+2026-10-28 14:11:42 INFO [c4 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:11:44 INFO DimosBackend: move_joints#13 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 14:11:44 INFO [c4 script] do move_joints -> [-0.7, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.23 s
+2026-10-28 14:11:48 INFO [c4 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:11:49 INFO DimosBackend: move_joints#14 -> DimOS trajectory 24 points (from 226 samples), 2.25 s
+2026-10-28 14:11:49 INFO [c4 script] do move_joints -> [-0.35, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.25 s
+2026-10-28 14:11:53 INFO [c4 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:11:55 INFO DimosBackend: move_joints#15 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 14:11:55 INFO [c4 script] do move_joints -> [0.0, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.23 s
+2026-10-28 14:11:58 INFO [c4 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:12:00 INFO DimosBackend: move_joints#16 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 14:12:00 INFO [c4 script] do move_joints -> [0.35, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.23 s
+2026-10-28 14:12:04 INFO [c4 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:12:05 INFO DimosBackend: move_joints#17 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 14:12:05 INFO [c4 script] do move_joints -> [0.7, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.23 s
+2026-10-28 14:12:09 INFO [c4 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:12:10 INFO DimosBackend: move_joints#18 -> DimOS trajectory 24 points (from 226 samples), 2.25 s
+2026-10-28 14:12:10 INFO [c4 script] do move_joints -> [1.05, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.25 s
+2026-10-28 14:12:14 INFO [c4 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:12:16 INFO DimosBackend: move_joints#19 -> DimOS trajectory 24 points (from 228 samples), 2.27 s
+2026-10-28 14:12:16 INFO [c4 script] do move_joints -> [1.4, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.27 s
+2026-10-28 14:12:20 INFO [c4 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:12:21 INFO DimosBackend: move_joints#20 -> DimOS trajectory 30 points (from 284 samples), 2.83 s
+2026-10-28 14:12:21 INFO [c4 script] do move_joints -> [1.4, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.83 s
+2026-10-28 14:12:25 INFO [c4 script] done move_joints (max error 0.0332 rad)
+2026-10-28 14:12:27 INFO DimosBackend: move_joints#21 -> DimOS trajectory 23 points (from 215 samples), 2.14 s
+2026-10-28 14:12:27 INFO [c4 script] do move_joints -> [1.05, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.14 s
+2026-10-28 14:12:31 INFO [c4 script] done move_joints (max error 0.0439 rad)
+2026-10-28 14:12:32 INFO DimosBackend: move_joints#22 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 14:12:32 INFO [c4 script] do move_joints -> [0.7, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.23 s
+2026-10-28 14:12:36 INFO [c4 script] done move_joints (max error 0.0439 rad)
+2026-10-28 14:12:37 INFO DimosBackend: move_joints#23 -> DimOS trajectory 24 points (from 226 samples), 2.25 s
+2026-10-28 14:12:37 INFO [c4 script] do move_joints -> [0.35, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.25 s
+2026-10-28 14:12:41 INFO [c4 script] done move_joints (max error 0.0443 rad)
+2026-10-28 14:12:43 INFO DimosBackend: move_joints#24 -> DimOS trajectory 24 points (from 223 samples), 2.22 s
+2026-10-28 14:12:43 INFO [c4 script] do move_joints -> [0.0, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.22 s
+2026-10-28 14:12:47 INFO [c4 script] done move_joints (max error 0.0439 rad)
+2026-10-28 14:12:48 INFO DimosBackend: move_joints#25 -> DimOS trajectory 24 points (from 225 samples), 2.24 s
+2026-10-28 14:12:48 INFO [c4 script] do move_joints -> [-0.35, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.24 s
+2026-10-28 14:12:52 INFO [c4 script] done move_joints (max error 0.0443 rad)
+2026-10-28 14:12:53 INFO DimosBackend: move_joints#26 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 14:12:53 INFO [c4 script] do move_joints -> [-0.7, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.23 s
+2026-10-28 14:12:57 INFO [c4 script] done move_joints (max error 0.0443 rad)
+2026-10-28 14:12:59 INFO DimosBackend: move_joints#27 -> DimOS trajectory 24 points (from 225 samples), 2.24 s
+2026-10-28 14:12:59 INFO [c4 script] do move_joints -> [-1.05, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.24 s
+2026-10-28 14:13:02 INFO [c4 script] done move_joints (max error 0.0443 rad)
+2026-10-28 14:13:04 INFO DimosBackend: move_joints#28 -> DimOS trajectory 24 points (from 225 samples), 2.24 s
+2026-10-28 14:13:04 INFO [c4 script] do move_joints -> [-1.4, 0.9, 1.0, 0.2, 0.0, 0.0] in 2.24 s
+2026-10-28 14:13:08 INFO [c4 script] done move_joints (max error 0.0443 rad)
+2026-10-28 14:13:09 INFO DimosBackend: ready#29 -> DimOS trajectory 46 points (from 436 samples), 4.35 s
+2026-10-28 14:13:09 INFO [c4 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.35 s
+2026-10-28 14:13:15 INFO [c4 script] done ready (max error 0.0475 rad)
+2026-10-28 14:13:15 INFO lease revoked by c4 script (release) (was c4 script); stopped
+2026-10-28 14:13:15 INFO [c4 script] disconnected
+2026-10-28 14:15:03 INFO [c5 script] hello name='wristcam-scan' from 127.0.0.1
+2026-10-28 14:15:03 INFO [c5 script] acquire (auto-approved)
+2026-10-28 14:15:03 INFO [c5 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 14:15:03 INFO DimosBackend: ready#30 -> DimOS trajectory 8 points (from 39 samples), 0.38 s
+2026-10-28 14:15:03 INFO [c5 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.38 s
+2026-10-28 14:15:05 INFO [c5 script] done ready (max error 0.0559 rad)
+2026-10-28 14:15:05 INFO DimosBackend: move_joints#31 -> DimOS trajectory 67 points (from 660 samples), 6.59 s
+2026-10-28 14:15:05 INFO [c5 script] do move_joints -> [-1.059, 0.852, 0.719, -0.476, -0.011, 0.0] in 6.59 s
+2026-10-28 14:15:13 INFO [c5 script] done move_joints (max error 0.0458 rad)
+2026-10-28 14:15:15 INFO DimosBackend: move_joints#32 -> DimOS trajectory 21 points (from 184 samples), 1.83 s
+2026-10-28 14:15:15 INFO [c5 script] do move_joints -> [-1.05, 1.121, 0.833, -0.321, -0.0, 0.0] in 1.83 s
+2026-10-28 14:15:18 INFO [c5 script] done move_joints (max error 0.0291 rad)
+2026-10-28 14:15:20 INFO DimosBackend: move_joints#33 -> DimOS trajectory 32 points (from 308 samples), 3.07 s
+2026-10-28 14:15:20 INFO [c5 script] do move_joints -> [-1.05, 0.615, 0.746, -0.739, 0.0, 0.0] in 3.07 s
+2026-10-28 14:15:25 INFO [c5 script] done move_joints (max error 0.0476 rad)
+2026-10-28 14:15:27 INFO DimosBackend: move_joints#34 -> DimOS trajectory 19 points (from 161 samples), 1.60 s
+2026-10-28 14:15:27 INFO [c5 script] do move_joints -> [-1.252, 0.852, 0.723, -0.482, -0.002, 0.0] in 1.60 s
+2026-10-28 14:15:30 INFO [c5 script] done move_joints (max error 0.0298 rad)
+2026-10-28 14:15:32 INFO DimosBackend: move_joints#35 -> DimOS trajectory 26 points (from 246 samples), 2.45 s
+2026-10-28 14:15:32 INFO [c5 script] do move_joints -> [-0.853, 0.857, 0.726, -0.48, -0.003, 0.0] in 2.45 s
+2026-10-28 14:15:36 INFO [c5 script] done move_joints (max error 0.0445 rad)
+2026-10-28 14:15:38 INFO DimosBackend: move_joints#36 -> DimOS trajectory 18 points (from 136 samples), 1.35 s
+2026-10-28 14:15:38 INFO [c5 script] do move_joints -> [-1.047, 0.852, 0.528, -0.289, 0.004, 0.0] in 1.35 s
+2026-10-28 14:15:41 INFO [c5 script] done move_joints (max error 0.0317 rad)
+2026-10-28 14:15:43 INFO DimosBackend: ready#37 -> DimOS trajectory 37 points (from 326 samples), 3.25 s
+2026-10-28 14:15:43 INFO [c5 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 3.25 s
+2026-10-28 14:15:48 INFO [c5 script] done ready (max error 0.0376 rad)
+2026-10-28 14:15:48 INFO lease revoked by c5 script (release) (was c5 script); stopped
+2026-10-28 14:15:48 INFO [c5 script] disconnected
+2026-10-28 14:15:57 INFO [c6 script] hello name='wristcam-scan' from 127.0.0.1
+2026-10-28 14:15:57 INFO [c6 script] acquire (auto-approved)
+2026-10-28 14:15:57 INFO [c6 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 14:15:57 INFO DimosBackend: ready#38 -> DimOS trajectory 8 points (from 34 samples), 0.33 s
+2026-10-28 14:15:57 INFO [c6 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.33 s
+2026-10-28 14:15:59 INFO [c6 script] done ready (max error 0.0498 rad)
+2026-10-28 14:15:59 INFO DimosBackend: move_joints#39 -> DimOS trajectory 89 points (from 873 samples), 8.72 s
+2026-10-28 14:15:59 INFO [c6 script] do move_joints -> [-1.4, 0.9, 1.0, -0.3, 0.0, 0.0] in 8.72 s
+2026-10-28 14:16:09 INFO [c6 script] done move_joints (max error 0.0480 rad)
+2026-10-28 14:16:11 INFO DimosBackend: move_joints#40 -> DimOS trajectory 24 points (from 226 samples), 2.25 s
+2026-10-28 14:16:11 INFO [c6 script] do move_joints -> [-1.75, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.25 s
+2026-10-28 14:16:15 INFO [c6 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:16:16 INFO DimosBackend: move_joints#41 -> DimOS trajectory 24 points (from 224 samples), 2.23 s
+2026-10-28 14:16:16 INFO [c6 script] do move_joints -> [-2.1, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.23 s
+2026-10-28 14:16:20 INFO [c6 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:16:22 INFO DimosBackend: move_joints#42 -> DimOS trajectory 24 points (from 225 samples), 2.24 s
+2026-10-28 14:16:22 INFO [c6 script] do move_joints -> [-2.45, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.24 s
+2026-10-28 14:16:25 INFO [c6 script] done move_joints (max error 0.0484 rad)
+2026-10-28 14:16:27 INFO DimosBackend: move_joints#43 -> DimOS trajectory 242 points (from 2403 samples), 24.02 s
+2026-10-28 14:16:27 INFO [c6 script] do move_joints -> [1.4, 0.9, 1.0, -0.3, 0.0, 0.0] in 24.02 s
+2026-10-28 14:16:52 INFO [c6 script] done move_joints (max error 0.0476 rad)
+2026-10-28 14:16:54 INFO DimosBackend: move_joints#44 -> DimOS trajectory 24 points (from 226 samples), 2.25 s
+2026-10-28 14:16:54 INFO [c6 script] do move_joints -> [1.75, 0.9, 1.0, -0.3, 0.0, 0.0] in 2.25 s
+2026-10-28 14:16:58 INFO [c6 script] REFUSED move_joints: move_joints did not reach target: j1 error 0.179 rad > 0.02; stopped
+2026-10-28 14:16:59 INFO DimosBackend: move_joints#45 -> DimOS trajectory 35 points (from 332 samples), 3.31 s
+2026-10-28 14:16:59 INFO [c6 script] do move_joints -> [2.1, 0.9, 1.0, -0.3, 0.0, 0.0] in 3.31 s
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault state: joint state is 0.5 s old (coordinator gone?)
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:01 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:02 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:03 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:03 WARNING DimosBackend fault rpc: get_joint_positions failed: RuntimeError('Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad')
+2026-10-28 14:17:04 INFO [c6 script] REFUSED move_joints: move_joints did not reach target: j1 error 0.529 rad > 0.02; stopped
+2026-10-28 14:17:06 ERROR handling do
+dimos.protocol.rpc.rpc_utils.RemoteError: [Remote builtins.RuntimeError] Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+
+Remote traceback:
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/zenohrpc.py", line 199, in _execute_rpc
+    response = f(*args[0], **args[1])
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/spec.py", line 116, in override_f
+    return getattr(module, fname)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/coordinator.py", line 441, in execute_trajectory
+    current_positions = self.get_joint_positions()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/coordinator.py", line 433, in get_joint_positions
+    state = hw.read_state()  # {joint_name: JointState}
+            ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/hardware_interface.py", line 381, in read_state
+    motor_states = self._wb_adapter.read_motor_states()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/hardware/whole_body/damiao/adapter.py", line 290, in read_motor_states
+    raise RuntimeError(f"Damiao feedback fault is latched: {self._feedback_fault}")
+RuntimeError: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 532, in handle
+    await self._do(client, msg, mid)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 722, in _do
+    self._start_trajectory(client, mid, cmd, traj)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 614, in _start_trajectory
+    self.backend.execute(traj)
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 1113, in execute
+    ok, msg = self.link.execute(times, pos, vel)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 785, in execute
+    r = self._call("execute_trajectory", self._JT(joint_names=list(DIMOS_ARM_JOINTS), points=pts))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 769, in _call
+    res, unsub = rpc.call_sync(f"{remote}/{name}", (args, kw), rpc_timeout=timeout or self.rpc_timeout)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/spec.py", line 88, in call_sync
+    raise result
+RuntimeError: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+2026-10-28 14:17:06 INFO [c6 script] REFUSED do: internal error: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+2026-10-28 14:17:07 ERROR handling do
+dimos.protocol.rpc.rpc_utils.RemoteError: [Remote builtins.RuntimeError] Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+
+Remote traceback:
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/zenohrpc.py", line 199, in _execute_rpc
+    response = f(*args[0], **args[1])
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/spec.py", line 116, in override_f
+    return getattr(module, fname)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/coordinator.py", line 441, in execute_trajectory
+    current_positions = self.get_joint_positions()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/coordinator.py", line 433, in get_joint_positions
+    state = hw.read_state()  # {joint_name: JointState}
+            ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/hardware_interface.py", line 381, in read_state
+    motor_states = self._wb_adapter.read_motor_states()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/hardware/whole_body/damiao/adapter.py", line 290, in read_motor_states
+    raise RuntimeError(f"Damiao feedback fault is latched: {self._feedback_fault}")
+RuntimeError: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 532, in handle
+    await self._do(client, msg, mid)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 722, in _do
+    self._start_trajectory(client, mid, cmd, traj)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 614, in _start_trajectory
+    self.backend.execute(traj)
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 1113, in execute
+    ok, msg = self.link.execute(times, pos, vel)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 785, in execute
+    r = self._call("execute_trajectory", self._JT(joint_names=list(DIMOS_ARM_JOINTS), points=pts))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 769, in _call
+    res, unsub = rpc.call_sync(f"{remote}/{name}", (args, kw), rpc_timeout=timeout or self.rpc_timeout)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/spec.py", line 88, in call_sync
+    raise result
+RuntimeError: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+2026-10-28 14:17:07 INFO [c6 script] REFUSED do: internal error: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+2026-10-28 14:17:09 ERROR handling do
+dimos.protocol.rpc.rpc_utils.RemoteError: [Remote builtins.RuntimeError] Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+
+Remote traceback:
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/zenohrpc.py", line 199, in _execute_rpc
+    response = f(*args[0], **args[1])
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/spec.py", line 116, in override_f
+    return getattr(module, fname)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/coordinator.py", line 441, in execute_trajectory
+    current_positions = self.get_joint_positions()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/coordinator.py", line 433, in get_joint_positions
+    state = hw.read_state()  # {joint_name: JointState}
+            ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/hardware_interface.py", line 381, in read_state
+    motor_states = self._wb_adapter.read_motor_states()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/hardware/whole_body/damiao/adapter.py", line 290, in read_motor_states
+    raise RuntimeError(f"Damiao feedback fault is latched: {self._feedback_fault}")
+RuntimeError: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 532, in handle
+    await self._do(client, msg, mid)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 722, in _do
+    self._start_trajectory(client, mid, cmd, traj)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 614, in _start_trajectory
+    self.backend.execute(traj)
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 1113, in execute
+    ok, msg = self.link.execute(times, pos, vel)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 785, in execute
+    r = self._call("execute_trajectory", self._JT(joint_names=list(DIMOS_ARM_JOINTS), points=pts))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 769, in _call
+    res, unsub = rpc.call_sync(f"{remote}/{name}", (args, kw), rpc_timeout=timeout or self.rpc_timeout)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/spec.py", line 88, in call_sync
+    raise result
+RuntimeError: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+2026-10-28 14:17:09 INFO [c6 script] REFUSED do: internal error: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+2026-10-28 14:17:10 ERROR handling do
+dimos.protocol.rpc.rpc_utils.RemoteError: [Remote builtins.RuntimeError] Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+
+Remote traceback:
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/zenohrpc.py", line 199, in _execute_rpc
+    response = f(*args[0], **args[1])
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/spec.py", line 116, in override_f
+    return getattr(module, fname)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/coordinator.py", line 441, in execute_trajectory
+    current_positions = self.get_joint_positions()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/coordinator.py", line 433, in get_joint_positions
+    state = hw.read_state()  # {joint_name: JointState}
+            ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/control/hardware_interface.py", line 381, in read_state
+    motor_states = self._wb_adapter.read_motor_states()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/hardware/whole_body/damiao/adapter.py", line 290, in read_motor_states
+    raise RuntimeError(f"Damiao feedback fault is latched: {self._feedback_fault}")
+RuntimeError: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 532, in handle
+    await self._do(client, msg, mid)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 722, in _do
+    self._start_trajectory(client, mid, cmd, traj)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 614, in _start_trajectory
+    self.backend.execute(traj)
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 1113, in execute
+    ok, msg = self.link.execute(times, pos, vel)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 785, in execute
+    r = self._call("execute_trajectory", self._JT(joint_names=list(DIMOS_ARM_JOINTS), points=pts))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/armctl/backend.py", line 769, in _call
+    res, unsub = rpc.call_sync(f"{remote}/{name}", (args, kw), rpc_timeout=timeout or self.rpc_timeout)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/dimos/protocol/rpc/spec.py", line 88, in call_sync
+    raise result
+RuntimeError: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+2026-10-28 14:17:10 INFO [c6 script] REFUSED do: internal error: Damiao feedback fault is latched: yam_joint1 reported 1.6210803387502857 outside [-3.92699, 1.5708] by more than 0.05 rad
+2026-10-28 14:17:10 INFO lease revoked by c6 script (release) (was c6 script); stopped
+2026-10-28 14:17:10 INFO [c6 script] disconnected
