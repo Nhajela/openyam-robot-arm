@@ -1,0 +1,18 @@
+{
+ "dict": "DICT_5X5_100",
+ "squares": [
+  7,
+  5
+ ],
+ "square_mm": 29.972,
+ "marker_mm": 21.9795,
+ "tag_dict": "DICT_4X4_50",
+ "tag_ids": [
+  2,
+  3,
+  4
+ ],
+ "tag_mm": 40.0,
+ "table_frame": "origin at the board centre, x = long edge (+x arrow), y = toward the top of the print, z up",
+ "source": "vision/targets/charuco_board_A4.pdf (printed by the lab 28 Oct; the 50 mm bar read 'close to 50', unverified)"
+}

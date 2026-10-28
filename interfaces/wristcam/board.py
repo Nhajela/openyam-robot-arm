@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -39,7 +40,9 @@ from .camera import make_T
 
 HERE = Path(__file__).resolve().parent
 PRINT_DIR = HERE / "print"
-SHEET_JSON = PRINT_DIR / "wristcam_calib_board.json"
+# The board actually on the table. WRISTCAM_BOARD overrides (28 Oct the lab printed
+# vision/targets/charuco_board_A4.pdf, 7x5 squares of 29.97 mm: print/printed_vision_board.json).
+SHEET_JSON = Path(os.environ.get("WRISTCAM_BOARD", PRINT_DIR / "wristcam_calib_board.json"))
 
 DPI = 300
 PX_PER_MM = DPI / 25.4
@@ -111,7 +114,14 @@ class BoardDetector:
         self.board = self.spec.board()
         cp = cv2.aruco.CharucoParameters()
         cp.minMarkers = 1
+        cp.tryRefineMarkers = True
+        # Tuned on the real wrist camera (28 Oct): the defaults decoded 6/17 markers of a board
+        # ~190 px wide at 1280x720; these decode 17/17 (24/24 ChArUco corners).
         dp = cv2.aruco.DetectorParameters()
+        dp.adaptiveThreshWinSizeMin, dp.adaptiveThreshWinSizeMax, dp.adaptiveThreshWinSizeStep = 3, 53, 4
+        dp.minMarkerPerimeterRate = 0.01
+        dp.polygonalApproxAccuracyRate = 0.05
+        dp.errorCorrectionRate = 0.8
         dp.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_NONE
         self.det = cv2.aruco.CharucoDetector(self.board, cp, dp)
 

@@ -25,3 +25,4 @@ music/clips/*
 *-local.jpg
 *-local.png
 experiments/*/scan-*-local/
+interfaces/wristcam/data/
