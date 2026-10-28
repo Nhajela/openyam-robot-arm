@@ -7,6 +7,8 @@
 // Tilt the start pose that becomes "still") -> play (the mode's panel). STOP, Modes and Home
 // stay in the dock on every view.
 
+import { openChess, chessMessage, chessInvolves } from './chess.js';
+
 const RATE_MS = 66;                 // ~15 Hz while a control is held
 const TILT_DEAD = 3, TILT_FULL = 25; // degrees from the saved start pose (same as tilt.html)
 const START_BETA = 30;              // start pose: screen up, top tipped ~30 deg toward you
@@ -56,6 +58,10 @@ const MODES = [
   { id: 'grab', emoji: '🦾', title: 'Grab', pitch: 'Pick up a block and move it', tag: 'Skill', hue: 'teal',
     on: (f, w) => f.grab && (w.spots || []).length > 1,
     how: ['Choose where the block is now.', 'Choose where it should go.', 'Tap <b>Grab it</b> and watch.'] },
+  { id: 'chess', emoji: '♟️', title: 'Chess', pitch: 'Play the arm on a real board', tag: 'Skill', hue: 'violet',
+    on: (f) => !!f.chess,
+    how: ['Move a piece on the real board with your hand.', 'Hit the big <b>clock</b> button: the cameras see your move.',
+      'The arm picks up its piece and plays its reply.'], go: "Let's play" },
 ];
 const modeById = (id) => MODES.find((m) => m.id === id);
 
@@ -176,6 +182,8 @@ function handle(m) {
       S.poses = m.list || []; renderPoses(); break;
     case 'seq':
       renderSeq(m); break;
+    case 'chess':
+      chessMessage(m); $('chessLobbyCard').hidden = !chessInvolves(); break;
     case 'pong': break;
   }
 }
@@ -779,6 +787,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 
 // ------------------------------------------------------------------ start
 show('lobby');
+for (const id of ['chessTurn', 'chessLobby']) openChess($(id), { send, toast });
 applyFeatures();
 connect();
 // debugging / tests / screenshots

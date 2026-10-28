@@ -164,6 +164,27 @@ body.attract .qr-count { font-size: 1.2rem; }
 
 #modePanel { position: absolute; z-index: 4; }
 body.mode-panel #modePanel { display: block; }
+/* chess panel (display_chess.js) */
+body.mode-panel #invite { display: none; }
+#modePanel { left: 1.6rem; top: 4.2rem; width: 21rem; }
+.dc { background: rgba(21, 26, 32, .92); border: 1px solid var(--line); border-radius: 1rem; padding: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 1rem 3rem rgba(0,0,0,.45); }
+.dc-k { font-size: 0.75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.dc-players { display: flex; gap: 0.6rem; align-items: center; font-size: 1.05rem; flex-wrap: wrap; }
+.dc-pl { padding: 0.15rem 0.5rem; border-radius: 0.4rem; border: 1px solid transparent; }
+.dc-pl.on { border-color: var(--ok); background: rgba(62, 207, 142, .12); font-weight: 700; }
+.dc-board { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; border-radius: 0.4rem; overflow: hidden; border: 2px solid #3a4552; }
+.dc-sq { position: relative; display: flex; align-items: center; justify-content: center; }
+.dc-sq.light { background: #c9b48f; } .dc-sq.dark { background: #7d5f43; }
+.dc-sq.last { box-shadow: inset 0 0 0 10rem rgba(92, 200, 255, .3); }
+.dc-sq .pc { font-size: 2.1rem; line-height: 1; }
+.dc-sq .pc.w { color: #fff; text-shadow: 0 0 2px #000, 0 1px 3px #000; } .dc-sq .pc.b { color: #111; text-shadow: 0 0 2px rgba(255,255,255,.5); }
+.dc-sq .rk, .dc-sq .fl { position: absolute; font: 600 0.6rem var(--mono); font-style: normal; color: rgba(0,0,0,.55); }
+.dc-sq .rk { left: 0.15rem; top: 0.1rem; } .dc-sq .fl { right: 0.15rem; bottom: 0.05rem; }
+.dc-state { font-size: 1.1rem; } .dc-state .chk { color: var(--bad); }
+.dc-last { color: var(--quote); }
+.dc-moves { font: 0.8rem var(--mono); color: var(--muted); max-height: 3.2rem; overflow: hidden; }
+.dc-warn { font-size: 0.85rem; color: var(--warn); background: rgba(242, 177, 52, .1); border: 1px solid rgba(242, 177, 52, .4); border-radius: 0.5rem; padding: 0.35rem 0.5rem; }
+.k-chess { background: var(--accent) !important; }
 
 .estop-btn { background: radial-gradient(circle at 50% 35%, #ff4a4a, #c41111 70%); border: 0.2rem solid #ffb3b3; color: #fff; font-weight: 900; letter-spacing: .06em; border-radius: 0.8rem;
   box-shadow: 0 0.3rem 0 #6e0909, 0 0 1.2rem rgba(255, 40, 40, .35); text-shadow: 0 1px 2px rgba(0,0,0,.5); }
@@ -260,3 +281,16 @@ body.rail-off .toast { right: 7rem; bottom: 1.2rem; }
 body.attract #captions { opacity: 0; }
 #captions { transition: opacity .6s; }
 body.has-banner #hero, body.has-banner #waitCard { visibility: hidden; }
+/* chess panel: clocks, eval bar, camera strip */
+.dc-clocks { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.dc-face { border: 1px solid var(--line); border-radius: 0.6rem; padding: 0.35rem 0.5rem; opacity: .6; }
+.dc-face.run { opacity: 1; border-color: var(--ok); background: rgba(62, 207, 142, .12); }
+.dc-fn { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dc-ft { font: 700 1.9rem var(--mono); letter-spacing: -0.02em; }
+.dc-main { display: grid; grid-template-columns: 0.7rem 1fr; gap: 0.4rem; }
+.dc-eval { position: relative; background: #1a1d22; border-radius: 0.3rem; overflow: hidden; border: 1px solid #3a4552; }
+.dc-eval i { position: absolute; left: 0; right: 0; bottom: 0; background: #eef2f6; transition: height .6s; }
+.dc-cams { display: flex; gap: 0.4rem; overflow: hidden; }
+.dc-cams figure { margin: 0; flex: 0 0 auto; }
+.dc-cams img { height: 4.2rem; border-radius: 0.3rem; border: 1px solid var(--line); display: block; }
+.dc-cams figcaption { font-size: 0.65rem; color: var(--muted); }

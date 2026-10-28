@@ -71,14 +71,16 @@ The OpenYAM has no camera of its own. Options, best first:
 
 ## 5. Build order
 
-1. **Tap-to-move chess in open play:**
-   - a chess tab on the phone (tap legal moves) and a chess panel on the display
-   - the arm executes its replies on a calibrated board
-   - needs: `DimosBackend`, board corner calibration, gripper measurements
-2. **Board vision v1** (`vision/chessboard.py`):
-   - tag registration, rectification, per-square change scores, legal-move matching
-   - developed against synthetic renders first (a drawn board with pieces, perspective-warped, noise added), then the real board under the overhead phone
-   - the "I moved" button flow
-3. **Self-check after the arm's moves, and recovery prompts.**
-4. **Fully automatic detection** (still-board trigger, hand detection, maybe using MediaPipe hands, which we already have).
-5. Optional: a wrist camera for the last centimetre of each grasp.
+Updated 2026-10-28: the primary flow is **layer 2** (real board + chess clock + cameras); tap-to-move is the fallback, not the main UI.
+
+1. **Chess clock in open play (built, 🧪 mock/sim only):**
+   - phone: a chess-clock screen (two clock faces, one giant "I've moved" button, haptics), candidate buttons when the camera is unsure, the tap board as the fallback (`openplay/static/chess.js`)
+   - laptop display: board panel mirroring the real board, last move, both clocks, eval bar (material), camera strip, uncalibrated warning; operator clock key `c`, Board fixed, End game (`openplay/static/display_chess.js`)
+   - server: the game, the clock press → `BoardSensor` snapshots → `rank_moves` / `decide`, the engine's moves on the arm through the usual approval path (`openplay/chess_play.py`, `openplay/server.py`; contract in `openplay/PROTOCOL.md` "Chess")
+   - the sensor contract and move matching: `interfaces/chess_vision/sensor.py` (`Snapshot`, `BoardSensor`, `rank_moves`, `decide`, `FakeBoardSensor`)
+   - chess is refused on a real arm until `workcell.json` has `calibrated: true`
+2. **Board cameras** (`interfaces/chess_vision/camera.py`, `CameraBoardSensor`, being built separately against the same contract): tag registration, rectification, per-square occupancy and colour, JPEG frames for the display. Develop against synthetic renders first, then the real board. Run open play with `--chess-sensor camera`.
+3. **On the arm:** calibrate the board corners (`fit_table_frame`), measure the gripper, then the arm's first real chess move with a foam block standing in for a piece.
+4. **Self-check after the arm's moves, and recovery prompts** (the same comparison: did the piece arrive?).
+5. **Fully automatic detection** (still-board trigger, hand detection, maybe MediaPipe hands): the clock press becomes optional.
+6. Optional: a wrist camera for the last centimetre of each grasp.

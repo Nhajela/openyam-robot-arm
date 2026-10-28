@@ -9,6 +9,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23151a20%27/%3E%3Cpath d=%27M8 25h16M12 25l3-9 7-5%27 stroke=%27%235cc8ff%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2722%27 cy=%2711%27 r=%272.5%27 fill=%27%23ff8a3d%27/%3E%3C/svg%3E">
 <title>Play with the robot arm</title>
 <link rel="stylesheet" href="/static/play.css">
+<link rel="stylesheet" href="/static/chess.css">
 <script type="module" src="/static/play.js"></script>
 </head>
 <body>
@@ -60,6 +61,9 @@
     <div class="label">In the queue</div>
     <ol class="queue" id="queue"></ol>
   </div>
+
+  <!-- chess (openplay/static/chess.js): a game waiting for an opponent, or yours while someone else has the arm -->
+  <div class="card" id="chessLobbyCard" hidden><div class="label">Chess</div><div id="chessLobby" data-role="lobby"></div></div>
 
   <div class="card how">
     <div class="label">How it works</div>
@@ -274,6 +278,12 @@
         <div class="spots" id="spotsTo"></div>
         <div class="grab-sum" id="grabSum">Choose a "from" and a "to" spot.</div>
         <button class="btn primary big" id="grabBtn" disabled>🦾 Grab it</button>
+      </div>
+
+      <!-- chess (openplay/static/chess.js) -->
+      <div class="panel" id="panel-chess" hidden>
+        <p class="lead">A real board on the table. Move a piece by hand, then hit the clock: the cameras see your move and the arm plays its reply.</p>
+        <div id="chessTurn" data-role="turn"></div>
       </div>
     </div>
   </main>

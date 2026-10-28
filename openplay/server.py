@@ -2,7 +2,7 @@
 
     .venv/bin/python -m openplay.server [--daemon ws://127.0.0.1:8091/armctl] [--phone-port 8450]
         [--local-port 8451] [--key KEY] [--turn 600] [--auto-play on|off|auto] [--host-ip IP]
-        [--phone-host 0.0.0.0] [--urdf-dir DIR] [--events-log PATH]
+        [--phone-host 0.0.0.0] [--urdf-dir DIR] [--events-log PATH] [--chess-sensor fake|camera]
 
 Two listeners in one asyncio process:
   * https://<phone-host>:8450  phones. Self-signed cert from dashboard/certs/ (phonecam's),
@@ -64,6 +64,9 @@ PENDING_TIMEOUT_S = 120.0
 STREAM_REFUSAL_EVERY_S = 1.0
 MOTION_OPS = {"stream", "move", "say", "grip", "ready", "home", "stop", "pose.save", "pose.goto", "seq.play", "grab"}
 DISCRETE = {"move", "ready", "home", "pose.goto", "seq.play", "grab"}  # (say joins the busy slot once authored)
+CHESS_OPS = {"chess.new", "chess.accept", "chess.clock", "chess.pick", "chess.move", "chess.resign"}
+CHESS_SENSORS = ("fake", "camera")
+EVENT_KINDS = ("move", "say", "seq", "grab", "chess")
 LOOPBACK = {"127.0.0.1", "::1", "localhost", "testclient"}
 
 PLACEHOLDER = """<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
@@ -145,8 +148,16 @@ def probe_features() -> tuple[dict, list[dict], list[dict]]:
         poses_ok = callable(TP.sequence_playable)
     except Exception as e:
         log.warning("pose sequences unavailable: %s: %s", type(e).__name__, e)
+    try:
+        from openplay import chess_play as CP
+
+        chess_ok = callable(CP.plan_move)
+    except Exception as e:
+        chess_ok = False
+        log.warning("chess unavailable: %s: %s", type(e).__name__, e)
     say_ok = bool(moves) or bool(os.environ.get("ANTHROPIC_API_KEY"))
-    features = {"say": say_ok, "grab": bool(spots), "tilt": True, "joystick": True, "poses": poses_ok}
+    features = {"say": say_ok, "grab": bool(spots), "tilt": True, "joystick": True, "poses": poses_ok,
+                "chess": chess_ok}
     return features, moves, spots
 
 
@@ -171,7 +182,8 @@ def playable_info(playable: dict) -> tuple[float, list]:
 class OpenPlay:
     def __init__(self, *, daemon_url: str = DEFAULT_URL, turn_s: float = 600.0, auto_play: str = "auto",
                  join_url: str = "", urdf_dir: Path = DEFAULT_URDF_DIR, events_log: Path | None = EVENTS_LOG,
-                 lin_mps: float = LIN_MPS, ang_rps: float = ANG_RPS, joint_rps: float = JOINT_RPS):
+                 lin_mps: float = LIN_MPS, ang_rps: float = ANG_RPS, joint_rps: float = JOINT_RPS,
+                 workcell: Path | None = None, chess_sensor: Any = "fake", chess_clock_s: float = 600.0):
         self.lobby = Lobby(turn_s=turn_s)
         self.arm = ArmBridge(daemon_url, on_event=self._arm_event, lin_mps=lin_mps, ang_rps=ang_rps,
                              joint_rps=joint_rps)
@@ -193,6 +205,13 @@ class OpenPlay:
         self.handover = False
         self._offline_said = False
         self.recent: collections.deque[dict] = collections.deque(maxlen=20)
+        self.workcell_path = workcell                # None: interfaces/grasp/workcell.json
+        self.chess = None                            # the one chess game (openplay.chess_play.Game)
+        self.chess_clock_s = chess_clock_s
+        self.chess_sensor_kind, self.chess_sensor, self.chess_sensor_error = make_chess_sensor(chess_sensor)
+        self.chess_ref = None                        # reference board snapshot (the human's move is compared to it)
+        self.chess_frames: dict[str, bytes] = {}     # latest camera JPEGs, for the display strip
+        self.chess_frames_t: float | None = None
         self._tasks: list[asyncio.Task] = []
         self._qr: bytes | None = None
         self._n = 0
@@ -331,6 +350,10 @@ class OpenPlay:
                     can_start = False  # e.g. the arm starts folded at home: ready first
                     self.handover = True
                     asyncio.create_task(self._prepare())
+                a = self.lobby.active
+                if a is not None and (self.pending or (self.busy and self.busy.get("pid") is not None)
+                                      or self._chess_waiting_on_other(a.pid)):
+                    self.lobby.touch(a.pid)  # waiting on the arm, the operator or the opponent is not idle
                 evs = self.lobby.tick(can_start=can_start)
                 if evs:
                     self._lobby_events(evs)
@@ -387,6 +410,8 @@ class OpenPlay:
             elif e["kind"] == "dropped":
                 self.event("leave", f"{who} lost their place (away too long)", who)
         self.push_lobby()
+        if self.chess is not None:
+            self.push_chess()
 
     def near_ready(self, tol: float = 0.05) -> bool:
         q, ready = self.arm.state.get("q"), (self.arm.hello.get("poses") or {}).get("ready")
@@ -432,6 +457,8 @@ class OpenPlay:
                 self.busy = None
             self.handover = False
             self.push_lobby()
+            if self.chess is not None:
+                self.push_chess()
 
     def _cancel_player_work(self, pid: str, why: str) -> None:
         t = self.say_thinking.pop(pid, None)
@@ -495,6 +522,8 @@ class OpenPlay:
             return
         if op in ("pose.delete", "pose.clear"):
             return self._pose_edit(pid, op, m)
+        if op in CHESS_OPS:
+            return await self._chess_msg(c, pid, op, m)
         if op not in MOTION_OPS:
             return self.refuse(c, f"unknown op {op!r}")
         if op == "stream" and _zero_stream(m):
@@ -574,6 +603,8 @@ class OpenPlay:
         a = self.arm_msg()
         if a:
             c.send(a)
+        if self.features.get("chess"):
+            c.send(self.chess_msg(pid))
         self.push_lobby()
 
     def _detach(self, c: Conn) -> None:
@@ -714,6 +745,8 @@ class OpenPlay:
             finally:
                 if self.busy is token:
                     self.busy = None
+                if self.chess is not None:  # legal moves depend on the arm being free
+                    self.push_chess()
 
         token["task"] = asyncio.create_task(run())
 
@@ -725,6 +758,20 @@ class OpenPlay:
         r = await self.arm.validate(playable)
         if not r.get("ok"):
             raise ActionError(f"{title} doesn't pass the safety check: " + "; ".join(r.get("violations", [])[:2]))
+        await self._approve(pid, kind, title, dur, keyframes)
+        self.status(pid, f"Playing {title} ({dur:.0f} s)", "busy")
+        self.event(kind if kind in EVENT_KINDS else "move", f"Playing {title} ({dur:.0f} s)", who)
+        if on_start:
+            on_start()
+        # confirm=True: either the operator chose auto-play, or they just approved this
+        # playable on the loopback display. Nothing else presses the daemon's Play.
+        await self.arm.play(playable, confirm=True, timeout=dur + 20.0)
+        self.status(pid, f"Done: {title}", "done")
+
+    async def _approve(self, pid: str, kind: str, title: str, dur: float, keyframes: list) -> None:
+        """With auto_play off: show ``title`` as pending and wait for the operator's Approve
+        (that is the operator pressing Play). Raises ActionError on deny or time-out."""
+        who = self.name(pid)
         if not self.auto_play:
             fut = asyncio.get_running_loop().create_future()
             self.pending = {"id": uuid.uuid4().hex[:8], "who": who, "title": title, "duration_s": dur,
@@ -733,8 +780,7 @@ class OpenPlay:
                 self.busy["doing"] = f"waiting for the operator to approve {title}"
             self.push_pending()
             self.status(pid, f"Waiting for the operator to approve {title}", "busy")
-            self.event(kind if kind in ("move", "say", "seq", "grab") else "move",
-                       f"{title} is waiting for the operator", who)
+            self.event(kind if kind in EVENT_KINDS else "move", f"{title} is waiting for the operator", who)
             try:
                 ok, why = await asyncio.wait_for(fut, PENDING_TIMEOUT_S)
             except asyncio.TimeoutError:
@@ -746,14 +792,6 @@ class OpenPlay:
                 raise ActionError(f"{title}: {why}")
             if self.busy and self.busy["pid"] == pid:
                 self.busy["doing"] = f"playing {title}"
-        self.status(pid, f"Playing {title} ({dur:.0f} s)", "busy")
-        self.event(kind if kind in ("move", "say", "seq", "grab") else "move", f"Playing {title} ({dur:.0f} s)", who)
-        if on_start:
-            on_start()
-        # confirm=True: either the operator chose auto-play, or they just approved this
-        # playable on the loopback display. Nothing else presses the daemon's Play.
-        await self.arm.play(playable, confirm=True, timeout=dur + 20.0)
-        self.status(pid, f"Done: {title}", "done")
 
     async def _do_move(self, pid: str, name: str, title: str) -> None:
         from openplay import moves as M
@@ -893,6 +931,379 @@ class OpenPlay:
             if self.say_thinking.get(pid) is task:
                 self.say_thinking.pop(pid, None)
 
+    # ------------------------------------------------------------------ chess
+    # A real board on the table (openplay/chess_play.py, PROTOCOL.md "Chess"). The human moves a
+    # piece by hand and presses the clock; the board sensor's before/after snapshots say which
+    # legal move it was (interfaces/chess_vision/sensor.py). The arm plays the engine's replies
+    # through the normal validate -> approve -> Play path. The logical board changes only once a
+    # move is on the real board.
+    def _workcell(self):
+        from openplay import chess_play as CP
+
+        return CP.load_workcell(self.workcell_path)
+
+    def chess_refusal(self) -> str | None:
+        """Why the arm may not play chess now (an uncalibrated board on a real arm), or None."""
+        from openplay import chess_play as CP
+
+        try:
+            wc = self._workcell()
+        except Exception as e:
+            return f"chess: can't read the workcell ({type(e).__name__}: {e})"
+        return CP.calibration_refusal(self.arm.adapter, wc)
+
+    def chess_msg(self, pid: str | None, display: bool = False) -> dict:
+        g = self.chess
+        try:
+            calibrated = bool(self._workcell().calibrated)
+        except Exception:
+            calibrated = False
+        refusal = self.chess_sensor_error or self.chess_refusal()
+        a = self.lobby.active
+        can_move = not self.handover and g is not None and a is not None and a.pid in g.pids()
+        m = {"op": "chess", "game": g.view(pid, display=display, can_move=can_move) if g else None,
+             "calibrated": calibrated, "arm_ok": refusal is None, "refusal": refusal,
+             "sensor": self.chess_sensor_kind}
+        if display:
+            m["frames"] = sorted(self.chess_frames)
+            m["frames_t"] = self.chess_frames_t
+        return m
+
+    def push_chess(self) -> None:
+        if not self.features.get("chess"):
+            return
+        for pid, cs in self.phones.items():
+            v = self.chess_msg(pid)
+            for c in cs:
+                c.send(v)
+        self.to_displays(self.chess_msg(None, display=True))
+
+    def _chess_waiting_on_other(self, active_pid: str) -> bool:
+        """The active player's chess game is waiting on the arm, the opponent or the board:
+        their turn is not idle."""
+        g = self.chess
+        if g is None or g.over or active_pid not in g.pids():
+            return False
+        return bool(g.attention or g.looking or g.status == "waiting"
+                    or (g.status == "playing" and g.to_move["pid"] not in (active_pid,)))
+
+    def _chess_present(self, g) -> bool:
+        return any(p in self.lobby.players for p in g.pids())
+
+    async def _chess_snapshot(self):
+        """A board snapshot from the sensor (in a thread: a camera blocks); keeps its frames."""
+        snap = await asyncio.to_thread(self.chess_sensor.snapshot)
+        if snap.frames:
+            self.chess_frames = dict(snap.frames)
+            self.chess_frames_t = round(time.time(), 2)
+        return snap
+
+    def _chess_sync(self) -> None:
+        """The fake sensor's 'world' follows the game (as the real board does physically)."""
+        sync = getattr(self.chess_sensor, "sync", None)
+        if callable(sync) and self.chess is not None:
+            with contextlib.suppress(Exception):
+                sync(self.chess.board)
+
+    async def _chess_human_clock(self, g) -> None:
+        """The board is settled with a human to move: new reference snapshot, start their clock."""
+        if g.over or g.status != "playing" or g.to_move["engine"] or g.attention:
+            return
+        try:
+            self.chess_ref = await self._chess_snapshot()
+        except Exception as e:
+            log.warning("chess snapshot: %s", e)
+            self.chess_ref = None
+            g.unseen = f"the board camera failed ({type(e).__name__}): tap your move instead"
+        g.clock_start(g.board.turn)
+        self.push_chess()
+
+    def _chess_new_checks(self, c: Conn) -> bool:
+        if self.chess_sensor_error:
+            self.refuse(c, self.chess_sensor_error)
+            return False
+        if self.handover:
+            self.refuse(c, "the turn is ending")
+            return False
+        reason = self.arm.unavailable_reason() or self.chess_refusal()
+        if reason:
+            self.refuse(c, reason)
+            return False
+        if self.busy or self.pending:
+            self.refuse(c, self.busy_reason())
+            return False
+        return True
+
+    async def _chess_msg(self, c: Conn, pid: str, op: str, m: dict) -> None:
+        from openplay import chess_play as CP
+
+        if not self.features.get("chess"):
+            return self.refuse(c, "chess is not available")
+        g = self.chess
+        who = self.name(pid)
+        active = self.lobby.active.pid if self.lobby.active else None
+        if op == "chess.new":
+            if pid != active:
+                return self.refuse(c, "not your turn")
+            self.lobby.touch(pid)
+            if not self._chess_new_checks(c):
+                return
+            if g is not None and not g.over:
+                if g.sans and self._chess_present(g):
+                    return self.refuse(c, f"a chess game is on ({g.describe()}): finish or resign it first")
+                if not g.sans and g.owner != pid and self._chess_present(g):
+                    return self.refuse(c, f"{self.name(g.owner)} has a chess game waiting")
+                g.end("abandoned")
+            try:
+                ng = CP.Game.new(pid, who, opponent=str(m.get("opponent") or "engine"),
+                                 color=str(m.get("color") or "white"), clock_s=self.chess_clock_s)
+            except CP.ChessError as e:
+                return self.refuse(c, str(e))
+            if g is not None and g.sans:  # pieces are where the last game left them
+                ng.attention = "set the pieces up in the start position"
+            self.chess = ng
+            self._chess_sync()
+            vs = "the arm" if ng.opponent == "engine" else "anyone who accepts"
+            self.event("chess", f"{who} started a chess game against {vs} (plays {cname_of(ng, pid)})", who)
+            self.status(pid, "New chess game: waiting for someone to accept" if ng.status == "waiting"
+                        else "New chess game against the arm", "info")
+            self.push_chess()
+            if ng.engine_to_move and not ng.attention:
+                self._chess_engine_start(pid)
+            else:
+                await self._chess_human_clock(ng)
+            return
+        if g is None or g.over:
+            return self.refuse(c, "no chess game is on (start one with New game)")
+        if op == "chess.accept":
+            if active is None or active != g.owner:
+                return self.refuse(c, f"you can accept while {self.name(g.owner)} has the arm")
+            try:
+                g.accept(pid, who)
+            except CP.ChessError as e:
+                return self.refuse(c, str(e))
+            self.event("chess", f"{who} accepted the chess game: {g.describe()}", who)
+            self.push_chess()
+            return await self._chess_human_clock(g)
+        if op == "chess.resign":
+            try:
+                g.resign(pid)
+            except CP.ChessError as e:
+                return self.refuse(c, str(e))
+            self.event("chess", f"{who} {'resigned' if g.reason == 'resigned' else 'cancelled the game'}"
+                       f" ({g.describe()})", who)
+            return self.push_chess()
+        # chess.clock / chess.pick / chess.move: the player to move says what they did
+        if active is None or active not in g.pids():
+            return self.refuse(c, f"the game goes on during {self.name(g.owner)}'s turn" if pid in g.pids()
+                               else "not your turn")
+        if g.color_of(pid) is None:
+            return self.refuse(c, "you're not playing in this game")
+        self.lobby.touch(active)
+        if op == "chess.clock":
+            return await self._chess_clock(c, pid)
+        uci = m.get("uci")
+        if op == "chess.pick" and not any(x["uci"] == str(uci) for x in g.candidates):
+            return self.refuse(c, "pick one of the moves shown")
+        try:
+            mv = g.check_move(pid, uci)
+        except CP.ChessError as e:
+            self.event("refused", f"chess: {e}", who)
+            return self.refuse(c, str(e))
+        await self._chess_human_moved(pid, mv, "picked" if op == "chess.pick" else "tap")
+
+    async def _chess_clock(self, c: Conn | None, pid: str | None) -> None:
+        """The clock press: "I've moved". Compare the board with the reference snapshot."""
+        from interfaces.chess_vision import sensor as SV
+
+        g = self.chess
+        if g is None or g.over or g.status != "playing":
+            return self.refuse(c, "no chess game is on") if c else None
+        mover = g.to_move
+        if mover["engine"]:
+            return self.refuse(c, "it's the arm's move") if c else None
+        if pid is not None and mover["pid"] != pid:
+            return self.refuse(c, f"it's {mover['name']}'s move") if c else None
+        if g.attention:
+            return self.refuse(c, f"waiting for the board to be fixed: {g.attention}") if c else None
+        if g.looking or g.moving or g.thinking:
+            return self.refuse(c, "one moment: still busy with the last move") if c else None
+        pid = mover["pid"]
+        g.clock_stop()
+        g.looking, g.candidates, g.unseen = True, [], None
+        self.push_chess()
+        try:
+            if self.chess_ref is None:
+                raise RuntimeError("no reference picture of the board")
+            after = await self._chess_snapshot()
+            ranked = SV.rank_moves(g.board, self.chess_ref, after)
+            verdict, cands = SV.decide(ranked)
+        except Exception as e:
+            log.warning("chess look: %s", e)
+            verdict, cands, after = "unseen", [], None
+        finally:
+            g.looking = False
+        if self.chess is not g or g.over:
+            return
+        if verdict == "seen":
+            mv = cands[0][0]
+            self.chess_ref = after
+            return await self._chess_human_moved(pid, mv, "camera")
+        if verdict == "ambiguous":
+            g.candidates = [{"uci": m_.uci(), "san": g.board.san(m_), "score": round(s, 2)} for m_, s in cands]
+            self.status(pid, "Which move did you make? Tap it.", "info")
+            self.event("chess", f"Not sure which move {mover['name']} made: "
+                       + " or ".join(x["san"] for x in g.candidates) + "?", mover["name"])
+        else:
+            g.unseen = "I couldn't see your move: check the pieces and hit the clock again, or tap your move"
+            g.clock_start(g.board.turn)
+            self.status(pid, "I couldn't see your move", "error")
+            self.event("chess", f"Couldn't see {mover['name']}'s move", mover["name"])
+        self.push_chess()
+
+    async def _chess_human_moved(self, pid: str, mv, how: str) -> None:
+        g = self.chess
+        who = self.name(pid)
+        g.clock_stop()
+        san = g.apply(mv, by=who, how=how)
+        self._chess_sync()
+        self.status(pid, f"You played {san}", "done")
+        self.event("chess", f"{who} played {san}", who)
+        if g.over:
+            self.event("chess", f"Game over: {g.result} ({g.reason}), {g.describe()}")
+        self.push_chess()
+        if g.over:
+            return
+        if g.engine_to_move:
+            a = self.lobby.active
+            self._chess_engine_start(a.pid if a else pid)
+        else:
+            if how != "camera":
+                self.chess_ref = None  # retake: the board changed by hand since the last picture
+            if self.chess_ref is None:
+                await self._chess_human_clock(g)
+            else:
+                g.clock_start(g.board.turn)
+                self.push_chess()
+
+    def _chess_engine_start(self, active: str) -> None:
+        if self.busy or self.pending:
+            return
+        self._begin(active, "chess", "chess", "the arm is playing its chess move", self._do_chess_engine(active))
+        self.push_chess()
+
+    async def _do_chess_engine(self, pid: str) -> None:
+        """The engine's move: think, plan the pick and places, operator approval (auto-play
+        off), play them on the arm, then a new reference picture and the human's clock."""
+        from openplay import chess_play as CP
+
+        g = self.chess
+        if g is None or g.over or not g.engine_to_move:
+            return
+        mover = CP.ENGINE_NAME
+        g.clock_start(g.board.turn)
+        started = False
+        san = "its move"
+        try:
+            g.thinking = True
+            self.push_chess()
+            self.event("chess", "The arm is thinking…")
+            try:
+                move = await asyncio.to_thread(CP.engine_move, g.board.copy())
+            finally:
+                g.thinking = False
+            if self.chess is not g or g.over:
+                return
+            refusal = self.chess_refusal()
+            if refusal:
+                raise ActionError(refusal)
+            san = g.board.san(move)
+            try:
+                steps = await asyncio.to_thread(CP.plan_move, g.board.copy(), move, g.captured, self._workcell())
+            except CP.ChessError as e:  # the arm can't make its own move: a human makes it for it
+                g.clock_stop()
+                g.apply(move, by=mover)
+                g.attention = f"the arm can't reach for its move {san} ({e}): make it by hand"
+                self.event("chess", f"The arm plays {san}, but needs a hand: {e}")
+                return
+            arm_steps = [s for s in steps if s["playable"] is not None]
+            for s in arm_steps:
+                r = await self.arm.validate(s["playable"])
+                if not r.get("ok"):
+                    raise ActionError(f"{san} doesn't pass the safety check: " +
+                                      "; ".join(r.get("violations", [])[:2]))
+            dur = round(sum(s["duration_s"] for s in arm_steps), 1)
+            keyframes = arm_steps[0]["playable"]["keyframes"] if arm_steps else []
+            await self._approve(pid, "chess", f"Chess: the arm plays {san}", dur, keyframes)
+            if self.chess is not g or g.over:
+                return
+            g.moving = san
+            self.push_chess()
+            n = len(arm_steps)
+            self.event("chess", f"The arm plays {san} ({n} pick and place{'s' if n != 1 else ''}, {dur:.0f} s)")
+            for s in arm_steps:
+                started = True
+                await self.arm.play(s["playable"], confirm=True, timeout=s["duration_s"] + 20.0)
+            g.moving = None
+            g.clock_stop()
+            g.apply(move, by=mover)
+            self._chess_sync()
+            hand = [s["what"] for s in steps if s["playable"] is None]
+            if hand:
+                g.attention = "; ".join(hand)
+            for p in g.pids():
+                self.status(p, f"The arm played {san}: your move", "done")
+            if g.over:
+                self.event("chess", f"Game over: {g.result} ({g.reason}), {g.describe()}")
+            # the playable ends at "ready", clear of the board: picture, then the human's clock
+            await self._chess_human_clock(g)
+        except (Refused, ActionError) as e:
+            g.moving = None
+            g.clock_stop()
+            if g is self.chess and not g.over:
+                if started:  # pieces may be half-way: the board needs a human
+                    g.apply(move, by=mover)
+                    g.attention = f"the arm stopped during {san} ({_friendly(str(e))}): finish {move.uci()} by hand"
+                    self.event("chess", f"The arm stopped during {san}: the board needs fixing")
+                else:
+                    g.attention = f"the arm's move didn't start ({_friendly(str(e))}): press Board fixed to retry"
+            raise
+        finally:
+            g.thinking = False
+            self.push_chess()
+
+    async def _chess_operator(self, c: Conn, op: str, m: dict) -> None:
+        """Display (operator, loopback): chess.clock | chess.fixed | chess.reset."""
+        g = self.chess
+        if g is None:
+            return c.send({"op": "refused", "reason": "no chess game"})
+        if op == "chess.clock":
+            return await self._chess_clock(c, None)
+        if op == "chess.fixed":
+            if not g.attention:
+                return c.send({"op": "refused", "reason": "the chess board doesn't need fixing"})
+            g.attention = None
+            self.event("chess", "Operator: the chess board is fixed, play on")
+            self._chess_sync()
+            a = self.lobby.active
+            if g.engine_to_move and a and a.pid in g.pids():
+                self._chess_engine_start(a.pid)
+            else:
+                self.chess_ref = None
+                await self._chess_human_clock(g)
+        elif op == "chess.reset":
+            if g.moving or (self.busy and self.busy.get("kind") == "chess"):
+                return c.send({"op": "refused", "reason": "the arm is busy with a chess move: stop it first"})
+            g.end("ended by the operator")
+            g.attention = None
+            self.event("chess", f"Operator ended the chess game ({g.describe()})")
+        else:
+            return c.send({"op": "refused", "reason": f"unknown op {op!r}"})
+        self.push_chess()
+
+    def chess_frame(self, name: str) -> bytes | None:
+        return self.chess_frames.get(name)
+
     # ------------------------------------------------------------------ display protocol
     async def display_msg(self, c: Conn, m: Any) -> None:
         if not isinstance(m, dict) or not isinstance(m.get("op"), str):
@@ -946,6 +1357,8 @@ class OpenPlay:
                 return c.send({"op": "refused", "reason": "turn_s needs s (seconds)"})
             self.event("operator", f"Turns are now {self.lobby.turn_s:.0f} s")
             self.push_config()
+        elif op in ("chess.clock", "chess.fixed", "chess.reset"):
+            return await self._chess_operator(c, op, m)
         elif op in ("estop", "estop_reset"):
             try:
                 await (self.arm.estop_on() if op == "estop" else self.arm.estop_reset())
@@ -969,6 +1382,8 @@ class OpenPlay:
                                              if p else None)})
         for d in list(self.say_now.values()):
             c.send(d)
+        if self.features.get("chess"):
+            c.send(self.chess_msg(None, display=True))
         c.send({"op": "config", "auto_play": self.auto_play, "paused": self.lobby.paused, "turn_s": self.lobby.turn_s})
         for e in self.recent:
             c.send(e)
@@ -1040,6 +1455,14 @@ class OpenPlay:
         def favicon():
             return Response(status_code=204)
 
+        @app.get("/chess/frame/{name}")
+        def chess_frame(name: str, request: Request):
+            loopback(request.client.host if request.client else None)
+            jpg = self.chess_frame(name)
+            if jpg is None:
+                raise HTTPException(404, "no such camera frame")
+            return Response(jpg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+
         @app.websocket("/display/ws")
         async def ws_endpoint(ws: WebSocket):
             remote = ws.client.host if ws.client else ""
@@ -1085,6 +1508,37 @@ class OpenPlay:
             c.alive = False
             writer.cancel()
             gone(c)
+
+
+def make_chess_sensor(kind: Any) -> tuple[str, Any, str | None]:
+    """-> (kind, sensor or None, error). ``kind``: "fake" (FakeBoardSensor: mock/sim rehearsal,
+    tests), "camera" (interfaces.chess_vision.camera.CameraBoardSensor), or a sensor object."""
+    if not isinstance(kind, str):
+        return type(kind).__name__, kind, None
+    if kind == "fake":
+        try:
+            from interfaces.chess_vision.sensor import FakeBoardSensor
+
+            return "fake", FakeBoardSensor(), None
+        except Exception as e:
+            return "fake", None, f"chess sensor unavailable ({type(e).__name__}: {e})"
+    if kind == "camera":
+        try:
+            from interfaces.chess_vision.camera import CameraBoardSensor
+
+            return "camera", CameraBoardSensor(), None
+        except Exception as e:
+            log.warning("chess camera: %s: %s", type(e).__name__, e)
+            return "camera", None, (f"chess camera mode is unavailable ({type(e).__name__}: {e}); "
+                                    "run with --chess-sensor fake to play with tap-to-move only")
+    return str(kind), None, f"unknown chess sensor {kind!r} (fake | camera)"
+
+
+def cname_of(game, pid: str) -> str:
+    from openplay import chess_play as CP
+
+    c = game.color_of(pid)
+    return CP.cname(c) if c is not None else "watching"
 
 
 def _zero_stream(m: dict) -> bool:
@@ -1142,7 +1596,7 @@ async def serve(args) -> None:
     events = Path(args.events_log) if args.events_log else None
     op = OpenPlay(daemon_url=args.daemon, turn_s=args.turn, auto_play=args.auto_play, join_url=join_url,
                   urdf_dir=Path(args.urdf_dir), events_log=events, lin_mps=args.lin_mps,
-                  ang_rps=args.ang_rps, joint_rps=args.joint_rps)
+                  ang_rps=args.ang_rps, joint_rps=args.joint_rps, chess_sensor=args.chess_sensor)
     # The room key is a secret: only on an interactive terminal (and on the loopback display).
     shown = join_url if os.isatty(1) else join_url.split("?k=")[0] + f"?k=<key: see http://127.0.0.1:{args.local_port}>"
     print(f"open play: phones join at {shown}", flush=True)
@@ -1194,6 +1648,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--lin-mps", type=float, default=LIN_MPS, help="stream v=1 linear speed, m/s")
     ap.add_argument("--ang-rps", type=float, default=ANG_RPS, help="stream v=1 angular speed, rad/s")
     ap.add_argument("--joint-rps", type=float, default=JOINT_RPS, help="stream qd=1 joint speed, rad/s")
+    ap.add_argument("--chess-sensor", choices=CHESS_SENSORS, default="fake",
+                    help="how chess sees the human's move: fake (no camera: tap-to-move; mock/sim) or camera "
+                         "(interfaces.chess_vision.camera)")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s",
                         datefmt="%H:%M:%S")
