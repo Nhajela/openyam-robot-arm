@@ -46,7 +46,7 @@ from armctl import kin
 
 from interfaces.grasp.grasp import Workcell, _set_finger_yaw, holding
 
-from .camera import CameraModel, inv_T
+from .camera import finger_dir_for_cam_axis, CameraModel, inv_T
 from .locate import Detection, Hint, ObjectFinder, View, annotate
 
 
@@ -162,23 +162,31 @@ class GraspEngine:
     def _to_base(self, xyz_table) -> np.ndarray:
         return self.wc.to_base(xyz_table)
 
-    def _ik_down(self, xyz_base, seed) -> np.ndarray | None:
-        r = kin.ik(xyz_base, seed, down=True, check_table=False, restarts=3, max_iters=200)
+    def _ik_down(self, xyz_base, seed, look: bool = False) -> np.ndarray | None:
+        """Fingers straight down (grasp), or with ``look`` the CAMERA straight down: the wrist
+        camera sits ~60 deg off the finger axis (measured), so the fingers tilt outward."""
+        if look:
+            f = finger_dir_for_cam_axis([0.0, 0.0, -1.0], xyz_base, self.T_tip_cam)
+            r = kin.ik(xyz_base, seed, approach_dir=f, check_table=False, restarts=3, max_iters=200)
+        else:
+            r = kin.ik(xyz_base, seed, down=True, check_table=False, restarts=3, max_iters=200)
         if r.err_pos > 0.004 or r.err_rot > 0.08:
             return None
         q = r.q.copy()
-        if self.cfg.finger_yaw is not None:
+        if look:
+            q[5] = 0.0  # keep the camera in the arm's vertical plane
+        elif self.cfg.finger_yaw is not None:
             q = _set_finger_yaw(q, self.cfg.finger_yaw)
         else:
             q[5] = self.j6
         return q
 
-    def tip_over(self, xy_table, z_table, seed=None) -> np.ndarray | None:
+    def tip_over(self, xy_table, z_table, seed=None, look: bool = False) -> np.ndarray | None:
         p = self._to_base([xy_table[0], xy_table[1], z_table])
-        return self._ik_down(p, self.arm.q() if seed is None else seed)
+        return self._ik_down(p, self.arm.q() if seed is None else seed, look=look)
 
     def camera_over(self, xy_table, h_above_top) -> tuple[np.ndarray | None, float]:
-        """Tip pose (fingers down) whose optical axis passes through (xy, top) at the camera
+        """Tip pose (camera looking straight down) whose optical axis passes through (xy, top) at the camera
         height h above the object's top. Lowers h in 1 cm steps if it can't be reached."""
         h = h_above_top
         while h >= 0.05:
@@ -190,7 +198,7 @@ class GraspEngine:
             for _ in range(4):
                 # tip z so the camera sits at z_cam: camera height above tip ~ -R t (z part)
                 tip_z = z_cam - self._cam_above_tip(seed)
-                q = self.tip_over(tip_xy, tip_z, seed)
+                q = self.tip_over(tip_xy, tip_z, seed, look=True)
                 if q is None:
                     break
                 hit = self._axis_hit(q, self.top_z)

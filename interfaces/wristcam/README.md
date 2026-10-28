@@ -59,7 +59,8 @@ Follow `CLAUDE.md`: try new behaviour in simulation first; ask the person at the
 
 - Print `print/wristcam_calib_A4.pdf` on A4 at **100% / Actual size** (black and white is fine; matte paper is better). Measure the 50 mm bar. If it isn't 50.0 mm, pass `--square-mm 28*measured/50` to every `solve`.
 - Optional: print `print/wristcam_tags_A4.pdf` for tagged objects.
-- Tape the sheet **flat** to the table (all four edges, no bubbles), with the "+x" arrow pointing straight away from the arm and the board centre about 30 cm in front of the base. Then table x ≈ base x, and table y points to the arm's left.
+- **Lab layout (measured 28 Oct):** the arm sits at the platform's edge **facing away from it**: straight ahead (j1 0) is off the table. The usable cloth surface is on the arm's right (j1 −40°…−80°, where the white cup stands at ≈ −60°) and left. So tape the sheet **flat** (all four edges, no bubbles) on the **arm's right, on the cloth next to the cup**, about 25–30 cm from the base, "+x" pointing radially away from the base. Use its rough centre for `--board-center` (e.g. base frame `0.15,-0.25,0` at ≈ −60°); the solve finds the exact pose.
+- **Camera mounting (measured 28 Oct, scan 1):** the wrist camera looks **~60° off the finger axis** (rotated about the tip's y axis, toward tip +x), ~6 cm behind the tip; the jaws fill the lower corners. `camera.T_TIP_CAM_NOMINAL` encodes this, and `finger_dir_for_cam_axis` turns "camera looks along a" into the finger direction for IK: camera straight down = fingers ~30° below horizontal, pointing outward. Hand-eye replaces the nominal with the measured transform.
 
 A board shown on a laptop screen also works for the lens (not for hand-eye, unless the laptop lies flat and still): run `python -m interfaces.wristcam.board --screen 1920x1080 --pixel-mm <screen width mm / 1920>`, show the PNG full screen at 100%, and pass the printed `--square-mm` to `solve`.
 
@@ -67,8 +68,8 @@ A board shown on a laptop screen also works for the lens (not for hand-eye, unle
 
 ```
 .venv/bin/python vision/sources.py dashboard --out /tmp/wrist.jpg       # read-only frame grab
-.venv/bin/python -m interfaces.wristcam.handeye plan --board-center 0.30,0,0 --n 12
-.venv/bin/python -m interfaces.wristcam.handeye plan --board-center 0.30,0,0 --n 20 --purpose intrinsics
+.venv/bin/python -m interfaces.wristcam.handeye plan --board-center 0.15,-0.25,0 --n 12
+.venv/bin/python -m interfaces.wristcam.handeye plan --board-center 0.15,-0.25,0 --n 20 --purpose intrinsics
 ```
 
 `plan` moves nothing. It prints every view's q, tip, tilt and camera height. Each view has been checked against the soft box, the table guard (tip ≥ 0.08 m, links ≥ 0.03 m) and board visibility.
@@ -76,9 +77,9 @@ A board shown on a laptop screen also works for the lens (not for hand-eye, unle
 ### 2. Collect views (the arm moves; each motion is approved)
 
 ```
-.venv/bin/python -m interfaces.wristcam.handeye collect --board-center 0.30,0,0 --n 20 --purpose intrinsics \
+.venv/bin/python -m interfaces.wristcam.handeye collect --board-center 0.15,-0.25,0 --n 20 --purpose intrinsics \
     --out interfaces/wristcam/data/intr1 --execute
-.venv/bin/python -m interfaces.wristcam.handeye collect --board-center 0.30,0,0 --n 12 \
+.venv/bin/python -m interfaces.wristcam.handeye collect --board-center 0.15,-0.25,0 --n 12 \
     --out interfaces/wristcam/data/he1 --execute
 ```
 
@@ -107,12 +108,12 @@ Check: `locate --image <a frame> --q=<its q>` with the cup on the table, then co
 Use a cup like workcell `objects.cup` (6 cm, 8 cm tall), on the arm's right (table y ≈ -0.15).
 
 ```
-# park the arm at the first look pose (approved move), e.g. tip (0.28, -0.12, 0.20) fingers down,
-# q ~ [-0.40, 1.70, 1.59, -1.46, 0, 0]; then (nothing moves):
+# park the arm at a camera-down look pose over the cup (approved move): tip ~(0.134, -0.234, 0.22),
+# camera straight down, q ~ [-1.06, 0.80, 0.64, -0.37, 0, 0] (the scan-3a pose); then (nothing moves):
 .venv/bin/python -m interfaces.wristcam.look_and_grasp --object cup --place 0.08,-0.05
 #   -> runs/<time>/plan.json, look.jpg (annotated), <name>.playable.json (validated open-loop pick_place)
 # closed loop on the real arm (each motion asks y/N):
-.venv/bin/python -m interfaces.wristcam.look_and_grasp --execute --object cup --expect 0.0,-0.15 --place 0.08,-0.05
+.venv/bin/python -m interfaces.wristcam.look_and_grasp --execute --object cup --expect <cup xy in the table frame, from the dry run> --place 0.08,-0.05
 ```
 
 `--execute` refuses to start without a lens calibration, a hand-eye calibration and a calibrated workcell. Keep a hand near E-STOP. The first time, use something soft (a paper cup) and watch the descent: the fingers pass 1 cm either side of the rim.

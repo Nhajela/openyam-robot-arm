@@ -27,9 +27,23 @@ CALIB_DIR = HERE / "calib"
 DEFAULT_INTRINSICS = CALIB_DIR / "wristcam.json"
 DEFAULT_HANDEYE = CALIB_DIR / "handeye.json"
 
-# Nominal mounting until hand-eye is solved: camera at gripper_tip, optical axis along the
-# fingers (tip -z), image x along tip x. A rotation of pi about x.
-T_TIP_CAM_NOMINAL = np.diag([1.0, -1.0, -1.0, 1.0])
+# Nominal mounting until hand-eye is solved, MEASURED on the real arm 2026-10-28 (scan 1,
+# experiments/2026-10-28-laptop-systems-check): the camera does NOT look along the fingers.
+# Its optical axis is tilted ~60 deg from the finger axis (tip -z) toward tip +x, about the
+# tip's y axis; the fingers appear at the bottom of the image and the jaws open left/right.
+# Fit: the arm's base lands at pixel ~(660, 470) in all 7 fingers-down scan poses (median
+# error 54 px with the uncalibrated fisheye guess). Camera ~6 cm behind the tip (palm side).
+def _nominal_tip_cam() -> np.ndarray:
+    a, r = np.radians(-60.0), np.radians(90.0)
+    Ry = np.array([[np.cos(a), 0, np.sin(a)], [0, 1, 0], [-np.sin(a), 0, np.cos(a)]])
+    Rz = np.array([[np.cos(r), -np.sin(r), 0], [np.sin(r), np.cos(r), 0], [0, 0, 1]])
+    T = np.eye(4)
+    T[:3, :3] = Ry @ np.diag([1.0, -1.0, -1.0]) @ Rz
+    T[:3, 3] = [0.0, 0.0, 0.06]
+    return T
+
+
+T_TIP_CAM_NOMINAL = _nominal_tip_cam()
 
 # Image regions the jaws hide (normalised image coords, polygons). The person at the arm
 # reports the jaws in the LOWER corners. Override with a measured mask in handeye.json.
@@ -188,6 +202,26 @@ def load_handeye(path=DEFAULT_HANDEYE) -> np.ndarray | None:
     if not p.exists():
         return None
     return np.array(json.loads(p.read_text())["T_tip_cam"], float)
+
+
+def finger_dir_for_cam_axis(cam_axis, at_xyz, T_tip_cam=None) -> np.ndarray:
+    """Finger (approach) direction, base frame, that makes the camera look along ``cam_axis``
+    with the tip near ``at_xyz``. The camera is tilted from the fingers about the tip's y axis,
+    which stays horizontal and tangential while j5 ~ 0, so: rotate ``cam_axis`` about the
+    tangential axis by the mounting angle, choosing the sense that points the fingers outward.
+    (Camera straight down -> fingers ~30 deg below horizontal, outward.)"""
+    T = T_TIP_CAM_NOMINAL if T_tip_cam is None else np.asarray(T_tip_cam, float)
+    a = np.asarray(cam_axis, float) / np.linalg.norm(cam_axis)
+    ang = float(np.arccos(np.clip(T[:3, 2] @ np.array([0.0, 0.0, -1.0]), -1, 1)))
+    r = np.array([at_xyz[0], at_xyz[1], 0.0], float)
+    r = r / (np.linalg.norm(r) or 1.0)
+    t = np.cross([0.0, 0.0, 1.0], r)
+
+    def rot(v, k, th):  # Rodrigues
+        return v * np.cos(th) + np.cross(k, v) * np.sin(th) + k * (k @ v) * (1 - np.cos(th))
+    cands = [rot(a, t, ang), rot(a, t, -ang)]
+    f = max(cands, key=lambda v: v @ r)
+    return f / np.linalg.norm(f)
 
 
 def cam_pose(q, T_tip_cam=None) -> np.ndarray:

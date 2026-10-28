@@ -84,7 +84,9 @@ def test_plan_views_feasible(data):
         tilts = [v["tilt_deg"] for v in views]
         assert max(tilts) - min(tilts) > 8          # varied
         rolls = [v["q"][5] for v in views]
-        assert max(rolls) - min(rolls) > 0.4
+        # the real camera sits ~60 deg off the fingers: big j6 rolls swing the board out of view,
+        # so the surviving views vary roll less (heading and tilt still vary)
+        assert max(rolls) - min(rolls) > 0.3
 
 
 def test_intrinsics_recovery(data):

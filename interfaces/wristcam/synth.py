@@ -27,7 +27,7 @@ from armctl import envelope as envm
 from armctl import kin
 
 from .board import BoardSpec
-from .camera import JAW_POLYGONS, CameraModel, inv_T, make_T, rot_axis
+from .camera import JAW_POLYGONS, T_TIP_CAM_NOMINAL, CameraModel, inv_T, make_T, rot_axis
 
 LIGHT = np.array([-0.3, -0.4, 1.0]) / np.linalg.norm([-0.3, -0.4, 1.0])
 AMBIENT = 0.45
@@ -37,7 +37,11 @@ TABLE_BGR = (112, 128, 140)
 # tip, a few mm off the axis and tilted ~3 deg.
 TRUE_CAMERA = CameraModel("fisheye", [[700.0, 0, 646.0], [0, 699.0, 357.0], [0, 0, 1]],
                           [0.045, -0.018, 0.006, -0.0012], (1280, 720))
-TRUE_T_TIP_CAM = make_T(rot_axis([0.3, 1.0, 0.2], 3.0) @ np.diag([1.0, -1.0, -1.0]), [0.004, -0.007, 0.062])
+# "True" mounting for the synthetic tests: the MEASURED nominal (camera ~60 deg off the finger
+# axis, ~6 cm behind the tip; camera.T_TIP_CAM_NOMINAL) plus a few degrees and mm of error that
+# hand-eye has to recover.
+TRUE_T_TIP_CAM = make_T(rot_axis([0.3, 1.0, 0.2], 3.0) @ T_TIP_CAM_NOMINAL[:3, :3],
+                        T_TIP_CAM_NOMINAL[:3, 3] + np.array([0.004, -0.007, 0.002]))
 T_BASE_TABLE_TRUE = make_T(rot_axis([0, 0, 1], 4.0) @ rot_axis([1, 0.3, 0], 0.4), [0.305, 0.012, 0.002])
 
 
@@ -415,7 +419,8 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     world = demo_world()
     for name, xyz in (("board", (0.30, 0.0, 0.20)), ("cup", (0.29, -0.15, 0.17)), ("box", (0.32, 0.16, 0.17))):
-        r = kin.ik(xyz, down=True, check_table=False)
+        from .camera import finger_dir_for_cam_axis
+        r = kin.ik(xyz, approach_dir=finger_dir_for_cam_axis([0, 0, -1], xyz), check_table=False)
         img = world.render(TRUE_CAMERA, kin.fk(r.q) @ TRUE_T_TIP_CAM)
         cv2.imwrite(str(out / f"{name}.jpg"), img)
         print("wrote", out / f"{name}.jpg", "q", r.q.round(3).tolist())

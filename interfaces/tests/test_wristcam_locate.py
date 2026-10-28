@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import numpy as np
+
+from interfaces.wristcam.camera import finger_dir_for_cam_axis
 import pytest
 
 from armctl import kin
@@ -19,6 +21,13 @@ def world():
     return synth.World(cups=[synth.Cup(CUP_XY)], boxes=[synth.Box(BOX_XY, size=(0.05, 0.05, 0.04), tag_id=2, yaw=0.4)])
 
 
+def _cam_down(tip):
+    """Tip pose with the wrist camera looking straight down (fingers tilt outward)."""
+    q = kin.ik(tip, approach_dir=finger_dir_for_cam_axis([0, 0, -1], tip), check_table=False, restarts=3).q.copy()
+    q[5] = 0.0
+    return q
+
+
 def _look_at(world, target_table, dist, tilt_deg=18.0, az=np.pi):
     """q whose camera is ``dist`` from the target, looking at it with the given tilt."""
     T = world.T_base_table
@@ -28,8 +37,10 @@ def _look_at(world, target_table, dist, tilt_deg=18.0, az=np.pi):
     cam_pos = tgt - dist * a
     tip = cam_pos.copy()
     for _ in range(3):
-        r = kin.ik(tip, approach_dir=a, check_table=False, restarts=4)
+        # aim the CAMERA along a (it sits ~60 deg off the fingers on the real arm)
+        r = kin.ik(tip, approach_dir=finger_dir_for_cam_axis(a, tip, synth.TRUE_T_TIP_CAM), check_table=False, restarts=4)
         assert r.ok, r.reason
+        r.q[5] = 0.0
         tip = tip + cam_pos - (kin.fk(r.q) @ synth.TRUE_T_TIP_CAM)[:3, 3]
     return r.q
 
@@ -69,7 +80,7 @@ def test_cup_partly_under_the_jaws(world, monkeypatch):
     chosen = None
     for dx, dy in ((0.075, 0.05), (0.075, 0.075), (0.1, 0.075), (0.05, 0.075), (0.1, 0.1)):
         tip = (world.T_base_table @ np.r_[CUP_XY[0] + dx, CUP_XY[1] + dy, 0.20, 1.0])[:3]
-        r = kin.ik(tip, down=True, check_table=False, restarts=3, max_iters=150)
+        r = kin.ik(tip, approach_dir=finger_dir_for_cam_axis([0, 0, -1], tip), check_table=False, restarts=3, max_iters=150)
         if not r.ok:
             continue
         for j6 in np.linspace(-1.9, 1.9, 39):     # roll the camera so the cup swings into a lower corner
@@ -98,7 +109,7 @@ def test_cup_partly_under_the_jaws(world, monkeypatch):
 
 def test_no_cup_no_false_positive_on_the_board():
     world = synth.World()   # just the calibration sheet: lots of edges, no circle
-    q = kin.ik((0.30, 0.0, 0.17), down=True, check_table=False).q
+    q = _cam_down((0.30, 0.0, 0.17))
     img = world.render(synth.TRUE_CAMERA, kin.fk(q) @ synth.TRUE_T_TIP_CAM, seed=13)
     assert locate.CupFinder().find(img, _view(world, q)) is None
 
@@ -117,7 +128,7 @@ def test_tagged_box_at_25cm(world):
 def test_colour_blob_finder():
     world = synth.World(boxes=[synth.Box((0.0, -0.10), size=(0.05, 0.05, 0.04), yaw=0.3)])   # plain green box
     tip = (world.T_base_table @ np.r_[0.0, -0.10, 0.17, 1.0])[:3]
-    q = kin.ik(tip, down=True, check_table=False).q
+    q = _cam_down(tip)
     img = world.render(synth.TRUE_CAMERA, kin.fk(q) @ synth.TRUE_T_TIP_CAM, seed=15)
     d = locate.ColorBlobFinder(plane_height=0.04).find(img, _view(world, q))
     assert d is not None

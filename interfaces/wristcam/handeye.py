@@ -43,7 +43,7 @@ from armctl import envelope as envm
 from armctl import kin
 
 from .board import BoardDetector, BoardSpec, board_pose
-from .camera import (DEFAULT_HANDEYE, DEFAULT_INTRINSICS, JAW_POLYGONS, T_TIP_CAM_NOMINAL, CameraModel, inv_T,
+from .camera import (finger_dir_for_cam_axis, DEFAULT_HANDEYE, DEFAULT_INTRINSICS, JAW_POLYGONS, T_TIP_CAM_NOMINAL, CameraModel, inv_T,
                      make_T, mean_pose, nominal_camera, rot_err_deg)
 
 REPO = Path(__file__).resolve().parents[2]
@@ -58,7 +58,7 @@ def _in_jaws(uv, size) -> np.ndarray:
     out = np.zeros(len(uv), bool)
     for poly in JAW_POLYGONS:
         p = np.array([[x * w, y * h] for x, y in poly], np.float32)
-        out |= np.array([cv2.pointPolygonTest(p, (float(u), float(v)), False) >= 0 for u, v in uv])
+        out |= np.array([cv2.pointPolygonTest(p, (float(u), float(v)), False) >= 0 for u, v in uv], bool)
     return out
 
 
@@ -142,7 +142,8 @@ def plan_views(center_xyz, n: int = 10, *, purpose: str = "handeye", cam: Camera
         n_it = 1 if np.allclose(T_tip_cam[:3, 3], 0) else 2
         s_q = seed_q
         for _it in range(n_it):   # put the CAMERA (not the tip) at cam_pos
-            r = kin.ik(tip_pos, s_q, approach_dir=a, restarts=2, max_iters=60)
+            # aim the CAMERA along a: the fingers point ~60 deg away from it (measured mounting)
+            r = kin.ik(tip_pos, s_q, approach_dir=finger_dir_for_cam_axis(a, tip_pos, T_tip_cam), restarts=2, max_iters=60)
             if not r.ok:
                 break
             T = kin.fk(r.q) @ T_tip_cam
