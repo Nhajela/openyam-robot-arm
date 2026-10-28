@@ -2,7 +2,7 @@
 
 **Experimenters:** Naman (with Claude Code)
 **Started:** 2026-10-28
-**Status:** active. Everything here ran in the mock simulation only; nothing has touched the real arm yet.
+**Status:** active. Everything here ran in the mock simulation and (from 10:30) DimOS `--simulation`. Nothing has touched the real arm yet. Start the hardware session from [HANDOVER.md](../../HANDOVER.md).
 
 ## Goal
 
@@ -11,6 +11,7 @@ Treat every way of moving the arm as an *interface* on top of one safety layer (
 1. **Pose mirror:** a camera watches a person and the arm copies their arm (elbows and posture) in real time.
 2. **Record + timeline:** record what the arm does, edit it as a choreography timeline, and have the computer say what the arm can't do ("j3 can't move this far this fast").
 3. **Grasping:** a top-down pick and place we can trust, then chess on top of it.
+4. **Open play** (added at 10:15): a public station. People scan a QR on the laptop, queue, and drive the arm from their phones. The laptop screen is both the show and Naman's operator dashboard.
 
 Music sync (`armctl/choreo.py`) and English → motion (`armctl/llm_author.py`) from 16 Oct are the same kind of thing, a timeline interface. Code: [`interfaces/`](../../interfaces/README.md).
 
@@ -20,6 +21,7 @@ Music sync (`armctl/choreo.py`) and English → motion (`armctl/llm_author.py`) 
 - Repo `Edge-City/openyam-robot-arm` at `d4a5c10` (PR #2 merged), cloned to `~/src/openyam/openyam-robot-arm`.
 - `.venv`: Python 3.12.3 via `uv venv`. **No DimOS** (not needed: armctl's mock backend is a kinematic sim). Packages: numpy 2.5.4, mediapipe 1.2.0, opencv-contrib-python-headless 5.0.0.93, chess 1.11.2, fastapi, uvicorn, websockets, pytest.
 - Mock daemon: `.venv/bin/python -m armctl.daemon --backend mock --auto-approve --port 8191 --vel-cap 0.6 --acc-cap 2.0` (log: [logs/mock-daemon.log](logs/mock-daemon.log)).
+- From 10:20: DimOS 0.0.14 in a separate venv `~/src/openyam/dimos-venv` (`uv pip install --torch-backend cpu "dimos[manipulation]==0.0.14"`, 6.8 GB). It needed `sudo apt install libgl1 git-lfs` on the server; the DimOS data (yam_description URDF) downloaded to `~/.local/share/dimos/repo/data`. `qrcode` and `anthropic` (2.3.0) added to `.venv`.
 
 ## Log
 
@@ -96,7 +98,7 @@ Music sync (`armctl/choreo.py`) and English → motion (`armctl/llm_author.py`) 
 ## Next (needs the lab laptop and the arm)
 
 1. **Mirror with a real camera, still in the sim:** USB camera or phone, `--source phone:front`. Tune the mapping and smoothing on real people; measure the end-to-end lag.
-2. **`DimosBackend`** (step 1 of the 16 Oct next steps): without it, live interfaces only drive the mock. Then a supervised real run from `ready` with `--clutch`, the daemon at 0.3 rad/s, the person outside the arm's reach.
+2. ~~**`DimosBackend`**~~ done in sim (see 10:30 below). Next is a supervised real run from `ready` (joystick, then the mirror with `--clutch`), with the daemon at 0.3 rad/s and the person outside the arm's reach.
 3. **Calibrate the table frame:**
    - Touch the tip to tag 0's centre and two marks 10 cm along its axes.
    - Get their FK, then `fit_table_frame` and set `calibrated: true` in `interfaces/grasp/workcell.json`.
@@ -165,3 +167,55 @@ Logs: [logs/dimos-backend-e2e.log](logs/dimos-backend-e2e.log) (final run), [log
   ```
 
   Then `ready` from the console, then a short joystick test. Afterwards support the arm, Ctrl-C both, `tools/disable_all.py can0`, and check the LEDs.
+
+## 2026-10-28 10:15-11:10 IST: open play (phones drive the arm, the laptop is the show and the admin)
+
+**Goal (Naman):** people scan a QR on the laptop screen, get a turn (about 10 min) that locks the arm to them, and control it from their phone:
+- tilt (gyro) or joysticks
+- tap moves
+- type what they want (Claude)
+- record poses and play them back within the speed limits
+- grab things
+
+The laptop screen is always visible, so it has to be fun for the audience and a good admin dashboard for Naman. Local network first, for latency.
+
+**Decision (architecture):** `openplay.server` is the only armctl program (`openplay`), holding the daemon lease and arbitrating players. Phones never talk to the arm. The contract was written first ([openplay/PROTOCOL.md](../../openplay/PROTOCOL.md)), then five parallel agents built against it, each owning disjoint files:
+- core server
+- phone page
+- laptop display
+- moves library
+- pose recorder, grab spots and the real-Jacobian mock twist
+
+The coordinator integrated and committed each piece separately.
+
+- **Observation (moves):** 13 new playables via `openplay/tools/make_moves.py`, all cleared by validate + coach + FK (tip ≥ 10 cm above the table). The phone catalogue has 17 moves. `graceful-bow` never lowers the tip (FK: 0.43 → 0.67 m), so it doesn't read as a bow and a new `bow` replaces it (tip down to 0.16 m). `conductor`'s left-right stroke is only about 5 cm, because one 0.67 s beat at the dance caps limits j1.
+- **Observation (pose recorder, `interfaces/timeline/poses.py`):** segment time = the cubic minimum × 1.25 (lively) or 1.9 (gentle), plus holds. It refuses, naming the pose, poses outside the box, near the table, or with a dipping path between them. "Route via ready" almost never rescues a dipping path, so those are refused with "add a pose in between, higher up".
+- **Observation (mock twist):** `MockBackend.set_twist` now does DLS on the real Jacobian (`kin.jacobian_geometric`). +x 0.02 m/s for 0.5 s moves the tip about 2 cm in x with < 25 % cross-talk. Sideways (+y) at ready is slow: keeping the orientation needs j1 and j5 together, and the uniform cap scaling limits the tip.
+- **Decision (approve = Play):** with auto-play off, the operator's Approve on the loopback display presses the daemon's Play, so there is one approval, not two. Auto-play defaults to on only for the mock backend.
+- **Decision (laptop screen):** the show takes about 76 % of the width: arm in 3D, QR, now playing, queue, captions, and a Claude "say" card with a ghost preview. An always-on operator rail covers the rest:
+  - health, E-STOP / reset, the approval card (Enter/Esc), auto-play, pause
+  - skip, +1 min, turn length, kick
+  - errors, joints with limit bars
+
+  `h` hides the rail. A slot is reserved for a chess panel.
+- **Integration (mock):** `armctl.daemon --backend mock` + `openplay.server` + display (1920×1080, URDF three.js view) + phone (390×844, HTTPS) through join, turn, Disco point, stop, and Say it "wave at the kids" (no key, so the library fallback plays Wave hello with the ghost preview). No page errors. Screenshots: [say + ghost](media/openplay-integration-say-urdf.png), [tall move](media/openplay-integration-tall-move.png), [phone](media/openplay-integration-phone-say.png).
+- **Problem / Fix:** at full stretch the gripper left the top of the 3D view; the framing was widened.
+- **Problem / Fix (server rule):** on serenity the first run bound the phone listener to `0.0.0.0:8450`, the server's *public* IP, for a few seconds, behind the room key. The house rule is no new public ports, so it was restarted at once with `--phone-host 127.0.0.1`. On the laptop `0.0.0.0` is right (phones on the LAN). Never run it that way on a server.
+- **Integration (DimOS sim):** coordinator `--simulation --traj-vel-limit 0.7` + `armctl.daemon --backend dimos --vel-cap 0.6 --acc-cap 2.0` + openplay + phone. Auto-play came up **off** (non-mock), Celebrate waited for the operator, Approve played it as a 227-point DimOS trajectory, and leaving the turn returned the arm to ready.
+- **Problem / Fix (safety UX):** the badge said "REAL ARM · DIMOS" on the DimOS *simulator*. hello/arm now carry the daemon's `adapter` (mock | sim | real). The badge says "simulated" only when the daemon reports sim; anything unknown on a non-mock backend is shown as real.
+- **Problem / Fix (daemon, from the DimosBackend work):**
+  - Execute-then-verify now uses per-backend, per-joint tolerances (DimOS: j2/j3 0.05, wrist 0.09, for the real arm's sag).
+  - `/estop/reset` calls `backend.clear_estop()`.
+  - `do relax` on a backend that can't relax is a clean refusal, not "internal error".
+- **Tests:** `pytest armctl/tests interfaces/tests openplay/tests` gives **253 passed, 2 skipped**. openplay alone: 93 passed, including a 43 s e2e with two phones and a display against the mock daemon.
+- **Insight (chess with a real set):** design in [interfaces/grasp/CHESS.md](../../interfaces/grasp/CHESS.md).
+  - The arm has no camera; use an overhead phone or webcam.
+  - We track the game from the start, so vision only has to tell which legal move happened (per-square change + legal-move matching).
+  - Tap-to-move is the always-available fallback.
+  - A 4-4.5 cm-square board fits the top-down reach.
+
+### Server changes (serenity, for its CHANGELOG)
+- apt: `libegl1`, `libgles2` (MediaPipe), `libgl1` (DimOS/open3d), `git-lfs` (DimOS data).
+- `~/src/openyam/` (two clones + `dimos-venv`, about 7.5 GB), `~/.cache/openyam/` (pose model), `~/.local/share/dimos/` (DimOS data).
+- No services, ports or config. Every test process was stopped.
+

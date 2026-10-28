@@ -32,6 +32,10 @@ Phones never talk to the arm. `openplay.server` is the only armctl program, and 
 
 For "Say it" with Claude, set `ANTHROPIC_API_KEY` in the server's environment. Without it, Say it plays the closest library move and says so.
 
+On the real arm, run the daemon on `DimosBackend` instead of the mock: see [HANDOVER.md](../HANDOVER.md) §4–5. Auto-play then starts **off**, so you approve each move on the laptop (Enter / Esc).
+
+The phone listener binds `0.0.0.0` so phones on the LAN can reach it. That's right on the laptop. **Never run it that way on a server with a public IP:** use `--phone-host 127.0.0.1`.
+
 ## Network: how phones reach the laptop
 
 Phones need **HTTPS**: browsers only give motion sensors (tilt) to secure pages. Latency matters for tilt and joysticks, not for moves or Say it.

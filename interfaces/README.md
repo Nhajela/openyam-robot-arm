@@ -19,7 +19,10 @@ You can turn a live session into a timeline: record it, then edit and replay it.
 | Chess | `grasp/chess_arm.py` | new: legal moves, captures, castling, en passant; plays in the mock sim |
 | Music → dance | `armctl/music.py`, `armctl/choreo.py` | from 16 Oct, played on the real arm |
 | English → motion | `armctl/llm_author.py`, [openyam-playground](https://github.com/Nhajela/openyam-playground) | from 16 Oct, played on the real arm |
-| Phone tilt and joystick | `dashboard/static/tilt.html`, `joystick.html` | mock only (`DimosBackend` not built yet) |
+| Phone tilt and joystick | `dashboard/static/tilt.html`, `joystick.html` | mock + DimOS sim (`DimosBackend` built 28 Oct, not on hardware yet) |
+| **Open play**: QR → queue → turns, phone controls, laptop show + operator rail | [`openplay/`](../openplay/README.md) | mock + DimOS sim |
+| Pose recorder → playable | `timeline/poses.py` | mock (used by open play's Poses tab) |
+| Grab between named spots | `grasp/spots.py` | mock (spots are placeholders) |
 
 ## Setup
 
