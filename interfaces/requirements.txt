@@ -1,0 +1,7 @@
+# Extra packages for interfaces/ (on top of the DimOS .venv). Tested 2026-10-28, Python 3.12.
+mediapipe==1.2.0            # pose landmarks (Tasks API); pulls in opencv-contrib-python
+chess==1.11.2               # python-chess: legal moves, FEN, Stockfish over UCI
+numpy
+fastapi
+uvicorn
+websockets

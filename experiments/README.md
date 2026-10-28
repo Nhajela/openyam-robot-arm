@@ -17,6 +17,7 @@ Safety rules carry across all experiments: start folded on the stops, probe befo
 | Experiment | Experimenters | Goal | Status |
 |---|---|---|---|
 | [2026-10-16-linux-real-arm](2026-10-16-linux-real-arm/SUMMARY.md) ([log](2026-10-16-linux-real-arm/LOG.md)) | Naman (+ Claude) | Drive the real arm from the Ubuntu laptop and go beyond keyboard jogging | done: see SUMMARY.md for next steps |
+| [2026-10-28-interfaces](2026-10-28-interfaces/LOG.md) | Naman (+ Claude) | More ways to move the arm: pose mirror, record + timeline with limits, grasp and chess ([`interfaces/`](../interfaces/README.md)) | active: sim only so far |
 
 ## Ideas backlog
 
@@ -27,6 +28,9 @@ Interfaces and interactions worth trying. Add yours, and say who to talk to.
 - **Programs over one protocol** (see ARMCTL-SPEC § Programs): phone tilt, phone joystick, English → playable motion sequences (dance, wave, nod), keyboard, console. Switchable, one control lease. (Naman)
 - Natural-language control: an agent that turns "pick up the cup" into arm actions.
 - Gamepad or phone teleop instead of the keyboard.
-- Record and replay demonstrations (teach by moving the arm by hand with torque off, then play it back).
-- Camera + pick and place.
+- Record and replay demonstrations (teach by moving the arm by hand with torque off, then play it back). Recording → playable and the timeline editor exist now (`interfaces/timeline/`); teach-by-hand needs a torque-off state stream from `DimosBackend`.
+- **Spline ease** for playables (smooth through keyframes, stops only at the ends): recorded moves become stop-and-go and about 2× longer with `cubic`. Needs spec 1.1 in the lab and the playground together. (Naman)
+- Camera reads the chess board (which squares changed) so the human doesn't type their move.
+- Mirror with both arms: the second arm's hand opens and closes the gripper.
+- Camera + pick and place: planner and chess in `interfaces/grasp/`; next is calibrating the table frame and measuring the gripper.
 - A live web dashboard: joint states, temperatures, faults, LED state.

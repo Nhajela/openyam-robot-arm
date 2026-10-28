@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenYAM timeline</title>
+<style>
+  :root { --bg:#fafaf8; --fg:#1d1d1b; --mute:#77756f; --line:#dedcd5; --lane:#ffffff; --bad:#d64545; --badbg:rgba(214,69,69,.13);
+          --ok:#2f8a4e; --band:rgba(47,138,78,.16); --curve:#2d5fd3; --key:#1d1d1b; --off:rgba(0,0,0,.06); }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#161615; --fg:#ecebe6; --mute:#9a988f; --line:#33322e; --lane:#1f1f1d; --badbg:rgba(214,69,69,.22);
+            --band:rgba(80,190,120,.18); --curve:#7aa2ff; --key:#ecebe6; --off:rgba(255,255,255,.05); }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui, sans-serif; background:var(--bg); color:var(--fg); }
+  header { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); }
+  header h1 { font-size:16px; margin:0 10px 0 0; }
+  input, select, button { font:inherit; color:inherit; background:var(--lane); border:1px solid var(--line); border-radius:6px; padding:4px 8px; }
+  button { cursor:pointer; } button:hover { border-color:var(--mute); }
+  button.rec { color:var(--bad); } button.rec.on { background:var(--bad); color:#fff; }
+  #status { padding:8px 14px; font-weight:600; }
+  #status.ok { color:var(--ok); } #status.bad { color:var(--bad); }
+  #wrap { padding:0 14px; }
+  canvas { width:100%; display:block; border:1px solid var(--line); border-radius:8px; background:var(--lane); touch-action:none; }
+  .hint { color:var(--mute); font-size:12px; padding:4px 14px; }
+  #problems { margin:8px 14px; padding:0; list-style:none; }
+  #problems li { padding:4px 8px; border-left:3px solid var(--bad); margin:4px 0; background:var(--badbg); border-radius:0 6px 6px 0; cursor:pointer; }
+  table { border-collapse:collapse; margin:8px 14px 40px; font-variant-numeric:tabular-nums; }
+  td, th { padding:2px 4px; border-bottom:1px solid var(--line); text-align:right; }
+  td input { width:64px; text-align:right; padding:2px 4px; }
+  td select { padding:2px; }
+  tr.badrow td { background:var(--badbg); }
+  .sep { width:1px; height:22px; background:var(--line); }
+</style>
+</head>
+<body>
+<header>
+  <h1>OpenYAM timeline</h1>
+  <select id="load"><option value="">open a playable…</option></select>
+  <input id="name" placeholder="name" size="16">
+  <label>caps <select id="caps"></select></label>
+  <label>speed <input id="speed" type="number" step="0.1" min="0.1" max="2" value="1" style="width:60px"></label>
+  <span class="sep"></span>
+  <button id="stretch" title="slow down only the segments that are too fast">Stretch to fit</button>
+  <button id="shrink" title="keep the timing, make the too-fast moves smaller">Shrink to fit</button>
+  <span class="sep"></span>
+  <button id="rec" class="rec" title="sample the armctl daemon while another interface drives the arm">● Record</button>
+  <button id="send" title="validate, then ask the daemon to play (operator approves in the console)">Send to arm</button>
+  <button id="save">Save</button>
+  <button id="download">Download JSON</button>
+</header>
+<div id="status">…</div>
+<div class="hint">Drag a keyframe dot (shift: time only). Double-click a lane to add a keyframe there; right-click a dot to delete it.
+  Green bars: how far that joint can get from the previous keyframe in the time given. Red: what the arm can't do.</div>
+<div id="wrap"><canvas id="cv"></canvas></div>
+<ul id="problems"></ul>
+<table id="keys"></table>
+<script>
+const LANES = ['j1','j2','j3','j4','j5','j6','grip'];
+const LANE_H = 78, PAD_L = 46, PAD_R = 14, AXIS_H = 22;
+let info = null, P = null, R = null, drag = null, checkTimer = null, recTimer = null;
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.detail || r.statusText);
+  return j;
+}
+
+function blank() {
+  return {format:'openyam-playable', version:'1.0', name:'new-move', author:'human:timeline', space:'joint', start:'ready', caps:'default',
+    keyframes:[{t:0, q:[0,0.5,0.8,0,0,0], grip:0}, {t:2, q:[0.5,0.8,1.2,0,0,0], grip:0, ease:'cubic'}, {t:4, q:[0,0.5,0.8,0,0,0], grip:0, ease:'cubic'}]};
+}
+
+let zoom = {};
+function computeZoom() {   // each lane zooms to its keyframes, curve and bands (never past the URDF limits)
+  zoom = {};
+  LANES.forEach((lane, j) => {
+    const u = lane === 'grip' ? [0, 1] : info.envelope.urdf_limits[lane];
+    if (lane === 'grip') { zoom[lane] = [-0.05, 1.05]; return; }
+    let lo = Infinity, hi = -Infinity;
+    const see = v => { lo = Math.min(lo, v); hi = Math.max(hi, v); };
+    P.keyframes.forEach(k => see(k.q[j]));
+    if (R && R.samples) R.samples.q.forEach(q => see(q[j]));
+    const pad = Math.max(0.12, (hi - lo) * 0.25);
+    zoom[lane] = [Math.max(u[0], lo - pad), Math.min(u[1], hi + pad)];
+  });
+}
+function range(lane) { return zoom[lane] || [0, 1]; }
+function soft(lane) { return lane === 'grip' ? [0, 1] : info.envelope.soft_limits[lane]; }
+function tEnd() { return Math.max(1, P.keyframes[P.keyframes.length - 1].t) * 1.05; }
+function W() { return cv.clientWidth; }
+function x(t) { return PAD_L + (W() - PAD_L - PAD_R) * t / tEnd(); }
+function tOf(px) { return (px - PAD_L) / (W() - PAD_L - PAD_R) * tEnd(); }
+function laneTop(i) { return AXIS_H + i * LANE_H; }
+function y(lane, v) { const [lo, hi] = range(lane), i = LANES.indexOf(lane); return laneTop(i) + 6 + (LANE_H - 12) * (1 - (v - lo) / (hi - lo)); }
+function vOf(lane, py) { const [lo, hi] = range(lane), i = LANES.indexOf(lane); return lo + (1 - (py - laneTop(i) - 6) / (LANE_H - 12)) * (hi - lo); }
+function kval(k, lane) {  // grip carries forward
+  if (lane !== 'grip') return k.q[LANES.indexOf(lane)];
+  let g = 0; for (const kk of P.keyframes) { if (kk.grip !== undefined) g = kk.grip; if (kk === k) break; } return g;
+}
+function segBad(i, lane) {
+  if (!R) return null;
+  const s = R.segments.find(s => s.i === i); if (!s) return null;
+  return s.problems.find(p => p.joint === lane) || null;
+}
+
+function draw() {
+  if (!drag) computeZoom();
+  const dpr = window.devicePixelRatio || 1, w = W(), h = AXIS_H + LANES.length * LANE_H + 4;
+  cv.style.height = h + 'px'; cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = '11px system-ui'; ctx.fillStyle = css('--mute');
+  const step = tEnd() > 30 ? 5 : tEnd() > 10 ? 2 : tEnd() > 4 ? 1 : 0.5;
+  for (let t = 0; t <= tEnd(); t += step) {
+    ctx.fillText(t.toFixed(step < 1 ? 1 : 0) + 's', x(t) - 8, 14);
+    ctx.strokeStyle = css('--line'); ctx.beginPath(); ctx.moveTo(x(t), AXIS_H); ctx.lineTo(x(t), h); ctx.stroke();
+  }
+  const K = P.keyframes;
+  LANES.forEach((lane, li) => {
+    const top = laneTop(li), [slo, shi] = soft(lane);
+    ctx.save(); ctx.beginPath(); ctx.rect(PAD_L, top, w - PAD_L - PAD_R, LANE_H); ctx.clip();
+    ctx.fillStyle = css('--off');                       // outside the soft box
+    ctx.fillRect(PAD_L, top, w - PAD_L - PAD_R, y(lane, shi) - top);
+    ctx.fillRect(PAD_L, y(lane, slo), w - PAD_L - PAD_R, top + LANE_H - y(lane, slo));
+    for (let i = 1; i < K.length; i++) if (segBad(i, lane)) {   // red segments
+      ctx.fillStyle = css('--badbg'); ctx.fillRect(x(K[i-1].t), top, x(K[i].t) - x(K[i-1].t), LANE_H);
+    }
+    if (R && lane !== 'grip') R.bounds.forEach(b => {          // reachable bands
+      if (b.k === 0) return;
+      const j = LANES.indexOf(lane);
+      ctx.fillStyle = css('--band'); ctx.fillRect(x(b.t) - 5, y(lane, b.hi[j]), 10, y(lane, b.lo[j]) - y(lane, b.hi[j]));
+    });
+    ctx.restore();
+    ctx.strokeStyle = css('--line'); ctx.strokeRect(PAD_L, top, w - PAD_L - PAD_R, LANE_H);
+    ctx.fillStyle = css('--fg'); ctx.font = '600 12px system-ui'; ctx.fillText(lane, 8, top + LANE_H / 2 + 4);
+    const [zl, zh] = range(lane); ctx.fillStyle = css('--mute'); ctx.font = '10px system-ui';
+    ctx.fillText(zh.toFixed(2), 8, top + 12); ctx.fillText(zl.toFixed(2), 8, top + LANE_H - 4);
+    if (R && R.samples) {                                  // the playback curve (authored time)
+      const tr = R.transition ? R.transition.duration : 0, sp = P.speed || 1, last = K[K.length - 1].t;
+      ctx.strokeStyle = css('--curve'); ctx.lineWidth = 2; ctx.beginPath(); let started = false;
+      R.samples.t.forEach((tp, n) => {
+        const ta = (tp - tr) * sp; if (ta < -1e-6 || ta > last + 1e-6) return;
+        const v = lane === 'grip' ? R.samples.grip[n] : R.samples.q[n][LANES.indexOf(lane)];
+        started ? ctx.lineTo(x(ta), y(lane, v)) : ctx.moveTo(x(ta), y(lane, v)); started = true;
+      });
+      ctx.stroke(); ctx.lineWidth = 1;
+    }
+    K.forEach((k, i) => {                                   // keyframes
+      const bad = segBad(i, lane);
+      ctx.fillStyle = bad ? css('--bad') : css('--key');
+      ctx.beginPath(); ctx.arc(x(k.t), y(lane, kval(k, lane)), 5, 0, 7); ctx.fill();
+    });
+  });
+}
+
+function hit(px, py) {
+  const li = Math.floor((py - AXIS_H) / LANE_H); if (li < 0 || li >= LANES.length) return null;
+  const lane = LANES[li];
+  for (let i = 0; i < P.keyframes.length; i++) {
+    const k = P.keyframes[i];
+    if (Math.hypot(px - x(k.t), py - y(lane, kval(k, lane))) < 9) return {i, lane};
+  }
+  return {i: -1, lane};
+}
+function pos(e) { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+cv.addEventListener('pointerdown', e => {
+  const [px, py] = pos(e), h = hit(px, py); if (!h || h.i < 0 || e.button !== 0) return;
+  drag = {...h, shift: e.shiftKey}; cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const [px, py] = pos(e), K = P.keyframes, k = K[drag.i];
+  if (drag.i > 0) {
+    const lo = K[drag.i - 1].t + 0.05, hi = drag.i + 1 < K.length ? K[drag.i + 1].t - 0.05 : 1e9;
+    k.t = +Math.min(hi, Math.max(lo, tOf(px))).toFixed(2);
+  }
+  if (!drag.shift) {
+    const [lo, hi] = soft(drag.lane), v = +Math.min(hi, Math.max(lo, vOf(drag.lane, py))).toFixed(3);
+    if (drag.lane === 'grip') k.grip = v; else k.q[LANES.indexOf(drag.lane)] = v;
+  }
+  draw();
+});
+cv.addEventListener('pointerup', () => { if (drag) { drag = null; changed(); } });
+cv.addEventListener('dblclick', e => {
+  const [px, py] = pos(e), h = hit(px, py); if (!h || h.i >= 0) return;
+  const t = +tOf(px).toFixed(2), K = P.keyframes; if (t <= 0) return;
+  let at = K.findIndex(k => k.t > t); if (at < 0) at = K.length;
+  const prev = K[at - 1], next = K[at] || prev, s = next === prev ? 0 : (t - prev.t) / (next.t - prev.t);
+  const q = prev.q.map((v, j) => +(v + (next.q[j] - v) * s).toFixed(3));
+  K.splice(at, 0, {t, q, grip: kval(prev, 'grip'), ease: 'cubic'}); changed();
+});
+cv.addEventListener('contextmenu', e => {
+  const [px, py] = pos(e), h = hit(px, py); if (!h || h.i <= 0) return;
+  e.preventDefault(); P.keyframes.splice(h.i, 1); changed();
+});
+
+function table() {
+  const T = $('keys'), K = P.keyframes;
+  T.innerHTML = '<tr><th>#</th><th>t (s)</th>' + LANES.map(l => `<th>${l}</th>`).join('') + '<th>ease</th><th>need ≥ (s)</th></tr>';
+  K.forEach((k, i) => {
+    const seg = R && R.segments.find(s => s.i === i), tr = document.createElement('tr');
+    if (seg && !seg.ok) tr.className = 'badrow';
+    const cell = (v, f) => { const td = document.createElement('td'), inp = document.createElement('input');
+      inp.type = 'number'; inp.step = '0.01'; inp.value = v; inp.onchange = () => { f(+inp.value); changed(); }; td.appendChild(inp); return td; };
+    const td0 = document.createElement('td'); td0.textContent = i; tr.appendChild(td0);
+    tr.appendChild(cell(k.t, v => { if (i > 0) k.t = v; }));
+    for (let j = 0; j < 6; j++) tr.appendChild(cell(k.q[j], v => { k.q[j] = v; }));
+    tr.appendChild(cell(kval(k, 'grip'), v => { k.grip = v; }));
+    const te = document.createElement('td');
+    if (i > 0) { const s = document.createElement('select'); ['cubic', 'linear', 'hold'].forEach(o => s.add(new Option(o, o, false, (k.ease || 'cubic') === o)));
+      s.onchange = () => { k.ease = s.value; changed(); }; te.appendChild(s); }
+    tr.appendChild(te);
+    const tn = document.createElement('td'); tn.textContent = seg ? seg.need_s.toFixed(2) : ''; tr.appendChild(tn);
+    T.appendChild(tr);
+  });
+}
+
+function show() {
+  const st = $('status');
+  if (R) { st.textContent = R.summary[0] + (R.clearance && !R.clearance.ok ? ' · table!' : ''); st.className = R.ok ? 'ok' : 'bad'; }
+  const ul = $('problems'); ul.innerHTML = '';
+  if (R) R.summary.slice(1).forEach(l => { const li = document.createElement('li'); li.textContent = l.replace(/^\s*-\s*/, ''); ul.appendChild(li); });
+  draw(); table();
+}
+
+function changed() { draw(); clearTimeout(checkTimer); checkTimer = setTimeout(check, 150); }
+async function check() {
+  P.name = $('name').value || P.name; P.caps = $('caps').value; P.speed = +$('speed').value || 1;
+  try { R = await api('/api/check', {playable: P}); } catch (e) { R = null; $('status').textContent = e.message; $('status').className = 'bad'; }
+  show();
+}
+function setP(p, r) {
+  P = p; $('name').value = P.name || ''; $('caps').value = P.caps || 'default'; $('speed').value = P.speed || 1;
+  if (r) { R = r; show(); } else check();
+}
+
+$('load').onchange = async () => { const n = $('load').value; if (!n) return; setP(await api('/api/playable/' + n)); };
+['caps', 'speed', 'name'].forEach(id => $(id).onchange = check);
+$('stretch').onclick = async () => { const r = await api('/api/fit', {playable: P, how: 'stretch'}); setP(r.playable, r.report); };
+$('shrink').onclick = async () => { const r = await api('/api/fit', {playable: P, how: 'shrink'}); setP(r.playable, r.report); };
+$('save').onclick = async () => { try { const r = await api('/api/save', {playable: P}); alert('saved ' + r.path); } catch (e) { alert(e.message); } };
+$('download').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(P, null, 2)], {type:'application/json'}));
+  a.download = (P.name || 'move') + '.json'; a.click(); };
+$('send').onclick = async () => {
+  $('status').textContent = 'asking the daemon: approve "timeline" and press Play in the console…';
+  try { await api('/api/send', {playable: P}); $('status').textContent = 'played ✓'; } catch (e) { alert(e.message); check(); }
+};
+$('rec').onclick = async () => {
+  const b = $('rec');
+  if (!b.classList.contains('on')) {
+    try { await api('/api/record/start', {}); } catch (e) { alert(e.message); return; }
+    b.classList.add('on'); b.textContent = '■ Stop';
+    recTimer = setInterval(async () => { const s = await api('/api/record/status'); $('status').textContent = `recording… ${s.seconds.toFixed(1)} s, ${s.n} samples`; $('status').className = ''; }, 500);
+  } else {
+    clearInterval(recTimer); b.classList.remove('on'); b.textContent = '● Record';
+    try { const r = await api('/api/record/stop', {name: $('name').value || 'recorded-move', caps: $('caps').value});
+      setP(r.playable, r.report);
+      $('status').textContent += ` · from ${r.info.samples} samples (${r.info.recorded_s} s), ${r.info.keyframes} keyframes, within ${r.info.max_dev_rad} rad`;
+    } catch (e) { alert(e.message); }
+  }
+};
+window.addEventListener('resize', draw);
+
+(async () => {
+  info = await api('/api/info');
+  Object.keys(info.caps_presets).forEach(c => $('caps').add(new Option(c, c)));
+  info.playables.forEach(n => $('load').add(new Option(n, n)));
+  const want = new URLSearchParams(location.search).get('p');
+  setP(want ? await api('/api/playable/' + want) : blank());
+})();
+</script>
+</body>
+</html>

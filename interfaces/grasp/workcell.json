@@ -1,0 +1,44 @@
+{
+  "T_base_table": [
+    [
+      1,
+      0,
+      0,
+      0.3
+    ],
+    [
+      0,
+      1,
+      0,
+      0.0
+    ],
+    [
+      0,
+      0,
+      1,
+      0.0
+    ],
+    [
+      0,
+      0,
+      0,
+      1
+    ]
+  ],
+  "calibrated": false,
+  "max_width": 0.094,
+  "tip_to_pad": 0.0,
+  "travel_z": 0.14,
+  "approach_z": 0.08,
+  "min_tip_z": 0.01,
+  "open_margin": 0.02,
+  "squeeze": 0.01,
+  "notes": "placeholder: T_base_table not calibrated",
+  "chess": {
+    "center": [
+      0.0,
+      0.0
+    ],
+    "square": 0.035
+  }
+}

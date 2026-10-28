@@ -1,0 +1,51 @@
+2026-10-28 09:57:35 INFO armctl armctl/0 on ws://127.0.0.1:8191/armctl (backend mock)
+2026-10-28 09:57:35 INFO daemon up: backend=mock auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+2026-10-28 09:57:37 INFO [c1 mirror] hello name='pose mirror (joints, right arm)' from 127.0.0.1
+2026-10-28 09:57:37 INFO [c1 mirror] acquire (auto-approved)
+2026-10-28 09:57:37 INFO [c1 mirror] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 09:57:37 INFO [c1 mirror] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.50 s
+2026-10-28 09:57:40 INFO [c1 mirror] done ready (max error 0.0000 rad)
+2026-10-28 09:57:40 INFO [c1 mirror] stream start (joint, ttl 200 ms)
+2026-10-28 09:57:51 INFO [c1 mirror] do stop
+2026-10-28 09:57:51 INFO lease revoked by c1 mirror (release) (was c1 mirror); stopped
+2026-10-28 09:57:51 INFO [c1 mirror] disconnected
+2026-10-28 10:00:05 INFO [c2 mirror] hello name='pose mirror (joints, right arm)' from 127.0.0.1
+2026-10-28 10:00:05 INFO [c2 mirror] acquire (auto-approved)
+2026-10-28 10:00:05 INFO [c2 mirror] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 10:00:05 INFO [c2 mirror] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 6.31 s
+2026-10-28 10:00:11 INFO [c2 mirror] done ready (max error 0.0000 rad)
+2026-10-28 10:00:11 INFO [c2 mirror] stream start (joint, ttl 200 ms)
+2026-10-28 10:00:21 INFO [c2 mirror] do stop
+2026-10-28 10:00:21 INFO lease revoked by c2 mirror (release) (was c2 mirror); stopped
+2026-10-28 10:00:21 INFO [c2 mirror] disconnected
+2026-10-28 10:05:41 INFO [c3 chess] hello name='chess arm' from 127.0.0.1
+2026-10-28 10:05:41 INFO [c3 chess] acquire (auto-approved)
+2026-10-28 10:05:41 INFO [c3 chess] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 10:05:41 INFO [c3 chess] playable.validate 'chess-c6e5-1': ok
+2026-10-28 10:05:41 INFO [c3 chess] playable.play 'chess-c6e5-1' (41.8 s): waiting for operator confirmation
+2026-10-28 10:05:41 INFO [c3 chess] playable 'chess-c6e5-1' confirmed by console: playing 47.5 s
+2026-10-28 10:06:28 INFO [c3 chess] done playable:chess-c6e5-1 (max error 0.0000 rad)
+2026-10-28 10:06:29 INFO [c3 chess] playable.validate 'chess-c6e5-2': ok
+2026-10-28 10:06:29 INFO [c3 chess] playable.play 'chess-c6e5-2' (39.7 s): waiting for operator confirmation
+2026-10-28 10:06:29 INFO [c3 chess] playable 'chess-c6e5-2' confirmed by console: playing 39.7 s
+2026-10-28 10:07:08 INFO [c3 chess] done playable:chess-c6e5-2 (max error 0.0000 rad)
+2026-10-28 10:07:08 INFO lease revoked by c3 chess (release) (was c3 chess); stopped
+2026-10-28 10:07:08 INFO [c3 chess] disconnected
+2026-10-28 10:07:19 INFO [c4 recorder] hello name='timeline recorder' from 127.0.0.1
+2026-10-28 10:07:19 INFO [c5 mirror] hello name='pose mirror (joints, right arm)' from 127.0.0.1
+2026-10-28 10:07:19 INFO [c5 mirror] acquire (auto-approved)
+2026-10-28 10:07:19 INFO [c5 mirror] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 10:07:19 INFO [c5 mirror] stream start (joint, ttl 200 ms)
+2026-10-28 10:07:29 INFO [c5 mirror] do stop
+2026-10-28 10:07:29 INFO lease revoked by c5 mirror (release) (was c5 mirror); stopped
+2026-10-28 10:07:29 INFO [c5 mirror] disconnected
+2026-10-28 10:07:29 INFO [c4 recorder] disconnected
+2026-10-28 10:07:29 INFO [c6 timeline] hello name='timeline editor' from 127.0.0.1
+2026-10-28 10:07:29 INFO [c6 timeline] acquire (auto-approved)
+2026-10-28 10:07:29 INFO [c6 timeline] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 10:07:29 INFO [c6 timeline] playable.validate 'rec-test': ok
+2026-10-28 10:07:30 INFO [c6 timeline] playable.play 'rec-test' (22.1 s): waiting for operator confirmation
+2026-10-28 10:07:30 INFO [c6 timeline] playable 'rec-test' confirmed by console: playing 26.4 s
+2026-10-28 10:07:56 INFO [c6 timeline] done playable:rec-test (max error 0.0000 rad)
+2026-10-28 10:07:56 INFO lease revoked by c6 timeline (release) (was c6 timeline); stopped
+2026-10-28 10:07:56 INFO [c6 timeline] disconnected

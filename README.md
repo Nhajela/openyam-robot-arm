@@ -121,6 +121,17 @@ experiments/2026-10-16-linux-real-arm/session_play.sh nod # coordinator up → p
 
 Played on the real arm so far: joint jog / ready / home, nod, wave, happy-dance, beat-dance with music, and the range-of-motion tours (rom-arm, rom-wrist). The phone joystick/tilt drive the simulated arm only; the real-arm backend is the next step.
 
+## 6. More interfaces: pose mirror, timeline, grasp, chess (2026-10-28, sim only so far)
+
+[`interfaces/`](interfaces/README.md) adds more ways to move the arm, all as armctl programs (same lease, envelope, deadman, E-STOP):
+
+- **Pose mirror:** a camera (USB, phone, video or photo) and MediaPipe pose, and the arm copies a person's arm, live. There are two mappings: joint angles (copies elbows and posture) or hand position (IK). It guards against the table and stops when it loses the person; `--clutch` makes it follow only while the other hand is raised.
+- **Record + timeline editor** (http://127.0.0.1:8097): record any interface, turn the recording into keyframes, and edit them on per-joint lanes. The page shows what each joint can reach in the time given, and says in words which segment is too fast and what it needs. "Stretch" slows it down, "Shrink" keeps the beat.
+- **Grasp:** top-down pick and place planned with the new numpy IK (`armctl/kin.py`, no pinocchio needed).
+- **Chess:** reach map for the board; legal moves, captures, castling and en passant become pick and place sequences.
+
+Log: [experiments/2026-10-28-interfaces/LOG.md](experiments/2026-10-28-interfaces/LOG.md). Before the real arm: `DimosBackend`, table calibration and gripper measurements (see the log's "Next").
+
 ## Real arm on macOS: notes (first tested 2026-10-16)
 
 The steps above are not enough to run the physical arm from a Mac. Found during the first hardware session. Ticked items are now in this repo; the rest still need work.
