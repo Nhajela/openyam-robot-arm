@@ -203,3 +203,33 @@
 2026-10-28 12:47:16 INFO lease revoked by c2 script (release) (was c2 script); stopped
 2026-10-28 12:47:16 INFO [c2 script] disconnected
 2026-10-28 12:47:26 INFO daemon down (backend stopped)
+2026-10-28 13:07:48 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 35216, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 13:07:48 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 35216, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 10.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 1.5, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 13:07:48 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 13:07:48 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 13:07:48 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 13:07:48 INFO [c1 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:07:48 INFO [c1 script] disconnected
+2026-10-28 13:08:01 INFO [c2 script] hello name='j4-hold-test' from 127.0.0.1
+2026-10-28 13:08:01 INFO [c2 script] acquire (auto-approved)
+2026-10-28 13:08:01 INFO [c2 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 13:08:01 INFO DimosBackend: move_joints#1 -> DimOS trajectory 51 points (from 501 samples), 5.00 s
+2026-10-28 13:08:01 INFO [c2 script] do move_joints -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.00 s
+2026-10-28 13:08:08 INFO [c2 script] done move_joints (max error 0.0940 rad)
+2026-10-28 13:10:08 INFO DimosBackend: move_joints#2 -> DimOS trajectory 26 points (from 248 samples), 2.47 s
+2026-10-28 13:10:08 INFO [c2 script] do move_joints -> [0.0, 0.5, 0.8, -0.3, 0.0, 0.0] in 2.47 s
+2026-10-28 13:10:12 INFO [c2 script] done move_joints (max error 0.1091 rad)
+2026-10-28 13:12:12 INFO DimosBackend: move_joints#3 -> DimOS trajectory 32 points (from 308 samples), 3.07 s
+2026-10-28 13:12:12 INFO [c2 script] do move_joints -> [0.0, 0.5, 0.8, 0.3, 0.0, 0.0] in 3.07 s
+2026-10-28 13:12:17 INFO [c2 script] done move_joints (max error 0.0412 rad)
+2026-10-28 13:14:17 INFO DimosBackend: move_joints#4 -> DimOS trajectory 24 points (from 226 samples), 2.25 s
+2026-10-28 13:14:17 INFO [c2 script] do move_joints -> [0.0, 0.5, 0.8, 0.7, 0.0, 0.0] in 2.25 s
+2026-10-28 13:14:20 INFO [c2 script] done move_joints (max error 0.0317 rad)
+2026-10-28 13:16:20 INFO DimosBackend: home#5 -> DimOS trajectory 84 points (from 823 samples), 8.22 s
+2026-10-28 13:16:20 INFO [c2 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.22 s
+2026-10-28 13:16:30 INFO [c2 script] done home (max error 0.0616 rad)
+2026-10-28 13:16:30 INFO lease revoked by c2 script (release) (was c2 script); stopped
+2026-10-28 13:16:30 INFO [c2 script] disconnected
+2026-10-28 13:16:34 INFO [c3 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:16:35 INFO [c3 script] disconnected
+2026-10-28 13:16:53 INFO daemon down (backend stopped)

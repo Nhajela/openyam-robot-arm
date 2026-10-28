@@ -53,3 +53,75 @@
 2026-10-28 12:56:39 INFO DimosBackend: ready#7 -> DimOS trajectory 82 points (from 810 samples), 8.09 s
 2026-10-28 12:56:39 INFO [c2 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 8.09 s
 2026-10-28 12:56:47 INFO [c2 openplay] done ready (max error 0.0000 rad)
+2026-10-28 12:57:59 INFO [c2 openplay] playable.validate 'wave-hello': ok
+2026-10-28 12:58:04 INFO [c2 openplay] playable.validate 'wave-hello': ok
+2026-10-28 12:58:04 INFO [c2 openplay] playable.play 'wave-hello' (12.4 s): waiting for operator confirmation
+2026-10-28 12:58:04 INFO DimosBackend: playable:wave-hello#8 -> DimOS trajectory 138 points (from 1243 samples), 12.42 s
+2026-10-28 12:58:04 INFO [c2 openplay] playable 'wave-hello' confirmed by console: playing 12.4 s
+2026-10-28 12:58:17 INFO [c2 openplay] done playable:wave-hello (max error 0.0000 rad)
+2026-10-28 12:58:59 INFO [c2 openplay] do stop
+2026-10-28 12:58:59 INFO DimosBackend: ready#9 -> DimOS trajectory 2 points (from 3 samples), 0.02 s
+2026-10-28 12:58:59 INFO [c2 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.02 s
+2026-10-28 12:59:00 INFO [c2 openplay] done ready (max error 0.0000 rad)
+2026-10-28 12:59:29 INFO [c2 openplay] playable.validate 'nod': ok
+2026-10-28 12:59:34 INFO [c2 openplay] playable.validate 'nod': ok
+2026-10-28 12:59:34 INFO [c2 openplay] playable.play 'nod' (9.8 s): waiting for operator confirmation
+2026-10-28 12:59:34 INFO DimosBackend: playable:nod#10 -> DimOS trajectory 115 points (from 983 samples), 9.82 s
+2026-10-28 12:59:34 INFO [c2 openplay] playable 'nod' confirmed by console: playing 9.8 s
+2026-10-28 12:59:44 INFO [c2 openplay] done playable:nod (max error 0.0000 rad)
+2026-10-28 13:00:30 INFO [c2 openplay] do stop
+2026-10-28 13:00:30 INFO DimosBackend: ready#11 -> DimOS trajectory 2 points (from 3 samples), 0.02 s
+2026-10-28 13:00:30 INFO [c2 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.02 s
+2026-10-28 13:00:30 INFO [c2 openplay] done ready (max error 0.0000 rad)
+2026-10-28 13:06:28 INFO [c2 openplay] do stop
+2026-10-28 13:06:28 INFO lease revoked by c2 openplay (release) (was c2 openplay); stopped
+2026-10-28 13:06:28 INFO [c2 openplay] disconnected
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_sansio_impl.py", line 409, in run_asgi
+    result = await self.app(self.scope, self.receive, self.send)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1216, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2791, in app
+    await route.handle(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 356, in handle
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 191, in app
+    await wrap_app_handling_exceptions(app, session)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 188, in app
+    await func(session)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 829, in app
+    await dependant.call(**solved_result.values)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 923, in ws_endpoint
+    text = await ws.receive_text()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/websockets.py", line 124, in receive_text
+    raise WebSocketDisconnected('WebSocket is not connected. Need to call "accept" first.')
+starlette.websockets.WebSocketDisconnected: WebSocket is not connected. Need to call "accept" first.
+2026-10-28 13:06:32 INFO [c3 openplay] hello name='open play' from 127.0.0.1
+2026-10-28 13:06:32 INFO [c3 openplay] acquire (auto-approved)
+2026-10-28 13:06:32 INFO [c3 openplay] lease granted by auto-approve (previous: none; stopped first)

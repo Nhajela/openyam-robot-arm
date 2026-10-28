@@ -6,3 +6,21 @@ open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8791/armctl,
 12:54:48 INFO openplay operator: Getting the arm ready
 12:54:54 INFO openplay turn: Player 1's turn
 12:56:39 INFO openplay turn_end: Player 1's turn is over (no moves for a while)
+12:57:55 INFO openplay join: Player 1 joined the queue
+12:57:55 INFO openplay turn: Player 1's turn
+12:57:59 INFO openplay move: Wave hello is waiting for the operator
+12:58:04 INFO openplay operator: Operator approved Wave hello
+12:58:04 INFO openplay move: Playing Wave hello (12 s)
+12:58:59 INFO openplay turn_end: Player 1's turn is over (no moves for a while)
+12:59:17 INFO openplay join: Player 1 joined the queue
+12:59:17 INFO openplay turn: Player 1's turn
+12:59:29 INFO openplay say: Player 1 asked: "nod yes three times"
+12:59:29 INFO openplay say: Picking a move from the library…
+12:59:29 INFO openplay say: Nod yes is waiting for the operator
+12:59:34 INFO openplay operator: Operator approved Nod yes
+12:59:34 INFO openplay say: Playing Nod yes (10 s)
+13:00:30 INFO openplay turn_end: Player 1's turn is over (no moves for a while)
+open play: phones join at https://192.168.100.191:8450/?k=<key: see http://127.0.0.1:8451>
+open play: display at http://127.0.0.1:8451  (daemon ws://127.0.0.1:8791/armctl, turn 300 s, auto-play auto)
+13:06:32 INFO openplay operator: Connected to the arm (dimos backend); auto-play off
+13:06:32 INFO openplay operator: Open play has the arm

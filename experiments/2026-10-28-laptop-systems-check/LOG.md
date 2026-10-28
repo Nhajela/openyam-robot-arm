@@ -161,7 +161,7 @@ Pre-flight: no DimOS processes. Probe: j1–j6 within 0.04 of 0, no faults, j4 r
 | +0.3 | 1.984 | +0.0412 | 0.41 | 1.687 | 0.85 | 49→49 |
 | +0.7 | 1.191 | +0.0151 | 0.15 | 1.007 | 0.85 | 48→44 |
 
-`home`: done, max error 0.0616. Shutdown 13:17: daemon, coordinator, `disable_all`: all 7 disabled, no faults; j4 rotor 46 °C (hottest; j3 42).
+`home`: done, max error 0.0616. Shutdown 13:17: daemon, coordinator, `disable_all`: all 7 disabled, no faults, **LEDs all steady red (Naman)**; j4 rotor 46 °C (hottest; j3 42).
 - **Observation:** each error is rock-steady within a pose (first 5 s = last 5 s to 4 decimals), and the same at 0.0 as at 12:39 (0.094). It doesn't drift while held; the earlier 0.094 → 0.116 came from re-running `ready` from a slightly different start, not from creep.
 - **Insight:** the error **tracks the gravity load**: 0.015 at 1.19 N·m up to 0.109 at 2.56 N·m. It is not a constant offset, so j4's zero is fine (only the +0.022 torque-off reading, which is small).
 - **Insight (sign):** the torque j4 actually delivers is a steady **0.81–0.85 × the model's gravity torque**, and j4 sits on the **+ side** of its target in every pose. So the DimOS gravity model (`yam_gripper_gravity.urdf`) most likely **over-estimates** the wrist load by about 15–20%. The feedforward pushes the wrist past its target, and kp 10 only partly pulls it back. This corrects the 12:55 subagent guess of "under-estimates". kp·err doesn't equal model − measured exactly (0.94 vs 0.44 at 0.0), so friction and the CAN torque scaling are also in play. Treat the measured τ as indicative, not exact.

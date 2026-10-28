@@ -31,3 +31,11 @@ armctl.dimos_coordinator: mode=SIMULATION adapter=mock_whole_body bus=224.0.0.12
 07:24:53.946 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
 07:26:39.807 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 82 points, duration=8.090s
 07:26:47.908 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:28:04.909 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 138 points, duration=12.420s
+07:28:17.342 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:28:59.992 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 2 points, duration=0.020s
+07:29:00.015 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:29:34.494 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 115 points, duration=9.820s
+07:29:44.326 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:30:30.283 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 2 points, duration=0.020s
+07:30:30.310 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
