@@ -417,11 +417,19 @@ class OpenPlay:
         if self.chess is not None:
             self.push_chess()
 
-    def near_ready(self, tol: float = 0.05) -> bool:
+    def near_ready(self, tol: float | None = None) -> bool:
+        """At the ready pose, within the daemon's own arrival tolerance for this backend (the real
+        arm's wrist settles ~0.05 rad off under gravity; a flat 0.05 never passed and the first
+        turn never started, 28 Oct). ``tol`` overrides with one value for every joint."""
         q, ready = self.arm.state.get("q"), (self.arm.hello.get("poses") or {}).get("ready")
         if not q or not ready:
             return False
-        return max(abs(float(x) - float(y)) for x, y in zip(q, ready)) <= tol
+        if tol is None:
+            from armctl.daemon import REACH_TOL, REACH_TOL_BY_BACKEND
+            tols = REACH_TOL_BY_BACKEND.get(self.arm.hello.get("backend") or "", (REACH_TOL,) * 6)
+        else:
+            tols = (tol,) * len(q)
+        return all(abs(float(x) - float(y)) <= float(t) for x, y, t in zip(q, ready, tols))
 
     async def _prepare(self) -> None:
         """Before the first turn: bring the arm to ready (the operator granted the lease)."""
