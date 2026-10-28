@@ -68,7 +68,7 @@ A board shown on a laptop screen also works for the lens (not for hand-eye, unle
 
 ```
 .venv/bin/python vision/sources.py dashboard --out /tmp/wrist.jpg       # read-only frame grab
-.venv/bin/python -m interfaces.wristcam.handeye plan --board-center 0.15,-0.25,0 --n 12
+.venv/bin/python -m interfaces.wristcam.handeye plan --board-center 0.15,-0.25,0 --n 15
 .venv/bin/python -m interfaces.wristcam.handeye plan --board-center 0.15,-0.25,0 --n 20 --purpose intrinsics
 ```
 
@@ -79,7 +79,7 @@ A board shown on a laptop screen also works for the lens (not for hand-eye, unle
 ```
 .venv/bin/python -m interfaces.wristcam.handeye collect --board-center 0.15,-0.25,0 --n 20 --purpose intrinsics \
     --out interfaces/wristcam/data/intr1 --execute
-.venv/bin/python -m interfaces.wristcam.handeye collect --board-center 0.15,-0.25,0 --n 12 \
+.venv/bin/python -m interfaces.wristcam.handeye collect --board-center 0.15,-0.25,0 --n 15 \
     --out interfaces/wristcam/data/he1 --execute
 ```
 
@@ -96,8 +96,12 @@ The program asks for the lease (approve it in the console) and, before **each** 
 Check the output:
 
 - **Intrinsics:** RMS < 0.5 px, coverage ≥ 70% of the cells, and a FOV that makes sense (~100°).
-- **Hand-eye:** reprojection < 1 px, and the board-pose spread across views of a few mm / < 0.5°. The camera offset should look physically right (a few cm toward the wrist, optical axis within a few degrees of the fingers).
-- **Table:** origin near (0.30, 0, ~0) and tilt < 1°.
+- **Hand-eye:** reprojection < 1 px, and the board-pose spread across views of a few mm / < 0.5°. The camera offset should look physically right (bracket camera: within ~10 cm of the tip, optical axis ~60° off the fingers).
+- **Table:** origin near the taped sheet, z ≈ the table height in the base frame, tilt < 1°.
+
+`solve` runs all five `cv2.calibrateHandEye` methods **and** `cv2.calibrateRobotWorldHandEye` (SHAH, LI), keeps only candidates that satisfy the **bracket prior** (optical axis within 25° of the nominal mounting, camera within 15 cm of the tip; roll about the axis is free), and picks the one whose board poses agree best. `--write-workcell` then **refuses** to mark the workcell `calibrated: true` unless every sanity gate passes (reprojection < 3 px, board spread < 6 mm and < 1°, table origin within 2 cm of `--table-z` (default 0; pass e.g. `-0.03` if the base sits on a 3 cm plate), optical axis within 25° of nominal, camera within 15 cm of the tip); it prints each gate and writes a failed result to `calib/handeye.rejected-<time>.json`, never to `handeye.json`. `solve` also estimates the board scale from the arm's kinematics (FK has metric scale, so PnP distances that disagree with the arm's geometry show up as a factor ≠ 1) and gates on |factor − 1| < 5%: a wrong square size fails here (28 Oct: the "29.97 mm" board fitted ≈ 22.4–22.9 mm from any starting guess). **Measure a printed square with a ruler** and pass `--square-mm` (or set `WRISTCAM_SQUARE_MM` for every tool).
+
+`plan --purpose handeye` (default 15 views) now spreads the views over rotations about several axes: camera tilt 10–35° toward headings that walk round the board, plus j6 roll of alternating sign (0.15–0.6 rad); it prints a `rotation diversity` score (relative-rotation axis spread; 0 = all about one axis). A board right next to the base is barely reachable with tilted views: put it ~0.25–0.35 m out.
 
 `workcell.json` gets the new `T_base_table` with `calibrated: true`, and the old file is kept as `workcell.json.bak-<time>`.
 

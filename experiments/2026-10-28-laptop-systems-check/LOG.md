@@ -264,3 +264,34 @@ Coordinator `--kp j4=22 --kd j4=2` (0.3 caps, new limits + harness), daemon `--a
 - **Decision (Naman: "so that the gripper points towards the sheet?" Yes):** rotate the whole base so the folded gripper points down the table at the sheet. Forward = the table; glass on the arm's right (−y); post behind.
 - **Site limit replaced (temporary, conservative):** `armctl/site_limits.json` j1 hard [−0.7, 1.3] → soft [−0.6, 1.2] until a look-around maps the glass. Old limits saved as `site_limits.before-rotation.json`. Moving the base invalidates the table frame, but not the lens (`intr1`) or hand-eye (`he1`) data.
 - Probe after the rotation: all joints ≈ 0 (j1 0.074), no faults, j4 rotor 47 °C.
+
+### 16:45–17:10 Wrist-camera re-analysis, offline (subagent; no arm, camera or DimOS touched)
+Laptop, `.venv` Python 3.12, OpenCV 4.14.0, worktree from `4c175d4`; data copied read-only from `interfaces/wristcam/data/{intr1,intr2,intr3,he1}` (intr3 = 15 hand-held flat frames at the time). `WRISTCAM_BOARD=print/printed_vision_board.json`. Script: [wristcam_reanalysis.py](wristcam_reanalysis.py).
+- **Observation (intrinsics per subset, ≥ 8 corners/view):**
+
+  | subset | views | cells / radius | fisheye fx, RMS | rational fx | pinhole fx |
+  |---|---|---|---|---|---|
+  | intr1 (arm) | 18 | 52% / 84% | 485, 0.71 px (hfov 131°) | 488 | 486 |
+  | intr3 (flat, hand) | 14 | 60% / 59% | 630, 1.03 px | 955 | 957 |
+  | intr2 (flat) | 12 | 25% / 72% | fails | 1484 | 1407 |
+  | he1 | 12 | 18% / 52% | 567, 0.21 px | 571 | 560 |
+  | intr1+intr3 | 31 | 72% / 84% | 541, 0.79 px (hfov 122°) | 554 | 550 |
+
+  Fewer terms (fisheye k1k2 / k1, pinhole fixed aspect, rational fixed aspect): intr1 483–517, intr1+intr3 545–562. Flat-only sets are degenerate (one distance, no tilt) and should never be solved alone.
+- **Insight: the focal length was not the main error.** fx ≈ 490–560 is self-consistent across every model and subset that has tilted views, and an equidistant lens with the stated ~130° horizontal FOV has f ≈ 640/1.13 ≈ 565 px; f ≈ 300 would mean > 200°. The "≈190 px for 210 mm at 0.35 m" check assumed the board is 210 mm wide. **It isn't:** in `he1/view_02.png` the 7×5 board covers only ~2/3 of the sheet's width (homography from the detected corners onto the sheet outline: square ≈ 19–21 mm). Independently, a joint refinement of camera pose + board pose + **board scale** against the arm's FK (FK has metric scale) gives **square ≈ 22.4–22.9 mm** (±0.2, same for every lens candidate), not 29.97. Wrong scale → PnP distances 0.55–0.70 m instead of ~0.4 m → hand-eye translation/table garbage. The board was probably printed scaled (fit-to-page / 2-up).
+- **Observation (hand-eye on he1, lens = intr1 fisheye):** with 29.97 mm every method (TSAI/PARK/HORAUD/ANDREFF/DANIILIDIS, calibrateRobotWorldHandEye SHAH/LI) gives 13–20 px, 16–24 mm spread, table z −0.10…−0.19 m. All satisfy the bracket prior on the *axis* (11–17° from nominal); the "179°" in the 15:40 entry was the full rotation vs nominal, i.e. the **image roll is 180° from the nominal guess** (the solved pose puts the tip at pixel ~(715, 540), between the jaws, which matches the frames). With square 22.9 mm: RWHE-SHAH+refined 4.4 px, spread 5.2 mm / 1.19°, camera t = (−59, 12, 41) mm (7.3 cm from the tip), optical axis 46° from the fingers, table origin (0.108, −0.468, −0.038). Full 12-parameter + scale refinement: 3.98 px, view 11 an outlier at 8.9 px; q_planned instead of q_measured: 14 px (measured q matters, j4 sags ~0.04 rad).
+- **Gate verdict: still REJECTED** (reprojection 4.4 > 3 px, rotation spread 1.19 > 1°, table z −0.038; −0.038 may be real if the base sits on its wooden plate: measure it and pass `--table-z`).
+- **Fix (code, worktree branch):** `handeye solve --write-workcell` refuses unless every sanity gate passes (prints each gate; failed results go to `calib/handeye.rejected-<time>.json`, never `handeye.json`); `calibrateRobotWorldHandEye` (SHAH, LI) added as candidates; bracket prior (axis ≤ 25° from nominal, camera ≤ 15 cm from the tip) filters candidates; `solve` always estimates the board scale from kinematics and gates on |x−1| < 5% (PnP-vs-FK disagreement = wrong square size); `WRISTCAM_SQUARE_MM` env sets the measured square for every tool; `plan_views` hand-eye default 15 views, tilt 10–35° toward golden-angle headings, alternating j6 roll 0.15–0.6 rad, `rotation_diversity` score. Synthetic tests for all of it.
+- **Decision / next data needed:** (1) **measure one printed square with a ruler** (and the base plate height) before any further solve; (2) re-collect hand-eye with the new planner (≥ 15 rotation-diverse views, sheet 0.25–0.35 m out in the new table layout); (3) more tilted lens views with the board in the image corners and the lower band (arm-driven `--purpose intrinsics` plus hand-held *tilted* placements, not only flat); (4) a look at the jaws to confirm the image roll and `JAW_POLYGONS`. `camera.T_TIP_CAM_NOMINAL` roll should be flipped 180° once hand-eye passes.
+- **17:15 Coordinator's hypothesis checked (square ≈ 15.8 mm, from PnP 0.58 m vs "FK ~0.31 m" with the fx 537 combined lens):** he1 with intr1+intr3+intr4 fisheye (46 views, RMS 0.89, fx 549 fy 539) and with the coordinator's fx 537.1 lens:
+
+  | lens | square | best method | reproj | spread | table z | kinematic scale fit |
+  |---|---|---|---|---|---|---|
+  | combo (mine) | 29.97 | ANDREFF+ref | 10.4 px | 20.2 mm / 1.70° | −0.094 | 22.49 mm |
+  | combo (mine) | 22.9 | RWHE-SHAH+ref | 4.8 px | 7.2 mm / 1.70° | −0.052 | 22.49 mm |
+  | combo (mine) | 15.8 | RWHE-SHAH | 21.7 px | 12.6 mm / 1.70° | +0.007 | 22.49 mm |
+  | fx 537 | 29.97 | HORAUD | 14.5 px | 19.2 mm / 1.43° | −0.137 | 22.42 mm |
+  | fx 537 | 22.9 | RWHE-SHAH+ref | 4.4 px | 6.7 mm / 1.43° | −0.044 | 22.42 mm |
+  | fx 537 | 15.8 | RWHE-SHAH | 21.1 px | 12.5 mm / 1.43° | +0.014 | 22.42 mm |
+
+  **Insight:** the scale fit converges to 22.4–22.5 mm from every start and lens; 15.8 mm fits 5× worse. The "FK ~0.31 m" distance assumed the nominal camera position (unmeasured offset, roll 180° off), so a ratio of 1.9 is not a measurement; 29.97/22.45 = 1.33. Still only a fit: **a ruler measurement decides.** Every row fails the gates (all > 3 px, rotation spread > 1°).

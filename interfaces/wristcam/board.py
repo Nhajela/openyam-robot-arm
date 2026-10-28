@@ -42,6 +42,7 @@ HERE = Path(__file__).resolve().parent
 PRINT_DIR = HERE / "print"
 # The board actually on the table. WRISTCAM_BOARD overrides (28 Oct the lab printed
 # vision/targets/charuco_board_A4.pdf, 7x5 squares of 29.97 mm: print/printed_vision_board.json).
+# WRISTCAM_SQUARE_MM overrides the square size of that sheet (the print came out smaller; measure it).
 SHEET_JSON = Path(os.environ.get("WRISTCAM_BOARD", PRINT_DIR / "wristcam_calib_board.json"))
 
 DPI = 300
@@ -96,8 +97,11 @@ class BoardSpec:
         if not p.exists():
             return cls()
         d = json.loads(p.read_text())
-        return cls(d["dict"], tuple(d["squares"]), d["square_mm"], d["marker_mm"], d.get("tag_dict", "DICT_4X4_50"),
+        spec = cls(d["dict"], tuple(d["squares"]), d["square_mm"], d["marker_mm"], d.get("tag_dict", "DICT_4X4_50"),
                    tuple(d.get("tag_ids", (2, 3, 4))), d.get("tag_mm", 40.0))
+        # WRISTCAM_SQUARE_MM: the MEASURED printed square (a print that was scaled; marker scales with it)
+        sq = os.environ.get("WRISTCAM_SQUARE_MM")
+        return spec.with_measured(float(sq)) if sq and Path(path) == SHEET_JSON else spec
 
 
 def table_points(spec: BoardSpec, obj_board) -> np.ndarray:
