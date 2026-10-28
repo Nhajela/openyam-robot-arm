@@ -1,0 +1,55 @@
+PASS daemon backend dimos, adapter sim (mock_whole_body), faults []
+PASS lease granted (auto-approve)
+PASS twist from folded home refused: stream v: Cartesian streaming needs the arm unfolded (j2 0.00 < 0.3, j3 0.00 < 0.5): DimOS
+PASS j4=1.6 refused: j4 target 1.600 > soft limit 1.471 (URDF 1.571 - margin 0.10, past URDF limit 1.
+PASS relax refused: internal error: relax is not available on the DimOS backend: DimOS has no clean torque-off RPC. A pe
+PASS ready: done in 5.05 s
+  ready.final_error_rad = 0 rad
+PASS move_joints: done in 1.95 s
+  move_joints.final_error_rad = 0 rad
+  move_joints.start_lag_s = 0.034 s (ack-free: from sending do to the fitted plan start)
+  move_joints.max_tracking_error_rad = 0.000703 rad (vs our 100 Hz plan at that lag)
+PASS playable wave validates (0 violations)
+PASS operator confirm: {'ok': True, 'name': 'wave', 'duration': 13.58}
+  wave: done playable:wave after 14.0 s; q [-0.0, 0.5, 0.8, -0.0, -0.0, 0.0]
+PASS playable wave played to done
+  wave.final_error_rad = 0 rad
+  +x 0.02 m/s for 2 s: tip moved [43.2, 0.0, 0.0] mm
+PASS +x twist moves the tip +x (FK)
+  twist_x.distance_m = 0.04316 m (commanded 0.040 m)
+  twist_x.orientation_change_rad = 4.506e-07 rad
+  twist.latency_first_motion_s = 0.0352 s
+  twist.deadman_stop_s = 0.3002 s after the last setpoint (ttl 200 ms)
+  +z 0.02 m/s for 1.5 s: tip moved [0.0, 0.0, 33.4] mm
+PASS +z twist moves the tip +z (FK)
+  twist.stop_to_still_s = 0.09108 s
+PASS twist stopped by do stop (mode hold)
+  qd j1 0.2 rad/s for 1.5 s: dq [0.325, 0.0, 0.0, 0.0, 0.0, -0.0]
+PASS joint stream moves j1 only
+  jstream.latency_first_motion_s = 0.02705 s
+  jstream.cruise_speed_rad_s = 0.1918 rad/s (cmd 0.2; regression over the cruise)
+  jstream.ripple_rad = 0.003861 rad (max deviation from that line)
+  jstream.zero_step_fraction = 0.125 (fraction of 100 Hz samples without motion)
+  jstream.deadman_stop_s = 0.3832 s after the last setpoint (ttl 200 ms)
+  j5 streamed to 1.462 (soft limit 1.471); guard refusals 1
+PASS joint stream guard stops j5 at the soft limit and says so
+PASS gripper width 1.0: grip 1.0
+PASS gripper width 0.3: grip 0.3
+PASS gripper width 0.0: grip 0.0
+  stopped at j1 0.107 (was 0.086 when stop was sent; target 1.0)
+PASS stop mid-trajectory halts before the target
+PASS the interrupted move is reported: move_joints interrupted: stopped by c1 e2e-dimos
+  traj.stop_to_still_s = 0.1367 s (braking along the path at the accel cap)
+  traj.stop_overrun_rad = 0.02006 rad on j1 after stop was sent
+PASS moving when E-STOP is pressed
+PASS E-STOP halts and latches
+  estop.to_still_s = 0.007617 s
+PASS ready_after_estop: done in 0.07 s
+PASS motion works again after E-STOP reset
+PASS gripper after E-STOP reset: 0.5
+PASS home: done in 8.19 s
+  home.final_error_rad = 0 rad
+PASS no backend faults at the end ([])
+
+27/27 passed
+numbers: {"ready.final_error_rad": 0.0, "move_joints.final_error_rad": 0.0, "move_joints.start_lag_s": 0.034, "move_joints.max_tracking_error_rad": 0.0007, "wave.final_error_rad": 0.0, "twist_x.distance_m": 0.04316, "twist_x.orientation_change_rad": 0.0, "twist.latency_first_motion_s": 0.0352, "twist.deadman_stop_s": 0.30019, "twist.stop_to_still_s": 0.09108, "jstream.latency_first_motion_s": 0.02705, "jstream.cruise_speed_rad_s": 0.19181, "jstream.ripple_rad": 0.00386, "jstream.zero_step_fraction": 0.125, "jstream.deadman_stop_s": 0.3832, "traj.stop_to_still_s": 0.13668, "traj.stop_overrun_rad": 0.02006, "estop.to_still_s": 0.00762, "home.final_error_rad": 0.0}

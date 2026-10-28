@@ -103,3 +103,65 @@ Music sync (`armctl/choreo.py`) and English → motion (`armctl/llm_author.py`) 
 4. **Measure the gripper:** grip 0..1 → width, where the pads sit relative to `gripper_tip`, whether it stalls on an object (`holding`), and the sag at full reach.
 5. **First real grasp:** a foam block from a taped spot, then one chess piece, then a capture.
 6. Camera-based board reading (which square changed) so the human doesn't have to type their move.
+
+## 2026-10-28 10:30-11:00 IST: DimosBackend against DimOS --simulation
+
+Step 2 of "Next": `armctl.backend.DimosBackend` now drives a running `armctl.dimos_coordinator`, so the daemon (and every phone, camera and open-play interface on it) can drive DimOS instead of only the mock. **Simulation only** (mock_whole_body adapter). Nothing ran on hardware, and no CAN interface was named anywhere except the fake `nonexistent_can9`.
+
+**Environment:** serenity (Ubuntu 24.04.5, Linux 6.8.0-147, 6 CPUs, no arm, no CAN adapter). Repo at `08690fb` plus uncommitted `armctl/backend.py`, `armctl/dimos_coordinator.py`, `armctl/tests/{test_dimos_backend,e2e_dimos_sim}.py`. DimOS 0.0.14 in its own venv `../dimos-venv` (Python 3.12.3, zenoh 1.10.1, numpy 2.5.4, fastapi 0.162.0, websockets 16.1.1; nothing installed). Everything ran on the sim bus `224.0.0.124:7450`.
+
+**Commands** (repo root; three terminals):
+
+```bash
+ZENOH_SCOUT_ADDR=224.0.0.124:7450 ../dimos-venv/bin/python -m armctl.dimos_coordinator --simulation
+ZENOH_SCOUT_ADDR=224.0.0.124:7450 ../dimos-venv/bin/python -m armctl.daemon --backend dimos --auto-approve --port 8791 --log ''
+ZENOH_SCOUT_ADDR=224.0.0.124:7450 ../dimos-venv/bin/python armctl/tests/e2e_dimos_sim.py      # 27 checks + numbers
+.venv/bin/python -m pytest -q armctl/tests interfaces/tests                                    # no DimOS needed
+```
+
+Logs: [logs/dimos-backend-e2e.log](logs/dimos-backend-e2e.log) (final run), [logs/dimos-backend-daemon.log](logs/dimos-backend-daemon.log), [logs/dimos-sim-coordinator.log](logs/dimos-sim-coordinator.log) (with the "Pink streaming command envelope is empty" lines filtered out: about 100 per second while the arm sits at folded home).
+
+- **Problem / Fix (bus):** the docstrings and the default in `dimos_coordinator.py` used `224.0.0.123:7449` for sims. CLAUDE.md says that is the REAL-arm bus. Now an unset `ZENOH_SCOUT_ADDR` defaults to the sim bus 224.0.0.124:7450, `--simulation` refuses the real bus, and `--real` needs `ZENOH_SCOUT_ADDR=224.0.0.123:7449` exported explicitly. Checked: `--real --can-port nonexistent_can9` on the sim bus or with the bus unset → "--real needs the REAL-arm bus explicitly exported"; `--simulation` on 7449 → refused. `experiments/2026-10-16-linux-real-arm/armctl_sim.py` and `armctl_blueprints.py` still default to 7449 for sims. They are historical scripts and were left as they are: pass the sim bus explicitly if you rerun them.
+- **Decision (connect + verify):** the backend picks its bus before any dimos import. Unset means the sim bus, the LAN default is refused, and the real bus is refused unless `ARMCTL_DIMOS_EXPECT=real`. It then calls `armctl_info()` and refuses to start unless all of these match: launcher, exactly the three tasks (name, type, priority, arm joints), IK `command_limit_margin` ≥ the daemon's soft margin, IK joint speed ≤ the daemon's caps, the bus, and sim vs real. The result is logged. `state()["adapter"]` is `"sim"` | `"real"` (and `adapter_type`), and the daemon's 20 Hz state carries it. Checked live: `--margin 0.15` → "eef twist command_limit_margin 0.1 < armctl soft margin 0.150"; no coordinator → "no DimOS coordinator answered on bus 224.0.0.124:7450"; real bus with expect=sim → refused before dimos is imported.
+- **Observation (DimOS 0.0.14 internals that shaped the design):**
+  - eef twists are integrated in the base frame (`matrix[:3,3] += v*dt`, `exp3(w*dt) @ R`), which is armctl's convention.
+  - The trajectory task has no `set_estop`. The coordinator's `set_estop` latches only the twist and gripper tasks, so E-STOP = `set_estop(True)` + `cancel_trajectory()`.
+  - `execute_trajectory` while one runs continues from the commanded position (anchoring), but restarts the clock at `elapsed=0` on its first tick, so that tick holds.
+  - `JointTrajectory.sample` is a linear scan, run once per joint per tick: 100 Hz points for a 60 s playable would be 6000 points × 6 joints × 100 Hz.
+  - `RpcCall.__call__` keeps one closure per call forever, with a 120 s default timeout. The backend calls the transport's `call_sync` itself, with 1 s timeouts.
+  - `/coordinator_joint_state` arrives at ~100 Hz in another process. The sim reports zero velocity, so `qd` is a 50 ms finite difference.
+  - The `arm/gripper` joint is already a calibrated 0..1 opening, in sim and on the real Damiao adapter (`can_motor_control.Gripper(opening_direction="decreasing_position")`).
+  - DimOS's velocity task emits VELOCITY commands, which the whole-body adapter drops, so it can't serve joint streaming.
+- **Decision (mapping):**
+  - `execute` decimates the daemon's gated samples to a piecewise-linear path within 0.5 mrad, with gaps ≤ 0.1 s and always ≥ 2 points (ready: 51 points from 501 samples, 0.23 mrad worst DimOS-sampled error). Completion is `get_status` at 20 Hz, then a settle of ≤ 1.5 s until within 0.01 rad, then `trajectory_done`.
+  - `stop` brakes along the trajectory's own gated path at the accel cap.
+  - Twists go out at 50 Hz from a 100 Hz deadman thread, which sends 3 zero twists at ttl expiry. Each twist is capped (0.1 m/s, 0.6 rad/s) and scaled with armctl's Jacobian so the joints stay under the caps, so the IK target can't run ahead. Twists are refused below j2 0.3 / j3 0.5.
+  - Joint streams are rolling trajectories: follow the setpoint for min(ttl, 0.3 s), then brake to rest. Every plan ends at rest. A new one goes out when the setpoint changes, or when < 0.1 s of cruise is left.
+  - `relax` is refused (no torque-off RPC). `torque` is True in sim, with a TODO for the real CAN status nibble.
+- **Observation (numbers, final run 10:56, 27/27 PASS):**
+
+  | what | measured |
+  |---|---|
+  | ready / move_joints / wave / home final error | 0.0000 rad (sim tracks commands exactly) |
+  | move_joints tracking vs our 100 Hz plan | 0.7 mrad max, at a fitted start lag of 34 ms from sending `do` |
+  | Cartesian +x 0.02 m/s for 2 s from ready | tip +43.2 mm in x, 0.0 in y/z, orientation change 5e-7 rad (+z: +33.6 mm z only) |
+  | stream → first motion | twist 28-35 ms, joint stream 27 ms |
+  | deadman (ttl 200 ms), last setpoint → still | twist 0.30 s (ttl + ~70 ms exponential IK decay), joint 0.38 s (ttl + braking 0.2 rad/s at 1 rad/s²) |
+  | `do stop` → still | twist 0.09 s; trajectory 0.14 s, j1 overran 0.02 rad past the pose at stop (braking on the path) |
+  | E-STOP while moving → still | 8 ms; latched, then after reset `ready` and gripper work again |
+  | joint stream j1 0.2 rad/s | 0.19 rad/s mean over the cruise; 12.5 % of ticks held (one per re-issue), 3.9 mrad worst deviation from a straight line |
+  | j5 streamed at its soft limit | stopped at 1.462-1.465 (soft 1.471), guard refusal sent to the client |
+  | gripper 1.0 / 0.3 / 0.0 / 0.5 | reached each within 0.02 |
+
+- **Problem / Fix (joint stream ripple):** the first version re-issued at 25 Hz from our own clock. Each re-issue held one DimOS tick, and our reference ran ~5 ms ahead, so the steps were 0 / 0.23 rad/s instead of 0.2 and the mean was 8 % slow. **Fix:** re-issue only on a setpoint change or when cruise runs low (about every 80 ms for a steady stream), take the reference from DimOS's own tick-quantised `time_elapsed`, and drop the plan's first step so the tick after the hold catches up. Per-tick pattern now `0, 3.9, 2.02, 2.02, ...` mrad (the mean holds; the hold itself is inherent to DimOS 0.0.14).
+- **Insight:** in sim, every path works: discrete moves, playables, Cartesian and joint streaming, deadman, stop, E-STOP, gripper. The numbers that matter on hardware are not measured yet: PD sag (the settle step and the daemon's 0.02 rad verify), the held-tick ripple at kp 80, gripper direction, and torque state.
+- **Problem (daemon, not changed here):** `do relax` comes back as "internal error: relax is not available…" with a traceback in the log, because the daemon maps only `Refused` cleanly. The DimOS E-STOP latch clears on the next allowed motion, because the daemon's `/estop/reset` does not call `backend.enable()`. The daemon's 0.02 rad execute-then-verify is one tolerance for every joint (SUMMARY: about 0.03 sag on j2/j3 and 0.06 on the wrist).
+- **Tests:** `armctl/tests/test_dimos_backend.py` covers bus rules, coordinator verification, decimation, braking, rolling plans, the twist deadman, E-STOP latch/clear, gripper samples and the daemon on top of the backend. It uses a fake link and needs no DimOS: 19 passed, 1 skipped (the DimOS-message test, which was run by hand under dimos-venv). Whole suite: **157 passed, 2 skipped**.
+- **Next (laptop, sim first):** the same three commands with `.venv` (which has DimOS there), then the phone joystick/tilt through phonecam against `--port 8791`. Then, only with the person at the arm, arm folded and probed:
+
+  ```bash
+  ZENOH_SCOUT_ADDR=224.0.0.123:7449 .venv/bin/python -m armctl.dimos_coordinator --real --can-port can0
+  ZENOH_SCOUT_ADDR=224.0.0.123:7449 ARMCTL_DIMOS_EXPECT=real .venv/bin/python -m armctl.daemon --backend dimos
+  ```
+
+  Then `ready` from the console, then a short joystick test. Afterwards support the arm, Ctrl-C both, `tools/disable_all.py can0`, and check the LEDs.
