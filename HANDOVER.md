@@ -105,6 +105,7 @@ Then test with two real phones on the Wi-Fi:
 
 ## 6. Decisions made
 
+- **DimOS limit harness (after the 28 Oct j1 fault, arm went limp):** armctl's hard limits are the intersection of `i2rt/yam.urdf` and the DimOS adapter's `yam_gripper_gravity.urdf` (j1 ≤ 1.571, j6 ≤ 1.833). `DimosBackend` checks the installed model file at connect, gates every trajectory and stream step 0.03 rad inside the adapter limits, stops Tilt/Sticks at the edge of reach, and on a latched DimOS feedback fault E-STOPs and shows ARM FAULTED everywhere (no auto-recovery). DimOS itself can't hold position on a fault yet (it disables the motors); a 'hold' option in the adapter is the proposed upstream change.
 - Every interface is an armctl program. In open play, phones never touch the arm: `openplay.server` holds the lease and arbitrates.
 - **Auto-play** (players' moves play without operator approval) defaults to on only for the mock. With it off, the operator's Approve on the laptop is the Play press (one approval).
 - The laptop display is show + always-on operator rail (`h` hides the rail).

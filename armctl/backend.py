@@ -11,6 +11,7 @@ All joint vectors are j1..j6 in rad (see armctl.envelope); the gripper is normal
 from __future__ import annotations
 
 import abc
+import re as _re
 import threading
 import time
 from dataclasses import dataclass, field
@@ -527,6 +528,81 @@ QD_WINDOW_S = 0.05  # s: qd is a finite difference over this window
 MOVING_QD = 0.01  # rad/s: |qd| above this counts as moving
 RPC_TIMEOUT_S = 1.0  # s per motion RPC (DimOS's default is 120 s, which would freeze the daemon)
 
+# ---- DimOS adapter limit harness (incident 2026-10-28: j1 +1.62 latched a Damiao feedback
+# fault and the arm went limp). Layer 1 is envelope.URDF_LIMITS (intersection with the DimOS
+# model); layer 1b armctl/dimos_limits.py (installed file vs pinned values, at connect).
+DIMOS_GATE_MARGIN = 0.03  # rad: layer 2, no position sent to DimOS within this of its limits...
+DIMOS_GATE_AT_STOP = {"j2": 0.02, "j3": 0.02}  # ...except the folded stops (limit 0 = home): -0.02 ok
+EDGE_ZONE = 0.10  # rad: layer 3, a stream stops when a measured joint is this close to a limit...
+EDGE_QD = 0.01  # rad/s: ...and moving toward it faster than this
+EDGE_RELEASE = 0.02  # rad: the per-direction latch clears once the joint is EDGE_ZONE + this away
+FAULT_PATTERNS = ("feedback fault", "motor disable failed")  # layer 4: DimOS adapter fault texts
+FAULT_ACTION = "support the arm, run tools/disable_all.py, check every motor LED is steady red"
+
+
+class EdgeOfReach(RuntimeError):
+    """A stream would push a joint further into its edge zone (latched until it is moved back)."""
+
+
+class ArmFaulted(RuntimeError):
+    """The DimOS adapter latched a hardware fault (motors disabled). No motion until restart."""
+
+
+def dimos_gate_bounds(start: Any = None, limits: dict | None = None,
+                      margin: float = DIMOS_GATE_MARGIN) -> tuple[np.ndarray, np.ndarray]:
+    """Per-joint [lo, hi] a position sent to DimOS must stay in: the DimOS adapter limits shrunk by
+    ``margin`` (the folded stops j2/j3 = 0 get DIMOS_GATE_AT_STOP below instead). A path that
+    starts outside (e.g. after an overshoot) may move back in but never further out than its start,
+    and never past the DimOS limit itself."""
+    limits = env.DIMOS_ADAPTER_LIMITS if limits is None else limits
+    lo = np.array([limits[j][0] + margin for j in env.JOINTS])
+    hi = np.array([limits[j][1] - margin for j in env.JOINTS])
+    for j, below in DIMOS_GATE_AT_STOP.items():
+        i = env.joint_index(j)
+        lo[i] = limits[j][0] - below
+    if start is not None:
+        s = env.as_vector(start)
+        hard_lo = np.array([limits[j][0] for j in env.JOINTS])
+        hard_hi = np.array([limits[j][1] for j in env.JOINTS])
+        lo = np.minimum(lo, np.maximum(s, hard_lo))
+        hi = np.maximum(hi, np.minimum(s, hard_hi))
+    return lo, hi
+
+
+def dimos_gate(positions: Any, what: str = "trajectory", start: Any = None,
+               limits: dict | None = None, margin: float = DIMOS_GATE_MARGIN) -> None:
+    """Layer 2, the last check before positions go to DimOS: RuntimeError naming the joint, value
+    and limit if any row leaves ``dimos_gate_bounds``. Independent of the envelope (DimOS does not
+    check joint limits on raw trajectories; past its own limit + 0.05 the adapter faults)."""
+    p = np.atleast_2d(np.asarray(positions, float))
+    if p.shape[1] != env.N or not np.all(np.isfinite(p)):
+        raise RuntimeError(f"DimOS gate: {what} positions must be finite rows of {env.N} joints")
+    lo, hi = dimos_gate_bounds(p[0] if start is None else start, limits, margin)
+    bad = []
+    for i, j in enumerate(env.JOINTS):
+        mx, mn = float(p[:, i].max()), float(p[:, i].min())
+        if mx > hi[i] + 1e-9:
+            bad.append(f"{j} {mx:.3f} > {hi[i]:.3f} (DimOS limit {(limits or env.DIMOS_ADAPTER_LIMITS)[j][1]:.4f})")
+        if mn < lo[i] - 1e-9:
+            bad.append(f"{j} {mn:.3f} < {lo[i]:.3f} (DimOS limit {(limits or env.DIMOS_ADAPTER_LIMITS)[j][0]:.4f})")
+    if bad:
+        raise RuntimeError(f"DimOS limit gate refused the {what} (not sent): " + "; ".join(bad))
+
+
+def edge_limits(envelope: env.Envelope, use_soft: bool = True) -> tuple[np.ndarray, np.ndarray]:
+    """The limits the edge watchdog guards: the DimOS adapter limits, or the armctl soft limits
+    where those are tighter (``use_soft``)."""
+    lo = np.array([env.DIMOS_ADAPTER_LIMITS[j][0] for j in env.JOINTS])
+    hi = np.array([env.DIMOS_ADAPTER_LIMITS[j][1] for j in env.JOINTS])
+    if use_soft:
+        lo, hi = np.maximum(lo, envelope.soft_lower), np.minimum(hi, envelope.soft_upper)
+    return lo, hi
+
+
+def is_fault_text(msg: str) -> bool:
+    m = (msg or "").lower()
+    return any(p in m for p in FAULT_PATTERNS)
+
 
 def dimos_bus(expect: str = "sim", environ: dict | None = None) -> str:
     """Pick and check the zenoh bus BEFORE any dimos import. Unset -> the sim bus (written back
@@ -912,6 +988,14 @@ class DimosBackend(Backend):
         try:
             self.info = link.info()
             warns, self.adapter = verify_coordinator(self.info, envelope, self.expect, self.bus)
+            if self.adapter == "real":  # layer 1b: the model file the Damiao adapter loaded
+                from . import dimos_limits
+                probs = dimos_limits.check_pinned()
+                if probs:
+                    raise RuntimeError(
+                        "DimOS adapter joint limits do not match armctl's pinned DIMOS_ADAPTER_LIMITS "
+                        "(armctl could command positions that fault the arm): " + "; ".join(probs)
+                        + ". Update envelope.DIMOS_ADAPTER_LIMITS to the installed model before using the real arm")
         except Exception:
             link.close()
             raise
@@ -955,6 +1039,9 @@ class DimosBackend(Backend):
         self._grip_sent: float | None = None
         self._brake_until = 0.0
         self._estop_latched = False
+        self._t_fault_poll = -1e9
+        self.fault: dict | None = None  # layer 4: latched DimOS adapter fault (no auto-recovery)
+        self._edge: dict[tuple[int, int], float] = {}  # layer 3: (joint, +1|-1) -> guarded limit
         self._stop_evt = threading.Event()
         self._thread: threading.Thread | None = None
 
@@ -993,8 +1080,9 @@ class DimosBackend(Backend):
             try:
                 self._tick(self.clock())
             except Exception as e:  # never let the worker die silently
-                self._fault("worker", repr(e))
-                self.on_event("error", {"error": f"dimos backend: {e!r}"})
+                if not self._note_exc(e):
+                    self._fault("worker", repr(e))
+                    self.on_event("error", {"error": f"dimos backend: {e!r}"})
             sl = nxt - self.clock()
             if sl > 0:
                 time.sleep(sl)
@@ -1040,6 +1128,90 @@ class DimosBackend(Backend):
                 _dlog.warning("DimosBackend fault %s: %s", key, msg)
             self._faults[key] = msg
 
+    # ---- layer 4: DimOS adapter faults (latched; no auto-recovery)
+    def _note_exc(self, e: Any) -> bool:
+        """Latch an adapter fault if ``e`` (an exception or text from DimOS) says one happened."""
+        msg = str(e)
+        if not is_fault_text(msg):
+            return False
+        self._latch_fault(msg)
+        return True
+
+    def _latch_fault(self, msg: str) -> None:
+        events: list = []
+        with self.lock:
+            if self.fault is not None:
+                return
+            m = _re.search(r"yam_joint(\d)", msg)
+            joint = f"j{m.group(1)}" if m else None
+            short = msg.strip().split("\n")[0].strip()
+            for pre in ("RuntimeError: ", "Damiao feedback fault: "):
+                short = short.replace(pre, "")
+            self.fault = {"source": "dimos", "joint": joint, "reason": short[:300], "t": round(time.time(), 3),
+                          "action": FAULT_ACTION,
+                          "message": f"ARM FAULTED ({short[:160]}): {FAULT_ACTION}. Restart the coordinator to recover"}
+            self._fault("hardware", self.fault["message"])
+            # DimOS disabled the motors: forget every local motion state, send nothing more.
+            self._end_traj_locked(False, events)
+            self._stream = None
+            self._expiry = 0.0
+            self._deadman_fired = True
+            self._jplan = None
+            self._brake_until = 0.0
+            self._twist = np.zeros(6)
+            self._zero_left = 0
+            self.mode = "estop"
+        _dlog.error("DimosBackend: DimOS ADAPTER FAULT latched: %s. Motors are disabled (arm limp). %s; "
+                    "restart the coordinator and armctl to recover", short, FAULT_ACTION)
+        events.append(("fault", dict(self.fault)))
+        self._emit(events)
+
+    def _require_ok(self) -> None:
+        if self.fault is not None:
+            raise ArmFaulted(self.fault["message"])
+
+    # ---- layer 3: edge-of-reach watchdog
+    def _edge_msg(self, i: int, q: float, lim: float) -> str:
+        return f"edge of reach: {env.JOINTS[i]} near its limit ({q:.2f} / {lim:.2f}): steer back"
+
+    def _edge_blocked(self, qd: np.ndarray, q: np.ndarray) -> tuple[int, int, float] | None:
+        """The first latched (joint, direction) that ``qd`` pushes further into, else None."""
+        for (i, sgn), lim in self._edge.items():
+            if sgn * qd[i] > EDGE_QD:
+                return i, sgn, lim
+        return None
+
+    def _edge_check_locked(self, now: float, q: np.ndarray, qd: np.ndarray, events: list) -> None:
+        for (i, sgn), lim in list(self._edge.items()):  # moved back far enough: unlatch
+            if sgn * (lim - q[i]) > EDGE_ZONE + EDGE_RELEASE:
+                del self._edge[(i, sgn)]
+                _dlog.info("DimosBackend: %s back from its %s limit (%.3f): edge latch cleared",
+                           env.JOINTS[i], "upper" if sgn > 0 else "lower", q[i])
+        if self._stream is None or now >= self._expiry:
+            return
+        # Twists go through DimOS's Pink IK (looser i2rt model): guard the soft box too. Joint
+        # streams are already braked at the soft box by velocity_plan: guard the DimOS limits.
+        lo, hi = edge_limits(self.envelope, use_soft=self._stream == "twist")
+        for i in range(env.N):
+            for sgn, lim in ((1, hi[i]), (-1, lo[i])):
+                if sgn * (lim - q[i]) < EDGE_ZONE and sgn * qd[i] > EDGE_QD:
+                    self._edge[(i, sgn)] = float(lim)
+                    msg = self._edge_msg(i, q[i], lim)
+                    _dlog.warning("DimosBackend: %s (qd %+.3f rad/s); %s stream stopped", msg, qd[i], self._stream)
+                    events.append(("edge", {"joint": env.JOINTS[i], "q": round(float(q[i]), 4),
+                                            "limit": round(float(lim), 4), "message": msg}))
+                    self._halt_stream_locked(now, events)
+                    return
+
+    def _halt_stream_locked(self, now: float, events: list) -> None:
+        if self._stream == "twist":
+            self._stop_twist_locked()
+        elif self._stream == "joint":
+            self._cmd_qd = np.zeros(env.N)
+            self._expiry = 0.0
+            self._issue_jplan_locked(now, events)
+        self._deadman_fired = True
+
     # ---- interface
     def state(self) -> dict:
         q, qd, grip, age = self._measured()
@@ -1053,7 +1225,7 @@ class DimosBackend(Backend):
             "qd": [round(float(x), 5) for x in qd],
             "grip": round(float(grip), 4),
             "grip_target": round(float(self.grip_target), 4),
-            "torque": True,  # TODO(real): Damiao status nibble (b0 >> 4), not is_enabled
+            "torque": self.fault is None,  # TODO(real): Damiao status nibble (b0 >> 4), not is_enabled
             "mode": mode,
             "moving": moving,
             "faults": list(self._faults.values()),
@@ -1061,6 +1233,8 @@ class DimosBackend(Backend):
             "backend": self.name,
             "adapter": self.adapter,
             "adapter_type": self.adapter_type,
+            "fault": dict(self.fault) if self.fault else None,
+            "edge": [f"{env.JOINTS[i]}{'+' if s > 0 else '-'}" for i, s in self._edge],
         }
 
     def _busy_streaming(self, now: float) -> bool:
@@ -1103,14 +1277,24 @@ class DimosBackend(Backend):
             self.on_event(kind, data)
 
     def execute(self, traj: Trajectory) -> None:
+        self._require_ok()
         times, pos, vel = trajectory_points(traj)
+        dimos_gate(pos, traj.label or "trajectory")  # layer 2: refuse before anything changes
         events: list = []
         with self.lock:
+            self._require_ok()
             self._clear_estop_locked()
             self._stop_twist_locked()
             self._jplan = None
             self._end_traj_locked(False, events)  # superseded
-            ok, msg = self.link.execute(times, pos, vel)
+            try:
+                ok, msg = self.link.execute(times, pos, vel)
+            except Exception as e:
+                if self._note_exc(e):
+                    self._require_ok()
+                raise
+            if not ok and self._note_exc(msg):
+                self._require_ok()
             if not ok:
                 self.mode = "hold"
                 self._emit(events)
@@ -1126,10 +1310,21 @@ class DimosBackend(Backend):
         self._emit(events)
 
     def set_joint_velocity(self, qd: Any, ttl_s: float) -> None:
+        self._require_ok()
         w, _ = self.envelope.cap_velocity(env.as_vector(qd))
+        events: list = []
         with self.lock:
             if self.mode == "trajectory":
                 raise RuntimeError("a trajectory is running")
+            q = self._measured()[0]
+            blk = self._edge_blocked(w, q)
+            while blk is not None:  # latched direction: that joint stays still
+                i, _sgn, lim = blk
+                w = w.copy()
+                w[i] = 0.0
+                if not w.any():
+                    raise EdgeOfReach(self._edge_msg(i, q[i], lim))
+                blk = self._edge_blocked(w, q)
             self._clear_estop_locked()
             if self._stream == "twist":
                 self._stop_twist_locked()
@@ -1140,7 +1335,8 @@ class DimosBackend(Backend):
             self._deadman_fired = False
             self.mode = "velocity"
             if fresh:
-                self._issue_jplan_locked(self.clock(), [])
+                self._issue_jplan_locked(self.clock(), events)
+        self._emit(events)
 
     def set_twist(self, v: dict, ttl_s: float) -> None:
         vec = twist_vector(v)
@@ -1150,13 +1346,23 @@ class DimosBackend(Backend):
         if low and vec.any():
             raise ValueError("Cartesian streaming needs the arm unfolded (" + ", ".join(low) +
                              "): DimOS's IK has no solution from the folded pose; send do ready first")
+        self._require_ok()
+        events: list = []
         with self.lock:
             if self.mode == "trajectory":
                 raise RuntimeError("a trajectory is running")
+            if self._edge and vec.any():
+                blk = self._edge_blocked(scale_twist(q, vec, self.envelope)[1], q)
+                if blk is not None:
+                    i, _sgn, lim = blk
+                    if self._stream == "twist":
+                        self._stop_twist_locked()
+                        self._deadman_fired = True
+                    raise EdgeOfReach(self._edge_msg(i, q[i], lim))
             self._clear_estop_locked()
             if self._stream == "joint":
                 self._cmd_qd = np.zeros(env.N)
-                self._issue_jplan_locked(self.clock(), [])  # brake the joint stream first
+                self._issue_jplan_locked(self.clock(), events)  # brake the joint stream first
             fresh = self._stream != "twist"
             self._stream = "twist"
             self._twist = vec
@@ -1165,9 +1371,11 @@ class DimosBackend(Backend):
             self._zero_left = 0
             self.mode = "velocity"
             if fresh:  # first setpoint goes out now, not on the next tick
-                self._publish_twist_locked(self.clock(), [])
+                self._publish_twist_locked(self.clock(), events)
+        self._emit(events)
 
     def gripper(self, width: float) -> None:
+        self._require_ok()
         w = float(np.clip(width, *env.GRIP_RANGE))
         with self.lock:
             if abs(w - self.grip_target) < 1e-3 and not self._estop_latched:
@@ -1178,6 +1386,8 @@ class DimosBackend(Backend):
             self.grip_target = w
 
     def stop(self) -> None:
+        if self.fault is not None:
+            return  # DimOS disabled the motors; nothing to send
         events: list = []
         with self.lock:
             now = self.clock()
@@ -1187,7 +1397,12 @@ class DimosBackend(Backend):
                 self._end_traj_locked(False, events)
                 if brake is not None and len(brake) >= 2:
                     bt = Trajectory(brake, DT, label="stop")
-                    ok, msg = self.link.execute(*trajectory_points(bt))
+                    pts = trajectory_points(bt)
+                    try:
+                        dimos_gate(pts[1], "braking path")
+                        ok, msg = self.link.execute(*pts)
+                    except RuntimeError as e:
+                        ok, msg = False, str(e)
                     if ok:
                         self._brake_until = now + bt.duration
                         self.mode = "velocity"
@@ -1222,8 +1437,15 @@ class DimosBackend(Backend):
                 self.link.set_estop(True)
                 self._estop_latched = True
                 self._fault("estop", "DimOS E-STOP latched (cleared by enable or the next allowed motion)")
+            except Exception:
+                if self.fault is None:
+                    raise
             finally:
-                self.link.cancel()
+                try:
+                    self.link.cancel()
+                except Exception:
+                    if self.fault is None:
+                        raise
                 self._end_traj_locked(False, events)
                 if self._stream == "twist":
                     self.link.publish_twist(np.zeros(6))
@@ -1242,6 +1464,7 @@ class DimosBackend(Backend):
             "A person must support the arm, stop the coordinator, run tools/disable_all.py and check every LED is steady red")
 
     def enable(self) -> None:
+        self._require_ok()
         with self.lock:
             self._clear_estop_locked()
             if self.mode != "trajectory" and not self._busy_streaming(self.clock()):
@@ -1285,7 +1508,21 @@ class DimosBackend(Backend):
             # (elapsed 0 = point 0); dropping our first step makes the next tick catch up, so the
             # stream keeps its average speed instead of losing one tick per re-issue.
             samples = np.vstack([samples[:1], samples[2:]])
-        ok, msg = self.link.execute(*trajectory_points(Trajectory(samples, DT)))
+        pts = trajectory_points(Trajectory(samples, DT))
+        try:
+            dimos_gate(pts[1], "joint-stream step")
+        except RuntimeError as e:  # layer 2: nothing sent; the previous plan already ends at rest
+            self._fault("jstream", str(e))
+            self._cmd_qd = np.zeros(env.N)
+            self._jplan = None
+            events.append(("gate", {"message": str(e)}))
+            return
+        try:
+            ok, msg = self.link.execute(*pts)
+        except Exception as e:
+            if self._note_exc(e):
+                return
+            raise
         if ok:
             self._jplan = (samples, DT, self.clock())
             self._fault("jstream", None)
@@ -1296,6 +1533,15 @@ class DimosBackend(Backend):
     def _publish_twist_locked(self, now: float, events: list) -> None:
         q = self._measured()[0]
         v, qd = scale_twist(q, self._twist, self.envelope)
+        blk = self._edge_blocked(qd, q) if self._edge else None
+        if blk is not None:  # would push a latched joint further: stop instead of sending
+            i, _sgn, lim = blk
+            msg = self._edge_msg(i, q[i], lim)
+            events.append(("edge", {"joint": env.JOINTS[i], "q": round(float(q[i]), 4),
+                                    "limit": round(float(lim), 4), "message": msg}))
+            self._stop_twist_locked()
+            self._deadman_fired = True
+            return
         _, viol = self.envelope.clamp_step(q, qd, self.envelope.lookahead())
         if viol:  # the IK's command_limit_margin enforces the box; we just say so
             events.append(("guard", {"violations": [x.to_dict() for x in viol]}))
@@ -1305,16 +1551,21 @@ class DimosBackend(Backend):
     def _tick(self, now: float) -> None:
         events: list = []
         q, qd, grip, age = self._measured()
-        if age > STATE_POLL_AFTER_S:
+        if age > STATE_POLL_AFTER_S and (self.fault is None or now - self._t_fault_poll >= 1.0):
+            self._t_fault_poll = now
             try:
                 self._update_joints(self.link.joint_positions(), now)
                 self._fault("state", None)
                 self._fault("rpc", None)
             except Exception as e:
-                self._fault("rpc", f"get_joint_positions failed: {e!r}")
-        else:
+                if not self._note_exc(e):
+                    self._fault("rpc", f"get_joint_positions failed: {e!r}")
+        elif age <= STATE_POLL_AFTER_S:
             self._fault("state", None)
+        if self.fault is not None:
+            return
         with self.lock:
+            self._edge_check_locked(now, q, qd, events)
             live = now < self._expiry
             if self._stream is not None and not live and not self._deadman_fired:
                 self._deadman_fired = True
@@ -1371,7 +1622,8 @@ class DimosBackend(Backend):
             st, _ = self.link.status()
             self._fault("rpc", None)
         except Exception as e:
-            self._fault("rpc", f"get_status failed: {e!r}")
+            if not self._note_exc(e):
+                self._fault("rpc", f"get_status failed: {e!r}")
             return
         if st == "COMPLETED":
             self._settle_t0 = now

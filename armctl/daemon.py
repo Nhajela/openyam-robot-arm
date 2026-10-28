@@ -40,7 +40,7 @@ from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconn
 from fastapi.responses import JSONResponse
 
 from . import envelope as env
-from .backend import BACKENDS, Backend, Trajectory, plan_home, plan_move
+from .backend import BACKENDS, Backend, EdgeOfReach, Trajectory, plan_home, plan_move
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_LOG = REPO / "experiments" / "2026-10-16-linux-real-arm" / "logs" / "armctl-daemon.log"
@@ -241,6 +241,7 @@ class Daemon:
         self.switching = False
         self.pending: collections.OrderedDict[str, float] = collections.OrderedDict()
         self.estopped = False
+        self.fault: dict | None = None  # latched DimOS adapter fault: E-STOP, no reset, no auto-recovery
         self.busy: dict | None = None
         self.streaming = False
         self.stream_deadline = 0.0
@@ -298,7 +299,7 @@ class Daemon:
     def state_msg(self) -> dict:
         s = self.backend.state()
         return {"op": "state", "t": round(time.time(), 3), **s, "lease": self.lease_info(),
-                "estop": self.estopped, "busy": self.busy["label"] if self.busy else None,
+                "estop": self.estopped, "fault": self.fault or s.get("fault"), "busy": self.busy["label"] if self.busy else None,
                 "streaming": self.streaming, "pending": list(self.pending),
                 "pending_play": self.pending_play["name"] if self.pending_play else None}
 
@@ -369,10 +370,47 @@ class Daemon:
                 if c and now - c.last_stream_refusal.get(key, 0.0) >= REFUSAL_REPEAT_S:
                     c.last_stream_refusal[key] = now
                     await self._refuse(c, v["message"], None, "stream", stream=True, joint=v.get("joint"))
+        elif kind == "edge":
+            self.streaming = False
+            await self._edge_refusal(self.holder, data.get("message", "edge of reach"), data.get("joint"))
+        elif kind == "gate":
+            self.streaming = False
+            c = self.holder
+            self.log(f"DimOS limit gate: {data.get('message')}", logging.WARNING)
+            if c:
+                await self._refuse(c, data.get("message", "DimOS limit gate"), None, "stream", stream=True)
+        elif kind == "fault":
+            await self._on_fault(data)
         elif kind == "deadman":
             pass  # logged by the ticker
         elif kind == "error":
             self.log(f"backend error: {data.get('error')}", logging.ERROR)
+
+    async def _edge_refusal(self, c: Client | None, message: str, joint: str | None) -> None:
+        """Edge-of-reach watchdog (DimosBackend layer 3): a stream refusal, at most every
+        REFUSAL_REPEAT_S per joint so a 30 Hz stream does not flood the client."""
+        key = f"{joint}:edge"
+        now = time.monotonic()
+        if c is None or now - c.last_stream_refusal.get(key, 0.0) < REFUSAL_REPEAT_S:
+            return
+        c.last_stream_refusal[key] = now
+        self.log(f"[{c.tag}] {message}", logging.WARNING)
+        await self._refuse(c, message, None, "stream", stream=True, joint=joint, edge=True)
+
+    async def _on_fault(self, fault: dict) -> None:
+        """The DimOS adapter latched a hardware fault (motors disabled, arm limp): E-STOP, refuse
+        everything, tell every client. Only a restart of the coordinator and armctl recovers."""
+        if self.fault is not None:
+            return
+        self.fault = dict(fault)
+        self.log(f"ARM FAULTED: {fault.get('reason')}. {fault.get('action', '')}. E-STOP latched; "
+                 "restart the coordinator and armctl to recover (no auto-recovery)", logging.ERROR)
+        await self.estop(by="DimOS adapter fault")
+        await self.broadcast({"op": "fault", **self.fault})
+
+    def _check_fault(self) -> dict | None:
+        f = self.fault or getattr(self.backend, "fault", None)
+        return f if isinstance(f, dict) else None
 
     # ---- connections
     async def connect(self, client: Client) -> None:
@@ -455,6 +493,9 @@ class Daemon:
         await self.broadcast({"op": "estop", "latched": True})
 
     async def estop_reset(self, by: str = "operator") -> None:
+        f = self._check_fault()
+        if f:
+            raise Refused(f"cannot reset: {f.get('message', 'arm faulted')}")
         self.estopped = False
         try:
             self.backend.clear_estop()
@@ -464,6 +505,9 @@ class Daemon:
         await self.broadcast({"op": "estop", "latched": False})
 
     async def enable(self, by: str = "operator") -> None:
+        f = self._check_fault()
+        if f:
+            raise Refused(f"cannot enable: {f.get('message', 'arm faulted')}")
         self.backend.enable()
         self.log(f"torque enabled (holding) by {by}")
 
@@ -504,6 +548,7 @@ class Daemon:
             "pending_play": ({"name": p["name"], "client": p["client"].id, "program": p["client"].program,
                               "duration": round(p["traj"].duration, 2)} if p else None),
             "estop": self.estopped,
+            "fault": self._check_fault(),
             "auto_approve": self.auto_approve,
             "backend": self.backend.name,
             "log": list(self.recent)[-25:],
@@ -544,9 +589,22 @@ class Daemon:
                 raise Refused(f"unknown op {op!r}")
         except Refused as e:
             await self._refuse(client, str(e), mid, op if op != "do" else f"do {msg.get('cmd')}")
+        except EdgeOfReach as e:
+            m = re.search(r"edge of reach: (j\d)", str(e))
+            self.streaming = False
+            await self._edge_refusal(client, str(e), m.group(1) if m else None)
         except Exception as e:  # never crash a connection on a bad message
-            log.exception("handling %s", op)
-            await self._refuse(client, f"internal error: {e}", mid, op)
+            f = self._check_fault()
+            what = op if op != "do" else f"do {msg.get('cmd')}"
+            if f:
+                await self._on_fault(f)
+                await self._refuse(client, f.get("message", "arm faulted"), mid, what)
+            elif isinstance(e, RuntimeError) and "DimOS limit gate" in str(e):
+                self.log(f"[{client.tag}] {e}", logging.WARNING)
+                await self._refuse(client, str(e), mid, what)
+            else:
+                log.exception("handling %s", op)
+                await self._refuse(client, f"internal error: {e}", mid, op)
 
     async def _hello(self, client: Client, msg: dict) -> None:
         program = _clean(msg.get("program"), 32, PROGRAM_RE)
@@ -558,7 +616,7 @@ class Daemon:
         if first:
             self.log(f"[{client.tag}] hello name={client.name!r} from {client.remote}")
         await client.send({"op": "hello", "id": msg.get("id"), "client": client.id, "protocol": PROTOCOL,
-                           "lease": self.lease_info(), "estop": self.estopped,
+                           "lease": self.lease_info(), "estop": self.estopped, "fault": self._check_fault(),
                            "auto_approve": self.auto_approve, "backend": self.backend.name,
                            "envelope": self.envelope.describe(), "poses": self.poses,
                            "ttl_ms": {"default": TTL_DEFAULT_MS, "max": TTL_MAX_MS}})
@@ -567,6 +625,9 @@ class Daemon:
         if self.holder is client:
             await client.send({"op": "ack", "id": mid, "cmd": "acquire", "lease": self.lease_info()})
             return
+        f = self._check_fault()
+        if f:
+            raise Refused(f.get("message", "arm faulted"))
         if self.estopped:
             raise Refused("E-STOP is latched: the operator must reset it in the console")
         if self.auto_approve:
@@ -592,6 +653,9 @@ class Daemon:
                           "send acquire and wait for the operator")
 
     def _motion_allowed(self) -> None:
+        f = self._check_fault()
+        if f:
+            raise Refused(f.get("message", "arm faulted"))
         if self.estopped:
             raise Refused("E-STOP is latched: the operator must reset it in the console")
         st = self.backend.state()
@@ -886,12 +950,22 @@ def build_app(daemon: Daemon):
 
     @app.post("/estop/reset")
     async def estop_reset(request: Request):
-        await daemon.estop_reset(by=operator_only(request))
+        by = operator_only(request)
+        try:
+            await daemon.estop_reset(by=by)
+        except Refused as e:
+            daemon._refuse_record(None, str(e), "estop.reset")
+            raise HTTPException(409, str(e)) from None
         return {"ok": True, "estop": False}
 
     @app.post("/enable")
     async def enable(request: Request):
-        await daemon.enable(by=operator_only(request))
+        by = operator_only(request)
+        try:
+            await daemon.enable(by=by)
+        except Refused as e:
+            daemon._refuse_record(None, str(e), "enable")
+            raise HTTPException(409, str(e)) from None
         return {"ok": True}
 
     @app.post("/playable/confirm")

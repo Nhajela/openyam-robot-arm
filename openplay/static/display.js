@@ -98,11 +98,13 @@ function onConfig(m) {
 }
 function onArm(m) {
   const wasEstop = !!(S.arm && S.arm.estop);
+  const wasFault = !!(S.arm && S.arm.fault);
   S.arm = m; S.armAt = performance.now(); S.armCount++;
   if (m.adapter && m.adapter !== S.adapter) { S.adapter = m.adapter; renderBackend(); }
   if (Array.isArray(m.q) && m.q.length >= 6) target.q = m.q.slice(0, 6).map(Number);
   if (Number.isFinite(+m.grip)) target.grip = +m.grip;
-  if (!!m.estop !== wasEstop) { updateBanner(); updateHealth(); $('resetBtn').disabled = !m.estop; }
+  if (!!m.estop !== wasEstop || !!m.fault !== wasFault) { updateBanner(); updateHealth(); $('resetBtn').disabled = !m.estop || !!m.fault; }
+  if (m.fault && !wasFault) addProblem('ARM FAULTED: ' + (m.fault.reason || 'DimOS adapter fault'), 'bad');
 }
 function onLobby(m) {
   S.lobby = { queue: Array.isArray(m.queue) ? m.queue : [], active: m.active || null, players: m.players | 0 };
@@ -282,10 +284,13 @@ function armDisconnected() {
 let bannerKey = '';
 function updateBanner() {
   let key = '', title = '', sub = '', bad = false;
-  if (S.arm && S.arm.estop) { key = 'estop'; bad = true; title = 'E-STOP: the arm is stopped'; sub = 'Paused for safety. Operator: check the area, then press Reset E-STOP.'; }
+  // A latched DimOS adapter fault (armctl state.fault): the motors are off and the arm may drop.
+  // It outranks E-STOP and cannot be reset here: only a restart of the coordinator recovers.
+  if (S.arm && S.arm.fault) { key = 'fault'; bad = true; title = 'ARM FAULTED: support the arm, run tools/disable_all.py'; sub = `${S.arm.fault.reason || 'DimOS adapter fault'}. Motors are off. Check every motor LED is steady red, then restart the coordinator.`; }
+  else if (S.arm && S.arm.estop) { key = 'estop'; bad = true; title = 'E-STOP: the arm is stopped'; sub = 'Paused for safety. Operator: check the area, then press Reset E-STOP.'; }
   else if (!S.wsOpen) { key = 'ws'; title = S.wsEverOpen ? 'Lost the open-play server' : 'Connecting to the open-play server…'; sub = 'Reconnecting automatically.'; }
   else if (armStaleMs() > 1500 || armDisconnected()) { key = 'arm'; title = 'Arm disconnected'; sub = S.arm ? `No arm data for ${Math.round(armStaleMs() / 1000)} s (mode: ${S.arm.mode || '?'}). Check the armctl daemon and cables.` : 'Waiting for the first arm reading from the armctl daemon.'; }
-  document.body.classList.toggle('estop', key === 'estop');
+  document.body.classList.toggle('estop', key === 'estop' || key === 'fault');
   document.body.classList.toggle('has-banner', !!key);
   document.body.classList.toggle('arm-off', key === 'arm' || key === 'ws');
   const b = $('banner');
@@ -299,6 +304,7 @@ function updateHealth() {
   const stale = armStaleMs();
   const a = S.arm;
   if (!S.wsOpen || !a) setHealth('hArm', 'bad', 'arm: no data');
+  else if (a.fault) setHealth('hArm', 'bad', 'ARM FAULTED');
   else if (a.estop) setHealth('hArm', 'bad', 'E-STOP');
   else if (stale > 1500 || armDisconnected()) setHealth('hArm', 'bad', `arm: stale ${Math.round(stale / 1000)}s`);
   else if (S.armHz && S.armHz < 10) setHealth('hArm', 'warn', `arm ${S.armHz} Hz`);
@@ -314,7 +320,7 @@ function updateHealth() {
   if (S.hello && S.hello.join_url) bits.push(S.hello.join_url);
   $('railStatus').textContent = bits.join(' · ') || '–';
   $('railStatus').title = bits.join(' · ');
-  $('resetBtn').disabled = !(a && a.estop);
+  $('resetBtn').disabled = !(a && a.estop) || !!(a && a.fault);
   $('skipBtn').disabled = $('extendBtn').disabled = !S.lobby.active;
 }
 
