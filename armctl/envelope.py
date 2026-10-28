@@ -32,6 +32,12 @@ Module-level shortcuts use DEFAULT (margin 0.1): check_point, check_path, clamp_
 """
 from __future__ import annotations
 
+from pathlib import Path
+
+import os
+
+import json
+
 import math
 from dataclasses import asdict, dataclass
 from typing import Any, Iterable, Mapping, Sequence
@@ -69,6 +75,14 @@ URDF_LIMITS: dict[str, tuple[float, float]] = {
         round(min(I2RT_URDF_LIMITS[j][1], DIMOS_ADAPTER_LIMITS[j][1]), 4))
     for j in I2RT_URDF_LIMITS
 }
+# Optional per-site limits (obstacles around where the arm is mounted), intersected too:
+# armctl/site_limits.json, or ARMCTL_SITE_LIMITS=path ('' disables). Only ever tightens.
+SITE_LIMITS_FILE = Path(os.environ.get("ARMCTL_SITE_LIMITS", Path(__file__).with_name("site_limits.json")))
+SITE_LIMITS: dict[str, tuple[float, float]] = {}
+if str(SITE_LIMITS_FILE) and SITE_LIMITS_FILE.is_file():
+    SITE_LIMITS = {j: (float(lo), float(hi)) for j, (lo, hi) in json.loads(SITE_LIMITS_FILE.read_text())["limits"].items()}
+    URDF_LIMITS = {j: (max(lo, SITE_LIMITS.get(j, (lo, hi))[0]), min(hi, SITE_LIMITS.get(j, (lo, hi))[1]))
+                   for j, (lo, hi) in URDF_LIMITS.items()}
 DEFAULT_MARGIN = 0.1  # rad, per side
 VEL_CAP = 0.3  # rad/s per joint (conservative start; raise per joint after hardware tests)
 ACC_CAP = 1.0  # rad/s^2 per joint
