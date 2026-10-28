@@ -755,7 +755,14 @@ class OpenPlay:
                          on_start: Callable[[], None] | None = None) -> None:
         """Validate, wait for the operator if auto_play is off, then play to done."""
         who = self.name(pid)
+        before, _ = playable_info(playable)
+        try:
+            playable, slowed = fit_to_caps(playable, (self.arm.hello or {}).get("envelope"))
+        except ValueError as e:
+            raise ActionError(f"{title} can't be slowed to the arm's speed limit: {e}") from None
         dur, keyframes = playable_info(playable)
+        if slowed:
+            self.status(pid, f"{title}: slowed to fit the arm's speed limit ({before:.0f} s → {dur:.0f} s)", "info")
         r = await self.arm.validate(playable)
         if not r.get("ok"):
             raise ActionError(f"{title} doesn't pass the safety check: " + "; ".join(r.get("violations", [])[:2]))
@@ -1509,6 +1516,22 @@ class OpenPlay:
             c.alive = False
             writer.cancel()
             gone(c)
+
+
+def fit_to_caps(playable: dict, envelope: dict | None) -> tuple[dict, bool]:
+    """A playable authored for faster caps (e.g. "dance", 0.6 rad/s) than the daemon runs
+    (default 0.3 on the real arm) is refused at Play. Re-tag it with the daemon's (default)
+    caps and slow it down just enough (armctl.playable.retime) instead. Returns (playable, slowed)."""
+    from armctl import playable as P
+
+    caps = P.CAP_PRESETS.get(playable.get("caps", "default"))
+    if caps is None or not envelope:
+        return playable, False
+    vel = min((envelope.get("vel_caps") or {}).values(), default=caps[0])
+    acc = min((envelope.get("acc_caps") or {}).values(), default=caps[1])
+    if vel >= caps[0] - 1e-9 and acc >= caps[1] - 1e-9:
+        return playable, False
+    return P.retime({**playable, "caps": "default"}), True
 
 
 def make_chess_sensor(kind: Any, cameras: list[str] | None = None,
