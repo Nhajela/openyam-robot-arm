@@ -57,6 +57,8 @@ class Workcell:
     squeeze: float = 0.01         # m narrower than the object when closing
     notes: str = "placeholder: T_base_table not calibrated"
     chess: dict = field(default_factory=dict)   # interfaces.grasp.chess_arm.Board overrides
+    spots: dict = field(default_factory=dict)   # named table spots, see spots.py
+    objects: dict = field(default_factory=dict) # known objects (height, width), see spots.py
 
     @classmethod
     def load(cls, path: Path = WORKCELL) -> "Workcell":
