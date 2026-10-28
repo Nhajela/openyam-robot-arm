@@ -18,7 +18,7 @@ If the branch isn't on GitHub yet, push it from serenity first: `cd ~/src/openya
 
 Read, in order:
 1. `CLAUDE.md` (safety rules)
-2. this file
+2. this file, then [PROGRESS.md](PROGRESS.md) (dated progress log with commit hashes)
 3. `openplay/README.md`
 4. `interfaces/README.md`
 5. `experiments/2026-10-28-interfaces/LOG.md` (the full notebook, with numbers)
@@ -39,6 +39,7 @@ Read, in order:
 | `dashboard/` | lab console `:8090`, phone cameras, tilt/joystick pages | real (console) |
 | `vision/` | calibration targets, ArUco tag poses | camera only |
 | `experiments/` | lab notebook (index: `experiments/README.md`) | |
+| `PROGRESS.md` | progress log: one entry per working session, with commits, test state, next | |
 
 ## 3. Status
 
