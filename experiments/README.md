@@ -19,6 +19,7 @@ Safety rules carry across all experiments: start folded on the stops, probe befo
 | [2026-10-16-linux-real-arm](2026-10-16-linux-real-arm/SUMMARY.md) ([log](2026-10-16-linux-real-arm/LOG.md)) | Naman (+ Claude) | Drive the real arm from the Ubuntu laptop and go beyond keyboard jogging | done: see SUMMARY.md for next steps |
 | [2026-10-28-interfaces](2026-10-28-interfaces/LOG.md) | Naman (+ Claude) | More ways to move the arm: pose mirror, record + timeline with limits, grasp and chess ([`interfaces/`](../interfaces/README.md)), open play ([`openplay/`](../openplay/README.md)), DimosBackend | active: mock + DimOS sim; hardware next ([HANDOVER.md](../HANDOVER.md)) |
 | [2026-10-28-laptop-systems-check](2026-10-28-laptop-systems-check/LOG.md) | Naman (+ Claude) | Pull fork `main` onto the lab laptop; check CAN, motors (read-only), deps, tests, DimOS-sim e2e before the first hardware session | active: all green, real-arm steps next |
+| [2026-10-28-prior-art](2026-10-28-prior-art/REPORT.md) | Naman (+ Claude research agent) | Find repos, models, datasets and people on the same infra (i2rt YAM, Damiao, DimOS) to reuse: j4 gravity, wrist-camera calibration, cup grasp, chess, phone teleop, LLM control | done (desk research) |
 | [2026-10-28-wristcam](2026-10-28-wristcam/LOG.md) | Naman (+ Claude) | Wrist camera: calibrate (lens, hand-eye, table) from one taped sheet; find a cup and grasp it in a closed loop | active: synthetic tests green; real-arm calibration next |
 
 ## Ideas backlog
