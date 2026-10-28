@@ -17,3 +17,8 @@ music/inbox/*
 !music/inbox/.gitkeep
 music/clips/*
 !music/clips/.gitkeep
+
+# secrets
+.env
+.env.*
+.claude/
