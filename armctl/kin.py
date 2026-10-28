@@ -218,3 +218,54 @@ def reach_summary() -> dict:
     return {"home_tip": [round(float(x), 3) for x in tip(env.POSES["home"])],
             "ready_tip": [round(float(x), 3) for x in tip(env.POSES["ready"])],
             "max_reach_xy": round(max(float(np.hypot(p[0], p[1])) for p in pts), 3)}
+
+
+# --- velocity kinematics (added 2026-10-28: Cartesian twists in the mock backend) ----------
+
+def rot_log(R) -> np.ndarray:
+    """Rotation vector (axis * angle, rad) of a 3x3 rotation matrix: the inverse of Rodrigues."""
+    R = np.asarray(R, float)
+    c = float(np.clip((np.trace(R) - 1.0) / 2.0, -1.0, 1.0))
+    a = float(np.arccos(c))
+    w = np.array([R[2, 1] - R[1, 2], R[0, 2] - R[2, 0], R[1, 0] - R[0, 1]])
+    if a < 1e-9:
+        return 0.5 * w
+    if np.pi - a < 1e-6:  # near 180 deg: axis from the diagonal
+        ax = np.sqrt(np.maximum((np.diag(R) + 1.0) / 2.0, 0.0))
+        i = int(np.argmax(ax))
+        col = (R[:, i] + np.eye(3)[:, i]) / 2.0
+        ax = col / max(np.sqrt(col[i]), 1e-12)
+        return ax / np.linalg.norm(ax) * a
+    return a / (2.0 * np.sin(a)) * w
+
+
+def jacobian_geometric(q, eps: float = 1e-6) -> np.ndarray:
+    """6x6 geometric Jacobian of ``gripper_tip`` in the base frame.
+
+    Rows 0-2: linear velocity of the tip point (m/s per rad/s); rows 3-5: angular velocity of
+    the tip frame about the base axes (rad/s per rad/s). Columns j1..j6. So for joint
+    velocities ``qd``, ``J @ qd = [vx, vy, vz, wx, wy, wz]``, the same convention as a twist
+    {x, y, z, roll, pitch, yaw} in the base frame. Numeric: forward differences of the tip
+    position and ``rot_log(R(q + dq) R(q)^T) / eps``.
+    """
+    q = env.as_vector(q)
+    T0 = fk(q)
+    p0, R0 = T0[:3, 3], T0[:3, :3]
+    J = np.zeros((6, 6))
+    for i in range(6):
+        dq = q.copy()
+        dq[i] += eps
+        T = fk(dq)
+        J[:3, i] = (T[:3, 3] - p0) / eps
+        J[3:, i] = rot_log(T[:3, :3] @ R0.T) / eps
+    return J
+
+
+def dls_velocity(q, twist, damping: float = 0.03, J=None) -> np.ndarray:
+    """Joint velocity for a base-frame twist [vx, vy, vz, wx, wy, wz] by damped least squares:
+    ``qd = J^T (J J^T + damping^2 I)^-1 twist``. Damping keeps qd bounded near singularities
+    (at the cost of tracking error there). Columns of ``J`` that are zero (joints the caller
+    has blocked) get zero velocity."""
+    J = jacobian_geometric(q) if J is None else np.asarray(J, float)
+    v = np.asarray(twist, float).reshape(6)
+    return J.T @ np.linalg.solve(J @ J.T + damping**2 * np.eye(6), v)

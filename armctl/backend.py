@@ -19,6 +19,7 @@ from typing import Any, Callable
 import numpy as np
 
 from . import envelope as env
+from . import kin
 
 RATE_HZ = 100.0
 DT = 1.0 / RATE_HZ
@@ -96,11 +97,17 @@ def plan_home(start: Any, envelope: env.Envelope = env.DEFAULT, speed: float | N
 
 
 # --------------------------------------------------------------------------
-# Approximate Cartesian -> joint map (mock only)
+# Cartesian twists
 # --------------------------------------------------------------------------
-# Rows: j1..j6. Columns: x, y, z (m/s), roll, pitch, yaw (rad/s). NOT a real Jacobian: a fixed,
-# plausible mapping so Cartesian programs (tilt, joystick) do something sensible in the mock.
-# The DimOS backend sends the twist to DimOS's eef-twist IK task instead.
+# A twist is {x, y, z (m/s), roll, pitch, yaw (rad/s)} in the BASE frame: linear velocity of
+# ``gripper_tip`` and angular velocity of the tip frame about the base x/y/z axes (the same
+# convention as armctl.kin.jacobian_geometric). Zero angular components mean "keep the
+# fingers' orientation". The mock solves it with damped least squares on the real Jacobian
+# every tick (MockBackend); the DimOS backend sends it to DimOS's eef-twist IK task instead.
+TWIST_DAMPING = 0.03  # DLS damping lambda (mixed units: ~m and ~rad)
+
+# LEGACY, kept for compatibility (``twist_to_qd``): rows j1..j6, columns x, y, z (m/s), roll,
+# pitch, yaw (rad/s). NOT a real Jacobian; the mock no longer uses it (2026-10-28).
 J_APPROX = np.array([
     #  x     y     z    roll pitch  yaw
     [0.0,  3.0,  0.0,  0.0, 0.0,  1.0],   # j1 base yaw: lateral motion and yaw
@@ -113,8 +120,9 @@ J_APPROX = np.array([
 TWIST_KEYS = ("x", "y", "z", "roll", "pitch", "yaw")
 
 
-def twist_to_qd(v: Any) -> np.ndarray:
-    """Approximate joint velocity for a twist dict {x,y,z,roll,pitch,yaw} or 6-vector (mock only)."""
+def twist_vector(v: Any) -> np.ndarray:
+    """[x, y, z, roll, pitch, yaw] from a twist dict or 6-vector. Raises ValueError on unknown
+    keys, a wrong shape, or NaN/infinity."""
     if isinstance(v, dict):
         unknown = set(v) - set(TWIST_KEYS)
         if unknown:
@@ -124,7 +132,23 @@ def twist_to_qd(v: Any) -> np.ndarray:
         vec = np.asarray(v, dtype=float).reshape(6)
     if not np.all(np.isfinite(vec)):
         raise ValueError("twist contains NaN or infinity")
-    return J_APPROX @ vec
+    return vec
+
+
+def twist_to_qd(v: Any) -> np.ndarray:
+    """LEGACY approximate joint velocity via ``J_APPROX`` (no kinematics). Use
+    ``twist_qd(q, v)`` for the real thing."""
+    return J_APPROX @ twist_vector(v)
+
+
+def twist_qd(q: Any, v: Any, damping: float = TWIST_DAMPING, blocked: Any = None) -> np.ndarray:
+    """Joint velocity that gives the base-frame twist ``v`` at joint position ``q``: damped
+    least squares on ``kin.jacobian_geometric``. ``blocked`` (6 bools) removes joints from the
+    solve (they get 0 and the others take over as far as they can). Not capped or gated."""
+    J = kin.jacobian_geometric(q)
+    if blocked is not None:
+        J[:, np.asarray(blocked, bool)] = 0.0
+    return kin.dls_velocity(q, twist_vector(v), damping, J)
 
 
 # --------------------------------------------------------------------------
@@ -203,8 +227,15 @@ class Backend(abc.ABC):
 # --------------------------------------------------------------------------
 class MockBackend(Backend):
     """Kinematic simulation at 100 Hz. Starts at home with torque on. Velocity and
-    acceleration caps from the envelope; URDF limits act as physical stops. Cartesian twists
-    use the fixed approximate map ``J_APPROX`` (no forward kinematics)."""
+    acceleration caps from the envelope; URDF limits act as physical stops.
+
+    Cartesian twists (``set_twist``): every tick the twist is turned into a joint velocity by
+    damped least squares on the real Jacobian at the current q (``twist_qd``), scaled
+    uniformly to the velocity caps (``cap_velocity``, so the tip keeps its direction), then
+    goes through the same deadman, ``clamp_step`` guard and acceleration limit as a joint
+    velocity stream. A joint the guard zeroes is left out of the solve until the next command
+    (the other joints carry on with the twist as far as they can), mirroring how a zeroed
+    joint-velocity component stays zero until the next ``set_joint_velocity``."""
 
     name = "mock"
 
@@ -224,6 +255,9 @@ class MockBackend(Backend):
         self.cmd_qd = np.zeros(env.N)
         self.cmd_expiry = 0.0
         self.deadman_fired = True
+        self.cmd_twist: np.ndarray | None = None  # live twist (base frame), else joint-velocity mode
+        self.twist_blocked = np.zeros(env.N, bool)  # joints the guard zeroed since the last set_twist
+        self.twist_damping = TWIST_DAMPING
         self.label = ""
         self._stop_evt = threading.Event()
         self._thread: threading.Thread | None = None
@@ -282,8 +316,12 @@ class MockBackend(Backend):
                 if not live and not self.deadman_fired:
                     self.deadman_fired = True
                     events.append(("deadman", {}))
+                if live and self.cmd_twist is not None:
+                    self.cmd_qd = self._twist_qd_locked()
                 target = self.cmd_qd if live else np.zeros(env.N)
                 target, viol = self.envelope.clamp_step(self.q, target, self.envelope.lookahead())
+                if viol and live and self.cmd_twist is not None:
+                    target, viol = self._twist_reblock_locked(target, viol)
                 if viol:
                     self.cmd_qd = np.where(target == 0.0, 0.0, self.cmd_qd)
                     events.append(("guard", {"violations": [v.to_dict() for v in viol]}))
@@ -348,13 +386,53 @@ class MockBackend(Backend):
                 raise RuntimeError("torque is off")
             if self.mode == "trajectory":
                 raise RuntimeError("a trajectory is running")
+            self.cmd_twist = None
             self.cmd_qd = w
             self.cmd_expiry = time.monotonic() + max(0.0, float(ttl_s))
             self.deadman_fired = False
             self.mode = "velocity"
 
     def set_twist(self, v: dict, ttl_s: float) -> None:
-        self.set_joint_velocity(twist_to_qd(v), ttl_s)
+        """Cartesian twist {x,y,z (m/s), roll,pitch,yaw (rad/s)}, base frame, tip point; same
+        expiry rule as ``set_joint_velocity``. Re-solved against the real Jacobian every tick.
+        Raises ValueError for a bad twist, RuntimeError if torque is off or a trajectory runs."""
+        vec = twist_vector(v)
+        with self.lock:
+            if not self.torque:
+                raise RuntimeError("torque is off")
+            if self.mode == "trajectory":
+                raise RuntimeError("a trajectory is running")
+            self.cmd_twist = vec
+            self.twist_blocked = np.zeros(env.N, bool)
+            self.cmd_qd = self._twist_qd_locked()
+            self.cmd_expiry = time.monotonic() + max(0.0, float(ttl_s))
+            self.deadman_fired = False
+            self.mode = "velocity"
+
+    def _twist_qd_locked(self) -> np.ndarray:
+        """Capped joint velocity for the live twist at the current q (blocked joints excluded)."""
+        assert self.cmd_twist is not None
+        qd = twist_qd(self.q, self.cmd_twist, self.twist_damping, self.twist_blocked)
+        qd[self.twist_blocked] = 0.0
+        qd, _ = self.envelope.cap_velocity(qd)
+        return qd
+
+    def _twist_reblock_locked(self, target: np.ndarray, viol: list) -> tuple[np.ndarray, list]:
+        """The guard zeroed some joints: leave them out of the solve and re-solve so the other
+        joints keep the twist going; re-check with the guard each round. Returns the final
+        guarded target and every violation seen (all reported, as for joint streams)."""
+        allv = list(viol)
+        for _ in range(env.N):
+            newly = (target == 0.0) & (self.cmd_qd != 0.0) & ~self.twist_blocked
+            if not newly.any():
+                break
+            self.twist_blocked |= newly
+            self.cmd_qd = self._twist_qd_locked()
+            target, more = self.envelope.clamp_step(self.q, self.cmd_qd, self.envelope.lookahead())
+            allv += more
+            if not more:
+                break
+        return target, allv
 
     def gripper(self, width: float) -> None:
         with self.lock:
