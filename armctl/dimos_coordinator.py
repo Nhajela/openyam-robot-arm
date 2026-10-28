@@ -17,26 +17,31 @@ DimosBackend uses to check what it is talking to (adapter type, i.e. sim or real
 task parameters above) before it sends anything.
 
 Safety (CLAUDE.md):
-* ``--simulation`` uses the in-memory ``mock_whole_body`` adapter (no CAN at all).
-* Real hardware needs BOTH ``--real`` and ``--can-port can0`` AND an explicitly exported,
-  non-default ``ZENOH_SCOUT_ADDR`` (so no other DimOS process on the default bus can attach to
-  this coordinator, and armctl's private-bus client finds it). Otherwise it refuses.
+* Two private zenoh buses (CLAUDE.md "Hardware safety"): REAL-arm runs use
+  ``224.0.0.123:7449``, every sim/test uses ``224.0.0.124:7450``. The default LAN bus
+  (224.0.0.224:7446) is always refused.
+* ``--simulation`` uses the in-memory ``mock_whole_body`` adapter (no CAN at all). It defaults to
+  the SIM bus when ZENOH_SCOUT_ADDR is unset and refuses the REAL bus.
+* Real hardware needs BOTH ``--real`` and ``--can-port can0`` AND ``ZENOH_SCOUT_ADDR`` explicitly
+  exported as the REAL bus (so no other DimOS process on the default or the sim bus can attach to
+  this coordinator, and armctl's real-bus client finds it). Otherwise it refuses.
 * It refuses to start when another DimOS run is active (``pgrep -af bin/dimos``).
 * Stopping (Ctrl-C) does NOT reliably drop torque: run ``tools/disable_all.py`` afterwards.
 
-Exact commands (repo root)
---------------------------
+Exact commands (repo root; DimOS lives in whichever venv has it, e.g. ``../dimos-venv``)
+-------------------------------------------------------------------------------------------
 Simulation (what the tests use)::
 
-    ZENOH_SCOUT_ADDR=224.0.0.123:7449 .venv/bin/python -m armctl.dimos_coordinator --simulation
+    ZENOH_SCOUT_ADDR=224.0.0.124:7450 .venv/bin/python -m armctl.dimos_coordinator --simulation
+    ZENOH_SCOUT_ADDR=224.0.0.124:7450 .venv/bin/python -m armctl.daemon --backend dimos
 
 Real arm (ONLY with the person at the arm agreeing; arm folded on its stops; in tmux)::
 
     ZENOH_SCOUT_ADDR=224.0.0.123:7449 .venv/bin/python -m armctl.dimos_coordinator --real --can-port can0
 
-Then the daemon on the same bus::
+Then the daemon on the same bus (the backend refuses a REAL coordinator unless told to expect one)::
 
-    ZENOH_SCOUT_ADDR=224.0.0.123:7449 .venv/bin/python -m armctl.daemon --backend dimos
+    ZENOH_SCOUT_ADDR=224.0.0.123:7449 ARMCTL_DIMOS_EXPECT=real .venv/bin/python -m armctl.daemon --backend dimos
 
 Options: ``--ik-margin`` (>= 0.1), ``--joint-vel`` (eef-twist joint speed cap, <= 0.3 on real),
 ``--traj-vel-limit`` (trajectory backstop, <= 1.0), ``--twist-timeout`` (s), ``--with-planner``.
@@ -48,19 +53,21 @@ import subprocess
 import sys
 
 # ---- bus isolation: before any dimos import -------------------------------------------
-PRIVATE_SCOUT_ADDR = "224.0.0.123:7449"
+REAL_SCOUT_ADDR = "224.0.0.123:7449"  # real-arm runs only (CLAUDE.md)
+SIM_SCOUT_ADDR = "224.0.0.124:7450"  # every sim / test (CLAUDE.md)
 DEFAULT_SCOUT_ADDRS = ("", "224.0.0.224:7446")
 # "Explicit" must survive the re-import in __main__ below (the first import's setdefault would
 # otherwise make the second import think the user exported it): remember defaulting in the env.
+# Unset defaults to the SIM bus; --real refuses a defaulted bus.
 if os.environ.get("ZENOH_SCOUT_ADDR", "").strip() in DEFAULT_SCOUT_ADDRS and "ZENOH_SCOUT_ADDR" not in os.environ:
-    os.environ["ZENOH_SCOUT_ADDR"] = PRIVATE_SCOUT_ADDR
+    os.environ["ZENOH_SCOUT_ADDR"] = SIM_SCOUT_ADDR
     os.environ["ARMCTL_SCOUT_DEFAULTED"] = "1"
 SCOUT_EXPLICIT = (os.environ.get("ARMCTL_SCOUT_DEFAULTED") != "1"
                   and os.environ["ZENOH_SCOUT_ADDR"].strip() not in DEFAULT_SCOUT_ADDRS)
 if os.environ["ZENOH_SCOUT_ADDR"].strip() in DEFAULT_SCOUT_ADDRS:
     raise SystemExit(
         "armctl.dimos_coordinator refuses the default zenoh bus (anything on the LAN could attach). "
-        f"export ZENOH_SCOUT_ADDR={PRIVATE_SCOUT_ADDR}"
+        f"export ZENOH_SCOUT_ADDR={SIM_SCOUT_ADDR} (sim) or {REAL_SCOUT_ADDR} (real arm)"
     )
 os.environ.setdefault("DIMOS_TRANSPORT", "zenoh")
 
@@ -170,17 +177,22 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("--traj-vel-limit must be in (0, 1]")
     if not 0 < a.twist_timeout <= 0.5:
         ap.error("--twist-timeout must be in (0, 0.5]")
+    bus = os.environ["ZENOH_SCOUT_ADDR"].strip()
     if a.simulation:
         if a.can_port or os.environ.get("CAN_PORT"):
             ap.error("--simulation must not have a CAN port (unset CAN_PORT, drop --can-port)")
+        if bus == REAL_SCOUT_ADDR:
+            ap.error(f"--simulation must not use the REAL-arm bus {REAL_SCOUT_ADDR}: "
+                     f"export ZENOH_SCOUT_ADDR={SIM_SCOUT_ADDR}")
         os.environ["SIMULATION"] = "1"
         os.environ.pop("CAN_PORT", None)
         global_config.update(simulation="1", can_port=None)
     else:
         if not a.can_port:
             ap.error("--real needs --can-port can0")
-        if not SCOUT_EXPLICIT:
-            ap.error(f"--real needs an explicitly exported private bus: export ZENOH_SCOUT_ADDR={PRIVATE_SCOUT_ADDR}")
+        if not SCOUT_EXPLICIT or bus != REAL_SCOUT_ADDR:
+            ap.error(f"--real needs the REAL-arm bus explicitly exported: export ZENOH_SCOUT_ADDR={REAL_SCOUT_ADDR} "
+                     f"(got {bus!r}{', defaulted' if not SCOUT_EXPLICIT else ''})")
         os.environ.pop("SIMULATION", None)
         os.environ["CAN_PORT"] = a.can_port
         global_config.update(simulation="", can_port=a.can_port)
