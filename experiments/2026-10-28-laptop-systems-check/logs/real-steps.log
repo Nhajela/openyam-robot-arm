@@ -1,0 +1,38 @@
+[start] q=[+0.041 +0.000 +0.000 +0.022 -0.041 -0.049] grip=1.0 faults=[] backend=dimos
+-> ready {}
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/experiments/2026-10-28-laptop-systems-check/arm_do.py", line 49, in <module>
+    asyncio.run(main(sys.argv[1:] or ["state"]))
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/experiments/2026-10-28-laptop-systems-check/arm_do.py", line 38, in main
+    done = await arm.do(name, timeout=90, **args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/client.py", line 149, in do
+    return await self._wait_op("done", mid, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/client.py", line 124, in _wait_op
+    raise Refused(m.get("reason", "refused"))
+interfaces.client.Refused: ready did not reach target: j4 error 0.094 rad > 0.09; stopped
+[start] q=[+0.007 +0.463 +0.771 +0.094 -0.023 -0.014] grip=1.0 faults=[] backend=dimos
+[start] q=[+0.007 +0.463 +0.771 +0.094 -0.023 -0.014] grip=1.0 faults=[] backend=dimos
+-> ready {}
+   {'op': 'done', 'id': 3, 'cmd': 'ready'}
+[ready] q=[+0.007 +0.463 +0.771 +0.116 -0.022 -0.014] grip=1.0 faults=[] backend=dimos
+[start] q=[+0.007 +0.463 +0.771 +0.116 -0.022 -0.014] grip=1.0 faults=[] backend=dimos
+[start] q=[+0.007 +0.463 +0.771 +0.116 -0.022 -0.014] grip=1.0 faults=[] backend=dimos
+-> home {}
+   {'op': 'done', 'id': 3, 'cmd': 'home'}
+[home] q=[+0.007 +0.000 +0.028 +0.062 -0.013 -0.014] grip=1.0 faults=[] backend=dimos
+[start] q=[+0.007 +0.000 +0.022 +0.060 -0.013 -0.013] grip=0.9997 faults=[] backend=dimos
+   {'op': 'ack', 'id': 3, 'cmd': 'gripper', 'width': 0.0}
+[gripper] q=[+0.035 +0.000 +0.007 +0.064 -0.015 -0.022] grip=0.0075 faults=[] backend=dimos
+   {'op': 'ack', 'id': 3, 'cmd': 'gripper', 'width': 1.0}
+[gripper] q=[+0.035 +0.000 +0.007 +0.064 -0.015 -0.022] grip=0.9996 faults=[] backend=dimos

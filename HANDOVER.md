@@ -2,7 +2,7 @@
 
 The starting point for a local session on the lab laptop with the real arm. It says what was built on the server (serenity: no arm, no camera, no CAN), how it was tested, and the step-by-step plan for the first hardware session. **Keep it current:** update the status table and "Next" whenever something changes.
 
-> **Status at a glance:** everything runs in armctl's **mock** sim, and the full stack (DimOS coordinator → armctl daemon on `DimosBackend` → open play → phone) also runs in DimOS **`--simulation`**. **Nothing new has moved the real arm.** The code lives on Naman's fork, **`Nhajela/openyam-robot-arm` `main`**. Our GitHub account can't push to `Edge-City/openyam-robot-arm` (pull-only), so work goes to the fork; a PR to Edge-City is optional.
+> **Status at a glance:** everything runs in armctl's **mock** sim, and the full stack (DimOS coordinator → armctl daemon on `DimosBackend` → open play → phone) also runs in DimOS **`--simulation`**. **On 28 Oct the laptop ran §5 steps 1–3 on the real arm (ready, home, gripper); nothing beyond that has moved it.** The code lives on Naman's fork, **`Nhajela/openyam-robot-arm` `main`**. Our GitHub account can't push to `Edge-City/openyam-robot-arm` (pull-only), so work goes to the fork; a PR to Edge-City is optional.
 
 ## 1. Pull it onto the laptop
 
@@ -46,7 +46,7 @@ Read, in order:
 
 | Component | State | Before / on the real arm |
 |---|---|---|
-| `DimosBackend` | works in DimOS sim: final error 0.0000, first motion ~30 ms, deadman stop 0.3–0.4 s, E-STOP 8 ms | real run (§5). Unknowns: PD sag vs the new per-joint tolerances, gripper direction (0 closed..1 open assumed), torque state (TODO: CAN status nibble), held-tick ripple at kp 80 |
+| `DimosBackend` | DimOS sim 27/27 (laptop + serenity). **Real arm 28 Oct (laptop): §5 steps 1–3 done**: ready/home verified, gripper 0 = closed / 1 = open confirmed by eye | **j4 (wrist pitch) holding error** of +0.04 to +0.12 rad, growing while held; wrist tolerance raised to 0.12 with no headroom, so investigate before step 4. Still open: torque state (TODO: CAN status nibble), held-tick ripple at kp 80. Log: `experiments/2026-10-28-laptop-systems-check/LOG.md` |
 | Open play | full flow on mock and DimOS sim; display shows sim vs real from the daemon | phone tilt over the real Wi-Fi + self-signed HTTPS on an iPhone and an Android; Claude key for Say it |
 | Moves library | 17 moves validate and clear the table | watch each at reduced speed first (`--vel-cap 0.3`), then at dance caps |
 | Pose recorder / timeline | works in sim | record from the real arm |
@@ -78,6 +78,7 @@ Then test with two real phones on the Wi-Fi:
 **Before power:**
 - Arm folded on its stops; workspace clear; e-stop in reach.
 - A line taped on the table that people stay behind.
+- Hands and objects out of the gripper jaws: every coordinator start runs a close/open **calibration sweep** and leaves the gripper open (measured 28 Oct).
 - `.venv/bin/python -I tools/probe_motors.py can0`: every joint about 0, no faults (check j1: it can arrive about 180° off).
 
 **Steps:**

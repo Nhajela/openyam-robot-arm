@@ -1,0 +1,69 @@
+07:04:17.343 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 12:34:17 INFO DimosBackend connected: DimOS SIM (mock_whole_body) on 224.0.0.124:7450, coordinator pid 14403, can None; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 12:34:17 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'mock_whole_body'}, 'simulation': True, 'can_port': None, 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.7, 'yam_joint2': 0.7, 'yam_joint3': 0.7, 'yam_joint4': 0.7, 'yam_joint5': 0.7, 'yam_joint6': 0.7}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 14403, 'scout_addr': '224.0.0.124:7450'}
+2026-10-28 12:34:17 INFO armctl armctl/0 on ws://127.0.0.1:8791/armctl (backend dimos)
+2026-10-28 12:34:17 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 12:34:27 INFO [c1 e2e-dimos] hello name='e2e dimos sim' from 127.0.0.1
+2026-10-28 12:34:27 INFO [c1 e2e-dimos] acquire (auto-approved)
+2026-10-28 12:34:27 INFO [c1 e2e-dimos] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:34:27 INFO [c1 e2e-dimos] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.00 < 0.3, j3 0.00 < 0.5): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-28 12:34:27 INFO [c1 e2e-dimos] REFUSED do move_joints: j4 target 1.600 > soft limit 1.471 (URDF 1.571 - margin 0.10, past URDF limit 1.571)
+2026-10-28 12:34:27 INFO [c1 e2e-dimos] REFUSED do relax: relax: relax is not available on the DimOS backend: DimOS has no clean torque-off RPC. A person must support the arm, stop the coordinator, run tools/disable_all.py and check every LED is steady red
+2026-10-28 12:34:27 INFO DimosBackend: ready#1 -> DimOS trajectory 51 points (from 501 samples), 5.00 s
+2026-10-28 12:34:27 INFO [c1 e2e-dimos] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.00 s
+2026-10-28 12:34:32 INFO [c1 e2e-dimos] done ready (max error 0.0000 rad)
+2026-10-28 12:34:32 INFO DimosBackend: move_joints#2 -> DimOS trajectory 21 points (from 189 samples), 1.88 s
+2026-10-28 12:34:32 INFO [c1 e2e-dimos] do move_joints -> [0.3, 0.7, 1.0, 0.2, -0.2, 0.3] in 1.88 s
+2026-10-28 12:34:34 INFO [c1 e2e-dimos] done move_joints (max error 0.0000 rad)
+2026-10-28 12:34:34 INFO [c1 e2e-dimos] playable.validate 'wave': ok
+2026-10-28 12:34:34 INFO [c1 e2e-dimos] playable.play 'wave' (11.7 s): waiting for operator confirmation
+2026-10-28 12:34:35 INFO DimosBackend: playable:wave#3 -> DimOS trajectory 154 points (from 1359 samples), 13.58 s
+2026-10-28 12:34:35 INFO [c1 e2e-dimos] playable 'wave' confirmed by console: playing 13.6 s
+2026-10-28 12:34:48 INFO [c1 e2e-dimos] done playable:wave (max error 0.0000 rad)
+2026-10-28 12:34:48 INFO DimosBackend: ready#4 -> DimOS trajectory 2 points (from 3 samples), 0.02 s
+2026-10-28 12:34:48 INFO [c1 e2e-dimos] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.02 s
+2026-10-28 12:34:48 INFO [c1 e2e-dimos] done ready (max error 0.0000 rad)
+2026-10-28 12:34:49 INFO [c1 e2e-dimos] stream start (cartesian, ttl 200 ms)
+2026-10-28 12:34:51 INFO [c1 e2e-dimos] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:34:52 INFO [c1 e2e-dimos] stream start (cartesian, ttl 200 ms)
+2026-10-28 12:34:54 INFO [c1 e2e-dimos] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:34:54 INFO [c1 e2e-dimos] stream start (cartesian, ttl 200 ms)
+2026-10-28 12:34:55 INFO [c1 e2e-dimos] do stop
+2026-10-28 12:34:56 INFO DimosBackend: ready#5 -> DimOS trajectory 15 points (from 100 samples), 0.99 s
+2026-10-28 12:34:56 INFO [c1 e2e-dimos] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.99 s
+2026-10-28 12:34:57 INFO [c1 e2e-dimos] done ready (max error 0.0000 rad)
+2026-10-28 12:34:57 INFO [c1 e2e-dimos] stream start (joint, ttl 200 ms)
+2026-10-28 12:34:59 INFO [c1 e2e-dimos] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:34:59 INFO DimosBackend: move_joints#6 -> DimOS trajectory 83 points (from 814 samples), 8.13 s
+2026-10-28 12:34:59 INFO [c1 e2e-dimos] do move_joints -> [0.2, 0.5, 0.8, 0.0, 1.3, 0.0] in 8.13 s
+2026-10-28 12:35:08 INFO [c1 e2e-dimos] done move_joints (max error 0.0000 rad)
+2026-10-28 12:35:08 INFO [c1 e2e-dimos] stream start (joint, ttl 200 ms)
+2026-10-28 12:35:08 INFO [c1 e2e-dimos] REFUSED stream: j5 would reach 1.475 > soft limit 1.471 (URDF 1.571 - margin 0.10) at +0.300 rad/s (now 1.427); j5 motion zeroed
+2026-10-28 12:35:09 INFO [c1 e2e-dimos] deadman: no setpoint for 200+ ms, decelerating to a stop
+2026-10-28 12:35:09 INFO [c1 e2e-dimos] do gripper 1.00
+2026-10-28 12:35:09 INFO [c1 e2e-dimos] do gripper 0.30
+2026-10-28 12:35:09 INFO [c1 e2e-dimos] do gripper 0.00
+2026-10-28 12:35:09 INFO DimosBackend: ready#7 -> DimOS trajectory 93 points (from 915 samples), 9.14 s
+2026-10-28 12:35:09 INFO [c1 e2e-dimos] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 9.14 s
+2026-10-28 12:35:19 INFO [c1 e2e-dimos] done ready (max error 0.0000 rad)
+2026-10-28 12:35:19 INFO DimosBackend: move_joints#8 -> DimOS trajectory 64 points (from 626 samples), 6.25 s
+2026-10-28 12:35:19 INFO [c1 e2e-dimos] do move_joints -> [1.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 6.25 s
+2026-10-28 12:35:20 INFO [c1 e2e-dimos] do stop
+2026-10-28 12:35:21 INFO DimosBackend: move_joints#9 -> DimOS trajectory 58 points (from 568 samples), 5.67 s
+2026-10-28 12:35:21 INFO [c1 e2e-dimos] do move_joints -> [-0.8, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.67 s
+2026-10-28 12:35:22 WARNING DimosBackend fault estop: DimOS E-STOP latched (cleared by enable or the next allowed motion)
+2026-10-28 12:35:22 WARNING DimosBackend: E-STOP (set_estop + cancel_trajectory)
+2026-10-28 12:35:22 WARNING E-STOP by console: halted, lease revoked (was c1 e2e-dimos), latched
+2026-10-28 12:35:24 INFO DimosBackend: DimOS E-STOP latch cleared (armctl allowed motion again)
+2026-10-28 12:35:24 INFO E-STOP reset by console
+2026-10-28 12:35:24 INFO [c1 e2e-dimos] acquire (auto-approved)
+2026-10-28 12:35:24 INFO [c1 e2e-dimos] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:35:24 INFO DimosBackend: ready#10 -> DimOS trajectory 2 points (from 6 samples), 0.05 s
+2026-10-28 12:35:24 INFO [c1 e2e-dimos] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.05 s
+2026-10-28 12:35:24 INFO [c1 e2e-dimos] done ready (max error 0.0000 rad)
+2026-10-28 12:35:24 INFO [c1 e2e-dimos] do gripper 0.50
+2026-10-28 12:35:24 INFO DimosBackend: home#11 -> DimOS trajectory 83 points (from 814 samples), 8.13 s
+2026-10-28 12:35:24 INFO [c1 e2e-dimos] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.13 s
+2026-10-28 12:35:33 INFO [c1 e2e-dimos] done home (max error 0.0000 rad)
+2026-10-28 12:35:33 INFO lease revoked by c1 e2e-dimos (release) (was c1 e2e-dimos); stopped
+2026-10-28 12:35:33 INFO [c1 e2e-dimos] disconnected

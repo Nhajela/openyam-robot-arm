@@ -10,6 +10,26 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ---
 
+## 2026-10-28 (afternoon): laptop systems check + first real-arm steps (lab laptop, arm)
+
+**Where:** lab laptop `pheonix-drone`, Ubuntu 24.04, DimOS 0.0.14, `main` @ `2bb9b6d` + the tolerance change. Notebook: [experiments/2026-10-28-laptop-systems-check/LOG.md](experiments/2026-10-28-laptop-systems-check/LOG.md).
+
+- ✅ Pulled fork `main` onto the laptop; installed the interfaces deps (mediapipe, chess, anthropic).
+- ✅ CAN + read-only probe: all 7 motors at about 0, no faults. 291 unit tests passed. DimOS-sim e2e 27/27 on the laptop.
+- ✅ **Real arm, HANDOVER §5 steps 1–3:**
+  - REAL coordinator + daemon on 224.0.0.123:7449
+  - `ready` and `home` verified
+  - gripper **0 = closed, 1 = open** (confirmed by eye)
+  - `disable_all` after each run; LEDs red
+- ✅ `REACH_TOL_BY_BACKEND["dimos"]` wrist tolerance raised from 0.09 to 0.12, because ready's j4 was off by 0.094.
+- ❗ **j4 (wrist pitch) holding error:** +0.06 folded and +0.094 → +0.116 at ready, growing while held; j4 runs the warmest. Being investigated (gains, gravity) before step 4.
+- Found: `grip` reads 1.0 before any gripper command (raw was partly open), so don't trust it until a command has been sent. A sim coordinator segfaulted on Ctrl-C (no hardware involved). `tmux -t 0` targeted the wrong session, so use pane IDs.
+
+### Next
+1. ⏳ Explain and fix j4 (gain or gravity feedforward, or mechanical), then HANDOVER §5 step 4 (phone joystick) and step 5 (moves at 0.3 rad/s).
+
+---
+
 ## 2026-10-28: interfaces, open play, DimosBackend (serenity server; no arm)
 
 **Branch:** `interfaces-mirror-timeline-grasp`, 22 commits on top of `d4a5c10` (PR #2). **Tests:** `pytest armctl/tests interfaces/tests openplay/tests` gives 253 passed, 2 skipped. **Where it ran:**

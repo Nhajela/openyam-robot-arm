@@ -883,11 +883,12 @@ class DimosBackend(Backend):
       latch is cleared by ``enable()`` or by the next motion command, which the daemon only
       allows after the operator reset its own E-STOP.
     * ``gripper``: ``task_invoke(openyam_gripper, set_normalized)``. armctl and DimOS both use
-      0 = closed .. 1 = open. ASSUMPTION (from the DimOS 0.0.14 source, not yet measured):
+      0 = closed .. 1 = open. MEASURED on the real arm 2026-10-28 (laptop systems check):
       on the real arm ``can_motor_control.Gripper(opening_direction="decreasing_position")``
       calibrates during activation (the gripper opens fully at startup; motor about -2.9 rad =
       open, about 0 = closed) and DimOS's ``arm/gripper`` joint is that calibrated opening, so no
-      sign flip or motor-radian mapping is needed here. Check on hardware: width 1 opens.
+      sign flip or motor-radian mapping is needed here. Width 0 -> raw +0.01 (closed), width 1 ->
+      raw -2.91 (open), seen by eye; enabling also runs a close/open calibration sweep.
     * ``relax``: refused (RuntimeError). There is no clean torque-off RPC; dropping torque is a
       human step: support the arm, stop the coordinator, ``tools/disable_all.py``, check LEDs.
     * ``torque``: True in sim. TODO(real): DimOS does not report it and ``is_enabled`` is not

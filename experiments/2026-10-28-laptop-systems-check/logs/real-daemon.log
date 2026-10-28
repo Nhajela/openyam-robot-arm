@@ -1,0 +1,74 @@
+07:09:28.930 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 12:39:29 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 17594, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 12:39:29 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 17594, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 12:39:29 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 12:39:29 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 12:39:29 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 12:39:29 INFO [c1 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:39:29 INFO [c1 script] disconnected
+2026-10-28 12:39:42 INFO [c2 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:39:42 INFO [c2 script] acquire (auto-approved)
+2026-10-28 12:39:42 INFO [c2 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:39:42 INFO DimosBackend: ready#1 -> DimOS trajectory 51 points (from 501 samples), 5.00 s
+2026-10-28 12:39:42 INFO [c2 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.00 s
+2026-10-28 12:39:49 INFO [c2 script] REFUSED ready: ready did not reach target: j4 error 0.094 rad > 0.09; stopped
+2026-10-28 12:39:49 INFO lease revoked by c2 script (release) (was c2 script); stopped
+2026-10-28 12:39:49 INFO [c2 script] disconnected
+2026-10-28 12:39:56 INFO [c3 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:39:56 INFO [c3 script] disconnected
+07:10:20.451 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 12:40:20 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 17594, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 12:40:20 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 17594, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 12:40:20 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 12:40:20 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 12:40:20 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 12:40:20 INFO [c1 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:40:21 INFO [c1 script] acquire (auto-approved)
+2026-10-28 12:40:21 INFO [c1 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:40:21 INFO DimosBackend: ready#1 -> DimOS trajectory 11 points (from 75 samples), 0.74 s
+2026-10-28 12:40:21 INFO [c1 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.74 s
+2026-10-28 12:40:23 INFO [c1 script] done ready (max error 0.1162 rad)
+2026-10-28 12:40:23 INFO lease revoked by c1 script (release) (was c1 script); stopped
+2026-10-28 12:40:23 INFO [c1 script] disconnected
+2026-10-28 12:40:37 INFO [c2 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:40:37 INFO [c2 script] disconnected
+2026-10-28 12:40:37 INFO [c3 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:40:37 INFO [c3 script] acquire (auto-approved)
+2026-10-28 12:40:37 INFO [c3 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:40:37 INFO DimosBackend: home#2 -> DimOS trajectory 81 points (from 796 samples), 7.95 s
+2026-10-28 12:40:37 INFO [c3 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 7.95 s
+2026-10-28 12:40:47 INFO [c3 script] done home (max error 0.0620 rad)
+2026-10-28 12:40:47 INFO lease revoked by c3 script (release) (was c3 script); stopped
+2026-10-28 12:40:47 INFO [c3 script] disconnected
+2026-10-28 12:41:04 INFO [c4 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:41:04 INFO [c4 script] acquire (auto-approved)
+2026-10-28 12:41:04 INFO [c4 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:41:04 INFO [c4 script] do gripper 0.50
+2026-10-28 12:42:04 INFO [c4 script] disconnected
+2026-10-28 12:42:04 INFO [c4 script] lease holder disconnected: stopped, lease free
+2026-10-28 12:42:07 INFO [c5 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:42:07 INFO [c5 script] acquire (auto-approved)
+2026-10-28 12:42:07 INFO [c5 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:42:07 INFO [c5 script] do gripper 1.00
+2026-10-28 12:43:07 INFO [c5 script] disconnected
+2026-10-28 12:43:07 INFO [c5 script] lease holder disconnected: stopped, lease free
+2026-10-28 12:43:12 INFO [c6 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:43:12 INFO [c6 script] disconnected
+07:16:58.958 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 12:46:59 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 22250, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 12:46:59 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 22250, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 12:46:59 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 12:46:59 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 12:46:59 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 12:47:09 INFO [c1 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:47:09 INFO [c1 script] acquire (auto-approved)
+2026-10-28 12:47:09 INFO [c1 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:47:09 INFO [c1 script] do gripper 0.00
+2026-10-28 12:47:11 INFO lease revoked by c1 script (release) (was c1 script); stopped
+2026-10-28 12:47:11 INFO [c1 script] disconnected
+2026-10-28 12:47:13 INFO [c2 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 12:47:13 INFO [c2 script] acquire (auto-approved)
+2026-10-28 12:47:13 INFO [c2 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 12:47:14 INFO [c2 script] do gripper 1.00
+2026-10-28 12:47:16 INFO lease revoked by c2 script (release) (was c2 script); stopped
+2026-10-28 12:47:16 INFO [c2 script] disconnected

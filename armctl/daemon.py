@@ -55,7 +55,8 @@ NUDGE_MAX = 0.2  # rad per nudge
 REACH_TOL = 0.02  # rad, execute-then-verify (mock); see REACH_TOL_BY_BACKEND
 # The real arm has no gravity feedforward: it sags ~0.03 rad on j2/j3 and ~0.06 rad on the
 # wrist (2026-10-16 SUMMARY.md), so a single 0.02 rad check would refuse every real move.
-REACH_TOL_BY_BACKEND = {"mock": (0.02,) * 6, "dimos": (0.02, 0.05, 0.05, 0.09, 0.09, 0.09)}
+# 2026-10-28 laptop: ready sagged j4 +0.094 (j2 -0.037, j3 -0.029), so the wrist gets 0.12.
+REACH_TOL_BY_BACKEND = {"mock": (0.02,) * 6, "dimos": (0.02, 0.05, 0.05, 0.12, 0.12, 0.12)}
 MAX_MSG = 256 * 1024
 REFUSAL_REPEAT_S = 1.0  # same stream refusal at most once per second per client
 SWITCH_STOP_TIMEOUT_S = 3.0

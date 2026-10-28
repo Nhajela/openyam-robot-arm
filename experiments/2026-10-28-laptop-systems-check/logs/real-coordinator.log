@@ -1,0 +1,51 @@
+armctl.dimos_coordinator: mode=REAL can=can0 adapter=openyam_damiao bus=224.0.0.123:7449 tasks=['eef_twist_arm', 'joint_trajectory', 'openyam_gripper'] ik_margin=0.1 joint_vel=0.3 traj_vel_limit=0.5 twist_timeout=0.3 planner=False
+REAL ARM: Ctrl-C stops the coordinator but may leave torque on: run tools/disable_all.py after.
+07:09:13.826 [inf][dination/module_coordinator.py] Building the blueprint
+07:09:13.827 [inf][dination/module_coordinator.py] Starting the modules
+07:09:14.295 [inf][ation/worker_manager_python.py] Worker pool started. n_workers=2
+07:09:14.297 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+07:09:15.344 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+07:09:15.354 [inf][dimos/control/coordinator.py  ] ControlCoordinator initialized at 100.0Hz
+07:09:15.355 [inf][/coordination/python_worker.py] Deployed module. module=ArmctlTwistCoordinator module_id=0 worker_id=0
+07:09:15.359 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+07:09:15.431 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+07:09:18.443 [war][e/whole_body/damiao/adapter.py] Clamping Damiao joint feedback at position limit hardware_id=openyam joint=yam_joint2 limit=0.0 value=-0.004768444342717615
+07:09:18.443 [war][e/whole_body/damiao/adapter.py] Clamping Damiao joint feedback at position limit hardware_id=openyam joint=yam_joint3 limit=0.0 value=-0.000953688868543523
+07:09:18.443 [inf][dimos/control/coordinator.py  ] Added hardware openyam with joints: ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6', 'arm/gripper']
+07:09:19.293 [inf][dimos/control/coordinator.py  ] Added task eef_twist_arm
+07:09:19.293 [inf][ectory_task/trajectory_task.py] JointTrajectoryTask joint_trajectory initialized for joints: ('yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6')
+07:09:19.293 [inf][dimos/control/coordinator.py  ] Added task joint_trajectory
+07:09:19.295 [inf][dimos/control/coordinator.py  ] Added task openyam_gripper
+07:09:19.295 [inf][dimos/control/tick_loop.py    ] TickLoop started at 100.0Hz
+07:09:19.299 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=gripper_command
+07:09:19.300 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=joint_command
+07:09:19.300 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=ee_twist_command
+07:09:19.300 [inf][dimos/control/coordinator.py  ] ControlCoordinator started at 100.0Hz
+07:09:42.651 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 51 points, duration=5.000s
+07:09:47.656 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:10:21.092 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 11 points, duration=0.740s
+07:10:21.845 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:10:37.858 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 81 points, duration=7.950s
+07:10:45.811 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+armctl.dimos_coordinator: mode=REAL can=can0 adapter=openyam_damiao bus=224.0.0.123:7449 tasks=['eef_twist_arm', 'joint_trajectory', 'openyam_gripper'] ik_margin=0.1 joint_vel=0.3 traj_vel_limit=0.5 twist_timeout=0.3 planner=False
+REAL ARM: Ctrl-C stops the coordinator but may leave torque on: run tools/disable_all.py after.
+07:16:51.932 [inf][dination/module_coordinator.py] Building the blueprint
+07:16:51.933 [inf][dination/module_coordinator.py] Starting the modules
+07:16:52.574 [inf][ation/worker_manager_python.py] Worker pool started. n_workers=2
+07:16:52.576 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+07:16:53.748 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+07:16:53.763 [inf][dimos/control/coordinator.py  ] ControlCoordinator initialized at 100.0Hz
+07:16:53.764 [inf][/coordination/python_worker.py] Deployed module. module=ArmctlTwistCoordinator module_id=0 worker_id=0
+07:16:53.771 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+07:16:53.875 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+07:16:56.887 [war][e/whole_body/damiao/adapter.py] Clamping Damiao joint feedback at position limit hardware_id=openyam joint=yam_joint2 limit=0.0 value=-0.000953688868543523
+07:16:56.888 [inf][dimos/control/coordinator.py  ] Added hardware openyam with joints: ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6', 'arm/gripper']
+07:16:57.910 [inf][dimos/control/coordinator.py  ] Added task eef_twist_arm
+07:16:57.911 [inf][ectory_task/trajectory_task.py] JointTrajectoryTask joint_trajectory initialized for joints: ('yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6')
+07:16:57.911 [inf][dimos/control/coordinator.py  ] Added task joint_trajectory
+07:16:57.913 [inf][dimos/control/coordinator.py  ] Added task openyam_gripper
+07:16:57.913 [inf][dimos/control/tick_loop.py    ] TickLoop started at 100.0Hz
+07:16:57.918 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=gripper_command
+07:16:57.919 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=joint_command
+07:16:57.919 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=ee_twist_command
+07:16:57.919 [inf][dimos/control/coordinator.py  ] ControlCoordinator started at 100.0Hz

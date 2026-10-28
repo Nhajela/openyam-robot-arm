@@ -18,6 +18,7 @@ Safety rules carry across all experiments: start folded on the stops, probe befo
 |---|---|---|---|
 | [2026-10-16-linux-real-arm](2026-10-16-linux-real-arm/SUMMARY.md) ([log](2026-10-16-linux-real-arm/LOG.md)) | Naman (+ Claude) | Drive the real arm from the Ubuntu laptop and go beyond keyboard jogging | done: see SUMMARY.md for next steps |
 | [2026-10-28-interfaces](2026-10-28-interfaces/LOG.md) | Naman (+ Claude) | More ways to move the arm: pose mirror, record + timeline with limits, grasp and chess ([`interfaces/`](../interfaces/README.md)), open play ([`openplay/`](../openplay/README.md)), DimosBackend | active: mock + DimOS sim; hardware next ([HANDOVER.md](../HANDOVER.md)) |
+| [2026-10-28-laptop-systems-check](2026-10-28-laptop-systems-check/LOG.md) | Naman (+ Claude) | Pull fork `main` onto the lab laptop; check CAN, motors (read-only), deps, tests, DimOS-sim e2e before the first hardware session | active: all green, real-arm steps next |
 
 ## Ideas backlog
 
