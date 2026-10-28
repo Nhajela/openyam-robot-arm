@@ -1,0 +1,33 @@
+armctl.dimos_coordinator: mode=REAL can=can0 adapter=openyam_damiao bus=224.0.0.123:7449 tasks=['eef_twist_arm', 'joint_trajectory', 'openyam_gripper'] ik_margin=0.1 joint_vel=0.3 traj_vel_limit=0.5 twist_timeout=0.3 planner=False gains[dimos-default]: kp=[80,80,80,10,10,10] kd=[5,5,5,1.5,1.5,1.5]
+REAL ARM: Ctrl-C stops the coordinator but may leave torque on: run tools/disable_all.py after.
+07:37:32.260 [inf][dination/module_coordinator.py] Building the blueprint
+07:37:32.261 [inf][dination/module_coordinator.py] Starting the modules
+07:37:32.743 [inf][ation/worker_manager_python.py] Worker pool started. n_workers=2
+07:37:32.744 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+07:37:33.824 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+07:37:33.833 [inf][dimos/control/coordinator.py  ] ControlCoordinator initialized at 100.0Hz
+07:37:33.834 [inf][/coordination/python_worker.py] Deployed module. module=ArmctlTwistCoordinator module_id=0 worker_id=0
+07:37:33.839 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+07:37:33.911 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+07:37:36.922 [war][e/whole_body/damiao/adapter.py] Clamping Damiao joint feedback at position limit hardware_id=openyam joint=yam_joint2 limit=0.0 value=-0.0005722133211261138
+07:37:36.923 [war][e/whole_body/damiao/adapter.py] Clamping Damiao joint feedback at position limit hardware_id=openyam joint=yam_joint3 limit=0.0 value=-0.0017166399633783413
+07:37:36.923 [inf][dimos/control/coordinator.py  ] Added hardware openyam with joints: ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6', 'arm/gripper']
+07:37:37.950 [inf][dimos/control/coordinator.py  ] Added task eef_twist_arm
+07:37:37.950 [inf][ectory_task/trajectory_task.py] JointTrajectoryTask joint_trajectory initialized for joints: ('yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6')
+07:37:37.950 [inf][dimos/control/coordinator.py  ] Added task joint_trajectory
+07:37:37.953 [inf][dimos/control/coordinator.py  ] Added task openyam_gripper
+07:37:37.953 [inf][dimos/control/tick_loop.py    ] TickLoop started at 100.0Hz
+07:37:37.958 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=joint_command
+07:37:37.959 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=ee_twist_command
+07:37:37.959 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=gripper_command
+07:37:37.960 [inf][dimos/control/coordinator.py  ] ControlCoordinator started at 100.0Hz
+07:38:01.608 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 51 points, duration=5.000s
+07:38:06.623 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:40:08.295 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 26 points, duration=2.470s
+07:40:10.769 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:42:12.417 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 32 points, duration=3.070s
+07:42:15.494 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:44:17.098 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 24 points, duration=2.250s
+07:44:19.358 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+07:46:20.944 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 84 points, duration=8.220s
+07:46:29.183 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory

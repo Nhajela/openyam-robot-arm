@@ -148,3 +148,24 @@ Every check short of torque passed: CAN link, all 7 motors, deps, 291 unit tests
   - Game agent: clock UI, game flow, `rank_moves`, `FakeBoardSensor`.
   - Vision agent: `CameraBoardSensor`, i.e. ArUco corner markers → homography per camera, per-square occupancy and colour, multi-camera fusion, calibration CLI, synthetic-image tests.
 - Merged `9f9ec21` (`--kp/--kd` per-joint gain overrides) as `630226e`. One conflict, because the agent's worktree started from `d4a5c10`; resolved by keeping both sides; armctl 171 passed. Pushed `a312001`.
+
+### 13:07–13:17 j4 hold test, run 1 (DimOS default gains, j4 kp 10 / kd 1.5); Naman at the arm
+Pre-flight: no DimOS processes. Probe: j1–j6 within 0.04 of 0, no faults, j4 rotor 36 °C. (A leftover agent screenshot `openplay.server` pointed at a dead mock port; nothing on 8091 or `can0`.) Coordinator `gains[dimos-default]: kp=[80,80,80,10,10,10] kd=[5,5,5,1.5,1.5,1.5]`; daemon `DimOS REAL`. Then:
+`.venv/bin/python experiments/2026-10-28-laptop-systems-check/j4_hold_test.py --console http://127.0.0.1:8090 --hold 120`
+([logs/j4test-run1.log](logs/j4test-run1.log), CSV [logs/j4-hold-20261028-130801.csv](logs/j4-hold-20261028-130801.csv), 4663 rows; coordinator/daemon logs `logs/j4test-*.log`)
+
+| j4 target (j2 0.5, j3 0.8) | model gravity τ4 (DimOS feedforward) | j4 error, held | kp·err | measured τ4 (CAN reply) | measured / model | rotor °C |
+|---|---|---|---|---|---|---|
+| 0.0 | 2.378 | +0.0937 | 0.94 | 1.937 | 0.81 | 38→46 |
+| −0.3 | 2.560 | +0.1091 | 1.09 | 2.137 | 0.83 | 46→48 |
+| +0.3 | 1.984 | +0.0412 | 0.41 | 1.687 | 0.85 | 49→49 |
+| +0.7 | 1.191 | +0.0151 | 0.15 | 1.007 | 0.85 | 48→44 |
+
+`home`: done, max error 0.0616. Shutdown 13:17: daemon, coordinator, `disable_all`: all 7 disabled, no faults; j4 rotor 46 °C (hottest; j3 42).
+- **Observation:** each error is rock-steady within a pose (first 5 s = last 5 s to 4 decimals), and the same at 0.0 as at 12:39 (0.094). It doesn't drift while held; the earlier 0.094 → 0.116 came from re-running `ready` from a slightly different start, not from creep.
+- **Insight:** the error **tracks the gravity load**: 0.015 at 1.19 N·m up to 0.109 at 2.56 N·m. It is not a constant offset, so j4's zero is fine (only the +0.022 torque-off reading, which is small).
+- **Insight (sign):** the torque j4 actually delivers is a steady **0.81–0.85 × the model's gravity torque**, and j4 sits on the **+ side** of its target in every pose. So the DimOS gravity model (`yam_gripper_gravity.urdf`) most likely **over-estimates** the wrist load by about 15–20%. The feedforward pushes the wrist past its target, and kp 10 only partly pulls it back. This corrects the 12:55 subagent guess of "under-estimates". kp·err doesn't equal model − measured exactly (0.94 vs 0.44 at 0.0), so friction and the CAN torque scaling are also in play. Treat the measured τ as indicative, not exact.
+- **Idea / next:**
+  1. **Run 2 with `--kp j4=22 --kd j4=2`** (merged today): the error should drop roughly in proportion (~0.04 at 0.0). This needs no DimOS change.
+  2. Better long-term: scale the j4 gravity feedforward by about 0.83, or fix the gripper mass in the gravity URDF (the gripper + camera actually fitted may weigh less than modelled). That needs a DimOS-side hook.
+  3. j4 runs warm (46–49 °C rotor during holds) but within a normal range. Watch it after the kp increase.

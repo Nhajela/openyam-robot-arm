@@ -22,3 +22,5 @@ music/clips/*
 .env
 .env.*
 .claude/
+*-local.jpg
+*-local.png
