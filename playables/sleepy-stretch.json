@@ -1,0 +1,189 @@
+{
+  "format": "openyam-playable",
+  "version": "1.0",
+  "name": "sleepy-stretch",
+  "title": "Sleepy stretch",
+  "author": "human:openplay library (claude agent)",
+  "created": "2026-10-28T12:00:00+05:30",
+  "notes": "Dozes off (head droops low and tilted), wakes with a slow yawn (head lifts, gripper opens wide like a mouth and closes), then stretches up tall and leans to one side and the other before settling back to ready. Slow and lazy on purpose.",
+  "space": "joint",
+  "start": "ready",
+  "caps": "dance",
+  "loop": 1,
+  "speed": 1.0,
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 2.1,
+      "q": [
+        0.0,
+        0.62,
+        0.55,
+        -0.7,
+        0.0,
+        0.3
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 2.9,
+      "q": [
+        0.0,
+        0.62,
+        0.55,
+        -0.7,
+        0.0,
+        0.3
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 6.35,
+      "q": [
+        0.0,
+        0.5,
+        0.95,
+        0.45,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    },
+    {
+      "t": 7.35,
+      "q": [
+        0.0,
+        0.5,
+        0.95,
+        0.45,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 1.0
+    },
+    {
+      "t": 7.85,
+      "q": [
+        0.0,
+        0.5,
+        0.95,
+        0.45,
+        0.0,
+        0.0
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 8.65,
+      "q": [
+        0.0,
+        0.5,
+        0.95,
+        0.45,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    },
+    {
+      "t": 11.95,
+      "q": [
+        0.0,
+        1.25,
+        2.15,
+        0.5,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 12.35,
+      "q": [
+        0.0,
+        1.25,
+        2.15,
+        0.5,
+        0.0,
+        0.0
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 13.6,
+      "q": [
+        0.3,
+        1.25,
+        2.15,
+        0.5,
+        0.0,
+        0.36
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 13.9,
+      "q": [
+        0.3,
+        1.25,
+        2.15,
+        0.5,
+        0.0,
+        0.36
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 16.1,
+      "q": [
+        -0.3,
+        1.25,
+        2.15,
+        0.5,
+        0.0,
+        -0.36
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 16.4,
+      "q": [
+        -0.3,
+        1.25,
+        2.15,
+        0.5,
+        0.0,
+        -0.36
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 20.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    }
+  ]
+}

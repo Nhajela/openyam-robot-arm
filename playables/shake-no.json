@@ -1,0 +1,162 @@
+{
+  "format": "openyam-playable",
+  "version": "1.0",
+  "name": "shake-no",
+  "title": "No no no",
+  "author": "human:openplay library (claude agent)",
+  "created": "2026-10-28T12:00:00+05:30",
+  "notes": "Lifts its head to face you, then shakes it side to side three times: the base swings and the wrist turns the same way so the whole head says 'no no no', getting a little smaller each time, ends with a disappointed little head drop, back to ready.",
+  "space": "joint",
+  "start": "ready",
+  "caps": "dance",
+  "loop": 1,
+  "speed": 1.0,
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 1.05,
+      "q": [
+        0.0,
+        0.6,
+        1.1,
+        0.1,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 2.1,
+      "q": [
+        0.3,
+        0.6,
+        1.1,
+        0.1,
+        -0.24,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 3.7,
+      "q": [
+        -0.3,
+        0.6,
+        1.1,
+        0.1,
+        0.24,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 5.2,
+      "q": [
+        0.25,
+        0.6,
+        1.1,
+        0.1,
+        -0.2,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 6.55,
+      "q": [
+        -0.25,
+        0.6,
+        1.1,
+        0.1,
+        0.2,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 7.8,
+      "q": [
+        0.2,
+        0.6,
+        1.1,
+        0.1,
+        -0.16,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 9.0,
+      "q": [
+        -0.2,
+        0.6,
+        1.1,
+        0.1,
+        0.16,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 9.85,
+      "q": [
+        0.0,
+        0.6,
+        1.1,
+        0.1,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 10.95,
+      "q": [
+        0.0,
+        0.6,
+        1.0,
+        -0.25,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 11.35,
+      "q": [
+        0.0,
+        0.6,
+        1.0,
+        -0.25,
+        0.0,
+        0.0
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 12.3,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    }
+  ]
+}

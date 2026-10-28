@@ -1,0 +1,166 @@
+{
+  "format": "openyam-playable",
+  "version": "1.0",
+  "name": "disco-point",
+  "title": "Disco point",
+  "author": "human:openplay library (claude agent)",
+  "created": "2026-10-28T12:00:00+05:30",
+  "notes": "Saturday Night Fever: points the closed gripper high up to its left, then swings down and across to point low on the right, twice, with a little twist on every point, back to ready.",
+  "space": "joint",
+  "start": "ready",
+  "caps": "dance",
+  "loop": 1,
+  "speed": 1.0,
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 3.75,
+      "q": [
+        0.62,
+        1.45,
+        2.2,
+        0.55,
+        -0.25,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    },
+    {
+      "t": 4.45,
+      "q": [
+        0.62,
+        1.45,
+        2.2,
+        0.7,
+        -0.25,
+        0.15
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 5.15,
+      "q": [
+        0.62,
+        1.45,
+        2.2,
+        0.55,
+        -0.25,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 8.0,
+      "q": [
+        -0.45,
+        1.4,
+        1.35,
+        -0.25,
+        0.2,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    },
+    {
+      "t": 8.7,
+      "q": [
+        -0.45,
+        1.4,
+        1.35,
+        -0.1,
+        0.2,
+        0.15
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 9.4,
+      "q": [
+        -0.45,
+        1.4,
+        1.35,
+        -0.25,
+        0.2,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 12.25,
+      "q": [
+        0.62,
+        1.45,
+        2.2,
+        0.55,
+        -0.25,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    },
+    {
+      "t": 12.95,
+      "q": [
+        0.62,
+        1.45,
+        2.2,
+        0.7,
+        -0.25,
+        0.15
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 13.65,
+      "q": [
+        0.62,
+        1.45,
+        2.2,
+        0.55,
+        -0.25,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 16.5,
+      "q": [
+        -0.45,
+        1.4,
+        1.35,
+        -0.25,
+        0.2,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    },
+    {
+      "t": 18.9,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    }
+  ]
+}

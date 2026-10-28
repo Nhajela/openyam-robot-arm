@@ -1,0 +1,130 @@
+{
+  "format": "openyam-playable",
+  "version": "1.0",
+  "name": "shrug",
+  "title": "Shrug",
+  "author": "human:openplay library (claude agent)",
+  "created": "2026-10-28T12:00:00+05:30",
+  "notes": "'I dunno': sinks a little, then pops the forearm up with the hand tilted palm-up, head cocked and gripper wide open, holds the shrug, drops, and shrugs again to the other side before settling back to ready.",
+  "space": "joint",
+  "start": "ready",
+  "caps": "dance",
+  "loop": 1,
+  "speed": 1.0,
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 0.75,
+      "q": [
+        0.0,
+        0.55,
+        0.75,
+        -0.15,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 2.5,
+      "q": [
+        0.08,
+        0.45,
+        1.3,
+        0.5,
+        0.0,
+        0.35
+      ],
+      "ease": "cubic",
+      "grip": 1.0
+    },
+    {
+      "t": 3.5,
+      "q": [
+        0.08,
+        0.45,
+        1.3,
+        0.5,
+        0.0,
+        0.35
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 5.25,
+      "q": [
+        0.0,
+        0.55,
+        0.75,
+        -0.15,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.2
+    },
+    {
+      "t": 7.0,
+      "q": [
+        -0.08,
+        0.45,
+        1.3,
+        0.5,
+        0.0,
+        -0.35
+      ],
+      "ease": "cubic",
+      "grip": 1.0
+    },
+    {
+      "t": 8.0,
+      "q": [
+        -0.08,
+        0.45,
+        1.3,
+        0.5,
+        0.0,
+        -0.35
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 9.75,
+      "q": [
+        0.0,
+        0.55,
+        0.75,
+        -0.15,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    },
+    {
+      "t": 10.5,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "format": "openyam-playable",
+  "version": "1.0",
+  "name": "celebrate",
+  "title": "Celebrate!",
+  "author": "human:openplay library (claude agent)",
+  "created": "2026-10-28T12:00:00+05:30",
+  "notes": "Victory: rises tall with the gripper closed like a fist, then pumps it up twice (drop the elbow, punch up to the left, drop, punch up to the right), twists the fist at the top, and comes back down to ready.",
+  "space": "joint",
+  "start": "ready",
+  "caps": "dance",
+  "loop": 1,
+  "speed": 1.0,
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 3.35,
+      "q": [
+        0.0,
+        1.25,
+        2.05,
+        0.45,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    },
+    {
+      "t": 4.6,
+      "q": [
+        0.0,
+        1.35,
+        1.6,
+        0.1,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 6.1,
+      "q": [
+        0.3,
+        1.25,
+        2.15,
+        0.55,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 7.6,
+      "q": [
+        0.0,
+        1.35,
+        1.6,
+        0.1,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 9.1,
+      "q": [
+        -0.3,
+        1.25,
+        2.15,
+        0.55,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 10.35,
+      "q": [
+        0.0,
+        1.25,
+        2.05,
+        0.45,
+        0.0,
+        0.45
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 12.75,
+      "q": [
+        0.0,
+        1.25,
+        2.05,
+        0.45,
+        0.0,
+        -0.45
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 14.0,
+      "q": [
+        0.0,
+        1.25,
+        2.05,
+        0.45,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic"
+    },
+    {
+      "t": 17.35,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    }
+  ]
+}

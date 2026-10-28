@@ -1,0 +1,117 @@
+{
+  "format": "openyam-playable",
+  "version": "1.0",
+  "name": "bow",
+  "title": "Take a bow",
+  "author": "human:openplay library (claude agent)",
+  "created": "2026-10-28T12:00:00+05:30",
+  "notes": "A proper bow that really goes down: stands up proud with the hand open, then pitches the shoulder forward and drops the head so the tip sinks about 25 cm below ready (checked with FK), holds the bow, and rises slowly back to ready. Calm 'default' caps. (graceful-bow only ever lifts the tip, so it doesn't read as a bow.)",
+  "space": "joint",
+  "start": "ready",
+  "caps": "default",
+  "loop": 1,
+  "speed": 1.0,
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 1.6,
+      "q": [
+        0.0,
+        0.4,
+        1.0,
+        0.3,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 1.0
+    },
+    {
+      "t": 2.1,
+      "q": [
+        0.0,
+        0.4,
+        1.0,
+        0.3,
+        0.0,
+        0.0
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 7.15,
+      "q": [
+        0.0,
+        1.35,
+        0.95,
+        -0.55,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.3
+    },
+    {
+      "t": 8.65,
+      "q": [
+        0.0,
+        1.35,
+        0.95,
+        -0.55,
+        0.0,
+        0.0
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 13.7,
+      "q": [
+        0.0,
+        0.4,
+        1.0,
+        0.3,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 1.0
+    },
+    {
+      "t": 14.1,
+      "q": [
+        0.0,
+        0.4,
+        1.0,
+        0.3,
+        0.0,
+        0.0
+      ],
+      "ease": "hold"
+    },
+    {
+      "t": 15.7,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ease": "cubic",
+      "grip": 0.0
+    }
+  ]
+}
