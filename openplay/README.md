@@ -27,7 +27,7 @@ Phones never talk to the arm. `openplay.server` is the only armctl program, and 
 .venv/bin/python -m armctl.daemon --backend mock --auto-approve --vel-cap 0.6 --acc-cap 2.0
 # 2. open play
 .venv/bin/python -m openplay.server                  # phones: https://<laptop-ip>:8450/?k=<key>, display: http://127.0.0.1:8451
-# 3. on the laptop: open http://127.0.0.1:8451 full screen (F11). Press "o" for the operator drawer.
+# 3. on the laptop: open http://127.0.0.1:8451 full screen (F11). The operator rail is on the right ("h" hides it, Space = E-STOP).
 ```
 
 For "Say it" with Claude, set `ANTHROPIC_API_KEY` in the server's environment. Without it, Say it plays the closest library move and says so.
