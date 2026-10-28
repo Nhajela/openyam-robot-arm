@@ -66,13 +66,14 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 
 | op | fields |
 |---|---|
-| `hello` | `join_url, backend, turn_s, auto_play, paused, moves, spots, envelope` (armctl envelope `describe()`), `poses` (named poses), `urdf: bool` (true when `/urdf/i2rt/yam.urdf` is served) |
-| `arm` | `q, grip, moving, busy, mode, estop` at 20 Hz |
-| `lobby` | `queue: [{pid, name}], active: {pid, name, remaining_s} \| null, players: int` |
+| `hello` | `join_url, backend, turn_s, auto_play, paused, moves, spots, envelope` (armctl envelope `describe()`), `poses` (named poses), `urdf: bool` (true when `/urdf/i2rt/yam.urdf` is served), `lease` (does openplay hold the daemon lease), `daemon` (`connected` \| `waiting for lease` \| `estop` \| `offline`). Right after `hello` the server also sends the current `lobby`, `pending` (or null) and the in-progress `say`, so a reconnecting display shows the full state |
+| `arm` | `q, grip, moving, busy, mode, estop, lease` at 20 Hz |
+| `lobby` | `queue: [{pid, name}], active: {pid, name, remaining_s} \| null, players: int` (the `pid`s are needed for kick) |
 | `event` | `t` (unix s), `who` (name or null), `kind`: `join` \| `leave` \| `turn` \| `turn_end` \| `move` \| `say` \| `seq` \| `grab` \| `stop` \| `refused` \| `operator` \| `estop`, `text` (a caption to show) |
 | `say` | as for the phone, plus `who`, plus `keyframes` (the playable's keyframes, for a ghost preview) on `playing` |
-| `pending` | `{id, who, title, duration_s, keyframes}` or `null`: an action waiting for the operator (only when `auto_play` is off) |
+| `pending` | `pending: {id, who, title, duration_s, keyframes} \| null`: an action waiting for the operator (only when `auto_play` is off) |
 | `config` | `auto_play, paused, turn_s` after a change |
+| `refused` / `error` | `reason`: shown in the operator rail's error list |
 
 ### Display → server (operator; loopback only)
 
