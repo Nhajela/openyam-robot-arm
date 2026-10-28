@@ -1,0 +1,43 @@
+Mass carried by j4 (link4 + everything outboard), kg:
+  dimos_gravity  2.006   per body: yam_joint4=0.464, yam_joint5=0.351, yam_joint6=1.191
+  dimos_i2rt     1.558   per body: joint4=0.462, joint5=0.403, joint6=0.693
+  i2rt_urdf      1.558   per body: joint4=0.462, joint5=0.403, joint6=0.693
+  i2rt_crank     1.465   per body: joint4=0.462, joint5=0.403, joint6=0.600
+
+tau_j4 at the measured hold q (N·m):
+  run          pose     dimos_gravity    dimos_i2rt     i2rt_urdf    i2rt_crank A=ff-kp*err B=CAN tau
+  run1 kp4=10  j4=+0.0          2.267         1.342         1.342         1.250       1.330     1.937
+  run1 kp4=10  j4=-0.3          2.514         1.527         1.527         1.427       1.423     2.137
+  run1 kp4=10  j4=+0.3          1.901         1.092         1.092         1.012       1.489     1.687
+  run1 kp4=10  j4=+0.7          1.150         0.602         0.602         0.550       0.999     1.007
+  run2 kp4=22  j4=+0.0          2.319         1.379         1.379         1.285       1.255     1.971
+  run2 kp4=22  j4=-0.3          2.541         1.550         1.550         1.451       1.435     2.187
+  run2 kp4=22  j4=+0.3          1.929         1.110         1.110         1.030       1.374     1.622
+  run2 kp4=22  j4=+0.7          1.158         0.607         0.607         0.554       0.981     0.995
+
+Per-body share of tau_j4 at run1 j4=-0.3 (heaviest pose):
+  dimos_gravity: yam_joint4 body (m=0.464): 0.229, yam_joint5 body (m=0.351): 0.252, yam_joint6 body (m=1.191): 2.034
+  i2rt_urdf: joint4 body (m=0.462): 0.229, joint5 body (m=0.403): 0.293, joint6 body (m=0.693): 1.005
+  i2rt_crank: joint4 body (m=0.462): 0.229, joint5 body (m=0.403): 0.293, joint6 body (m=0.600): 0.906
+
+j4 fit vs DimOS feedforward, truth=A (ff - kp*err), n=8:
+  (a) tau = 0.628*model           residuals [-0.094, -0.156, 0.295, 0.277, -0.202, -0.162, 0.163, 0.253]  rms 0.210
+  (b) tau = 0.289*model +0.716    residuals [-0.041, -0.019, 0.224, -0.049, -0.131, -0.015, 0.101, -0.07]  rms 0.104
+
+j4 fit vs DimOS feedforward, truth=B (CAN tau), n=8:
+  (a) tau = 0.857*model           residuals [-0.006, -0.019, 0.058, 0.021, -0.016, 0.009, -0.031, 0.002]  rms 0.026
+  (b) tau = 0.842*model +0.033    residuals [-0.003, -0.012, 0.054, 0.006, -0.013, 0.016, -0.034, -0.013]  rms 0.025
+
+Gripper-mass fit on the DimOS model (truth A): k = 0.563 -> gripper body 0.671 kg (stock 1.191); residuals [-0.11, -0.202, 0.307, 0.328, -0.223, -0.214, 0.173, 0.304] rms 0.243
+
+j2 (no torque data; A = ff - 80*err only): ff [0.732, 0.504, 1.098, 1.809, 0.685, 0.477, 1.07, 1.826]
+   err [-0.0371, -0.0398, -0.0371, -0.0317, -0.0378, -0.0398, -0.0371, -0.0352]
+   A [3.7, 3.688, 4.066, 4.345, 3.709, 3.661, 4.038, 4.642]  -> s = 3.253 (rms 1.465); j2/j3 barely move between poses, so no affine fit
+   i2rt_urdf tau_j2: [1.841, 1.674, 2.091, 2.545, 1.809, 1.651, 2.073, 2.563]
+   i2rt_crank tau_j2: [1.914, 1.754, 2.152, 2.58, 1.883, 1.731, 2.134, 2.597]
+
+j3 (no torque data; A = ff - 80*err only): ff [7.336, 7.575, 6.971, 6.238, 7.386, 7.602, 6.998, 6.234]
+   err [-0.0292, -0.0292, -0.0292, -0.0292, -0.0292, -0.0292, -0.0292, -0.0292]
+   A [9.672, 9.911, 9.307, 8.574, 9.722, 9.938, 9.334, 8.57]  -> s = 1.330 (rms 0.170); j2/j3 barely move between poses, so no affine fit
+   i2rt_urdf tau_j3: [5.711, 5.888, 5.461, 4.987, 5.746, 5.912, 5.479, 4.982]
+   i2rt_crank tau_j3: [5.424, 5.593, 5.186, 4.738, 5.457, 5.616, 5.203, 4.733]
