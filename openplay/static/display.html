@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenYAM · Open play</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23151a20%27/%3E%3Cpath d=%27M8 25h16M12 25l3-9 7-5%27 stroke=%27%235cc8ff%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2722%27 cy=%2711%27 r=%272.5%27 fill=%27%23ff8a3d%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/display.css">
+<!-- three.js + urdf-loader come from the CDN only when the server serves the URDF (hello.urdf).
+     Offline or without a URDF the display draws the arm itself from kin.js. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.12.7/src/URDFLoader.js"
+  }
+}
+</script>
+</head>
+<body class="attract">
+<div id="app">
+  <!-- ================= THE SHOW (what the audience watches) ================= -->
+  <main id="show">
+    <div id="stage" aria-hidden="true">
+      <canvas id="armCanvas"></canvas>
+      <div id="threeHost"></div>
+    </div>
+    <div id="vignette"></div>
+
+    <header id="brand">
+      <span class="logo">OpenYAM</span><span class="sub">open play</span>
+      <span class="pill" id="backendPill">connecting…</span>
+    </header>
+
+    <div id="banner" class="banner" hidden>
+      <div class="banner-title" id="bannerTitle"></div>
+      <div class="banner-sub" id="bannerSub"></div>
+    </div>
+
+    <!-- attract mode: nobody playing -->
+    <section id="invite">
+      <div class="invite-kicker" id="inviteKicker">Open play</div>
+      <h1 id="inviteTitle">Move a real robot arm<br>with your phone</h1>
+      <ol class="steps">
+        <li><b>Scan</b> the code</li>
+        <li><b>Join</b> the queue</li>
+        <li><b>Play</b> for <span id="inviteMinutes">10</span> minutes</li>
+      </ol>
+      <p class="invite-more">Tilt to steer · tap dance moves · or just type what you'd like it to do</p>
+    </section>
+
+    <!-- say hero card: "Asha asked: ..." -->
+    <section id="hero" hidden>
+      <div class="hero-who"><span id="heroWho"></span> asked</div>
+      <div class="hero-text" id="heroText"></div>
+      <div class="hero-stage" id="heroStage"></div>
+      <div class="hero-bar"><i id="heroBar"></i></div>
+      <div class="hero-note" id="heroNote"></div>
+    </section>
+
+    <!-- shown in the show when an action waits for the operator -->
+    <section id="waitCard" hidden>
+      <div class="wait-k">Waiting for the operator's OK</div>
+      <div class="wait-t" id="waitTitle"></div>
+      <div class="wait-ghost"><i class="ghost-dot"></i> the blue ghost shows the move</div>
+    </section>
+
+    <section id="captions" aria-live="polite"></section>
+
+    <aside id="side">
+      <div id="nowCard" class="card">
+        <div class="lbl">Now playing</div>
+        <div class="now-row">
+          <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+            <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="ring-time" id="ringTime">–</div>
+        </div>
+        <div class="now-name" id="nowName">–</div>
+        <div class="now-doing" id="nowDoing"></div>
+      </div>
+      <div id="nextCard" class="card">
+        <div class="lbl">Next up</div>
+        <ol id="nextList"></ol>
+        <div class="next-more" id="nextMore"></div>
+      </div>
+      <div id="qrCard" class="card">
+        <div class="qr-head">Scan to play</div>
+        <div class="qr-wrap"><img id="qrImg" alt="QR code to join"></div>
+        <div class="qr-count" id="queueCount"></div>
+        <div class="qr-url" id="joinUrl"></div>
+        <div class="qr-hint">Same Wi-Fi as the laptop. If your phone warns about the certificate, tap Advanced → Continue.</div>
+      </div>
+    </aside>
+
+    <!-- reserved for future modes (e.g. chess: virtual board + clock). Shown with body.mode-panel. -->
+    <section id="modePanel" hidden></section>
+
+    <button id="miniEstop" class="estop-btn mini" type="button" title="E-STOP (Space)">STOP</button>
+  </main>
+
+  <!-- ================= OPERATOR RAIL (always on; "h" hides it) ================= -->
+  <aside id="rail" aria-label="Operator controls">
+    <div class="rail-head">
+      <span class="rail-title">Operator</span>
+      <span class="health" id="hServer"><i></i><span>server</span></span>
+      <span class="health" id="hArm"><i></i><span>arm</span></span>
+      <span class="rail-backend" id="railBackend">–</span>
+    </div>
+    <div class="rail-status" id="railStatus">–</div>
+
+    <div class="estop-row">
+      <button id="estopBtn" class="estop-btn" type="button" title="E-STOP (Space)">E-STOP</button>
+      <button id="resetBtn" class="btn" type="button" disabled>Reset<br>E-STOP</button>
+    </div>
+
+    <div id="pendingCard" class="pending" hidden>
+      <div class="pending-k">Approve this move?</div>
+      <div class="pending-t" id="pendingTitle"></div>
+      <div class="pending-w" id="pendingWho"></div>
+      <div class="pending-btns">
+        <button id="approveBtn" class="btn ok" type="button">Approve <kbd>Enter</kbd></button>
+        <button id="denyBtn" class="btn" type="button">Deny <kbd>Esc</kbd></button>
+      </div>
+    </div>
+
+    <div class="rail-sec">
+      <label class="toggle">
+        <input type="checkbox" id="autoPlay">
+        <span class="sw"></span>
+        <span class="tl"><b>Auto-play</b><small id="autoPlayHelp">on = players' moves play without your approval</small></span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="pauseTurns">
+        <span class="sw"></span>
+        <span class="tl"><b>Pause new turns</b><small>the current turn finishes</small></span>
+      </label>
+    </div>
+
+    <div class="rail-sec">
+      <div class="sec-h">Turn</div>
+      <div class="btn-row">
+        <button id="skipBtn" class="btn" type="button">Skip turn</button>
+        <button id="extendBtn" class="btn" type="button">+1 min</button>
+      </div>
+      <div class="seg" id="turnLen">
+        <span class="seg-l">Length</span>
+        <button type="button" data-s="180">3 min</button>
+        <button type="button" data-s="300">5 min</button>
+        <button type="button" data-s="600">10 min</button>
+      </div>
+    </div>
+
+    <div class="rail-sec grow">
+      <div class="sec-h">Queue <span id="railPlayers" class="muted"></span></div>
+      <ul id="railQueue" class="rq"></ul>
+    </div>
+
+    <div class="rail-sec">
+      <div class="sec-h">Refusals and errors</div>
+      <ul id="railProblems" class="problems"><li class="muted">none yet</li></ul>
+    </div>
+
+    <div class="rail-sec">
+      <div class="sec-h">Joints <span class="muted" id="jointMode"></span></div>
+      <div id="joints" class="joints"></div>
+    </div>
+
+    <div class="rail-keys"><kbd>Space</kbd> E-STOP · <kbd>Enter</kbd>/<kbd>Esc</kbd> approve/deny · <kbd>h</kbd> hide panel</div>
+  </aside>
+</div>
+<div id="toast" class="toast" hidden></div>
+<script type="module" src="/static/display.js"></script>
+</body>
+</html>
