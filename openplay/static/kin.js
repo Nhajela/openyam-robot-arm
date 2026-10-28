@@ -66,8 +66,28 @@ export function tip(q) { return frames(q).gripper_tip.p.slice(); }
 // ---- keyframe playback (ghost previews) ----
 // Playable keyframes: [{t, q: [6], grip?, ease?}], t in seconds from the start, grip 0 closed..1 open
 // (carried forward when missing). Between two keyframes the motion follows the later one's ease:
-// "linear" is linear, anything else ("cubic", "smooth", missing) is smoothstep.
+// "linear" is linear, "flow" is armctl.playable's monotone Hermite (passes through a keyframe
+// between two flow segments without stopping), anything else ("cubic", missing) is smoothstep.
 const smoothstep = (s) => s * s * (3 - 2 * s);
+// Same rule as armctl.playable.flow_tangents: PCHIP (Fritsch-Butland) tangent per channel at a
+// keyframe between two flow segments (not "stop": true), 0 where the channel turns round.
+function flowTangents(out) {
+  for (let i = 0; i < out.length; i++) {
+    const k = out[i];
+    k.m = new Array(7).fill(0);
+    if (i === 0 || i === out.length - 1 || k.stop || k.ease !== 'flow' || out[i + 1].ease !== 'flow') continue;
+    const a = out[i - 1], b = out[i + 1];
+    const h0 = k.t - a.t, h1 = b.t - k.t;
+    if (h0 <= 0 || h1 <= 0) continue;
+    const va = [...a.q, a.grip], vk = [...k.q, k.grip], vb = [...b.q, b.grip];
+    const w1 = 2 * h1 + h0, w2 = h1 + 2 * h0;
+    for (let c = 0; c < 7; c++) {
+      const d0 = (vk[c] - va[c]) / h0, d1 = (vb[c] - vk[c]) / h1;
+      k.m[c] = d0 * d1 > 0 ? (w1 + w2) / (w1 / d0 + w2 / d1) : 0;
+    }
+  }
+  return out;
+}
 export function normaliseKeyframes(kfs) {
   if (!Array.isArray(kfs)) return [];
   let grip = 0;
@@ -75,10 +95,10 @@ export function normaliseKeyframes(kfs) {
   for (const k of kfs) {
     if (!k || !Array.isArray(k.q) || k.q.length < 6 || !Number.isFinite(+k.t)) continue;
     if (Number.isFinite(+k.grip)) grip = +k.grip;
-    out.push({ t: +k.t, q: k.q.slice(0, 6).map(Number), grip, ease: k.ease || 'cubic' });
+    out.push({ t: +k.t, q: k.q.slice(0, 6).map(Number), grip, ease: k.ease || 'cubic', stop: k.stop === true });
   }
   out.sort((a, b) => a.t - b.t);
-  return out;
+  return flowTangents(out);
 }
 export function keyframesDuration(kfs) { return kfs.length ? kfs[kfs.length - 1].t : 0; }
 // Pose at time t (clamped to the ends). kfs must be normalised.
@@ -92,6 +112,11 @@ export function sampleKeyframes(kfs, t) {
   const a = kfs[i], b = kfs[i + 1];
   const span = Math.max(b.t - a.t, 1e-6);
   let s = Math.min(1, Math.max(0, (t - a.t) / span));
+  if (b.ease === 'flow' && a.m && b.m) {
+    const h10 = s * (1 - s) ** 2 * span, h11 = s * s * (s - 1) * span, w = smoothstep(s);
+    return { q: a.q.map((v, j) => v + (b.q[j] - v) * w + h10 * a.m[j] + h11 * b.m[j]),
+             grip: a.grip + (b.grip - a.grip) * w + h10 * a.m[6] + h11 * b.m[6] };
+  }
   if (b.ease !== 'linear') s = smoothstep(s);
   return { q: a.q.map((v, j) => v + (b.q[j] - v) * s), grip: a.grip + (b.grip - a.grip) * s };
 }

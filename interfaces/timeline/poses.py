@@ -10,6 +10,12 @@ model the validator uses) times a style factor: ``lively`` 1.25x the minimum, ``
 never under 0.5 s; gripper changes respect the grip speed cap too. At each pose the arm holds
 for a moment (0.3 s lively, 0.6 s gentle) via a ``hold`` keyframe repeating q.
 
+``flow=True`` (or ``style="flow"``, lively timing) passes through the poses without
+stopping or holding: the cubic moves become ``flow`` segments (``interfaces.timeline.flow``),
+time-stretched if the curve needs it to stay under the caps, and checked for table clearance
+along the curve (a move that would dip stays a straight, stopping move). It only comes to rest
+at the start and the end.
+
 Refused, with a plain-English reason naming the pose: a pose outside the soft box, a pose too
 close to the table (``kin.clear_of_table``), a move between two poses that would dip too close
 to the table (unless going via 'ready' avoids it), and a sequence over the playable 60 s limit.
@@ -30,7 +36,8 @@ from armctl import playable as pl
 
 from . import coach
 
-STYLES = {"lively": {"factor": 1.25, "hold": 0.3}, "gentle": {"factor": 1.9, "hold": 0.6}}
+STYLES = {"lively": {"factor": 1.25, "hold": 0.3}, "gentle": {"factor": 1.9, "hold": 0.6},
+          "flow": {"factor": 1.25, "hold": 0.0, "flow": True}}
 MIN_SEG_S = 0.5
 PATH_CHECKS = 41  # points checked along each move for table clearance
 
@@ -102,11 +109,12 @@ def _seg(a: np.ndarray, b: np.ndarray, ga: float, gb: float, vcap, acap, gcap, f
 
 
 def sequence_playable(poses: list[dict], name: str = "my-sequence", style: str = "lively",
-                      caps: str = "dance", start_from=None) -> tuple[dict, list[str]]:
+                      caps: str = "dance", start_from=None, flow: bool = False) -> tuple[dict, list[str]]:
     """Saved poses ``[{"q": [6 rad], "grip": 0..1}, ...]`` -> (playable, notes).
 
     ``style``: "lively" (1.25x the minimum feasible time per move, 0.3 s hold at each pose)
-    or "gentle" (1.9x, 0.6 s hold). ``caps``: the playable's cap preset ("dance" or "default").
+    or "gentle" (1.9x, 0.6 s hold), or "flow" (lively timing, ``flow=True``). ``flow``: pass
+    through the poses without stopping (no holds; see the module docstring). ``caps``: the playable's cap preset ("dance" or "default").
     ``start_from``: named pose the sequence starts and ends at (default "ready"; it must be
     inside the soft box, so not "home"). ``grip`` missing on a pose keeps the previous one.
 
@@ -115,7 +123,7 @@ def sequence_playable(poses: list[dict], name: str = "my-sequence", style: str =
     Raises ValueError(reason) naming the pose number when it can't be played.
     """
     if style not in STYLES:
-        raise ValueError(f"style must be 'lively' or 'gentle', got {style!r}")
+        raise ValueError(f"style must be 'lively', 'gentle' or 'flow', got {style!r}")
     if caps not in pl.CAP_PRESETS:
         raise ValueError(f"caps must be one of {', '.join(sorted(pl.CAP_PRESETS))}, got {caps!r}")
     start = "ready" if start_from is None else start_from
@@ -130,6 +138,7 @@ def sequence_playable(poses: list[dict], name: str = "my-sequence", style: str =
                          f"use 'ready'")
     parsed = _parse_poses(poses, lo, hi)
     cfg = STYLES[style]
+    flow = bool(flow or cfg.get("flow"))
 
     p: dict[str, Any] = {"format": pl.FORMAT, "version": "1.0", "name": pl.slugify(name),
                          "author": "poses:interfaces.timeline", "created": pl.now_iso(), "space": "joint",
@@ -165,18 +174,34 @@ def sequence_playable(poses: list[dict], name: str = "my-sequence", style: str =
         kfs.append({"t": t, "q": [round(float(x), 4) for x in qb], "grip": round(gb, 3), "ease": "cubic"})
         both = la.startswith("pose ") and lb.startswith("pose ")
         segs.append((f"{la} → {lb[5:]}" if both else f"{la} → {lb}", T, need, why))
-        if lb.startswith("pose "):
+        if lb.startswith("pose ") and not flow:
             t = round(t + cfg["hold"], 2)
             kfs.append({"t": t, "q": kfs[-1]["q"], "grip": round(gb, 3), "ease": "hold"})
     p["keyframes"] = kfs
     total = kfs[-1]["t"]
-    p["notes"] = f"{len(parsed)} saved poses, {style}, caps '{caps}'"
+    label = style + (" flowing" if flow and style != "flow" else "")
+    p["notes"] = f"{len(parsed)} saved poses, {label}, caps '{caps}'"
 
-    if total > pl.MAX_DURATION_S:
-        hint = ("Delete some poses." if style == "lively" else
-                "Delete some poses or play it 'lively'.")
-        raise ValueError(f"this sequence would take {total:.0f} s; the arm plays at most "
-                         f"{pl.MAX_DURATION_S:.0f} s at a time. {hint}")
+    def too_long(total: float) -> None:
+        if total > pl.MAX_DURATION_S:
+            hint = ("Delete some poses." if style in ("lively", "flow") else
+                    "Delete some poses or play it 'lively'.")
+            raise ValueError(f"this sequence would take {total:.0f} s; the arm plays at most "
+                             f"{pl.MAX_DURATION_S:.0f} s at a time. {hint}")
+
+    too_long(total)
+    flow_notes: list[str] = []
+    if flow:
+        from .flow import make_flow
+        try:
+            p, flow_notes = make_flow(p)
+        except ValueError as e:
+            if "s (incl. transition" in str(e):  # stretched past the 60 s limit
+                too_long(pl.MAX_DURATION_S + 1)
+            raise ValueError(f"the sequence can't flow: {e}") from None
+        p["notes"] += "; " + flow_notes[0]
+        total = p["keyframes"][-1]["t"]
+        too_long(total)
 
     v = pl.validate(p)
     if not v["ok"]:  # should not happen: timed from the caps
@@ -186,8 +211,8 @@ def sequence_playable(poses: list[dict], name: str = "my-sequence", style: str =
     if not r["ok"]:
         raise ValueError("the sequence doesn't pass the safety check: " + "; ".join(r["summary"][1:4]))
 
-    notes = [f"{len(parsed)} pose{'s' if len(parsed) != 1 else ''}, {total:.1f} s in total ({style})"]
-    notes += via_notes
+    notes = [f"{len(parsed)} pose{'s' if len(parsed) != 1 else ''}, {total:.1f} s in total ({label})"]
+    notes += via_notes + flow_notes[1:]
     slow = sorted((s for s in segs if s[2] * cfg["factor"] >= MIN_SEG_S), key=lambda s: -s[2])[:3]
     for label, _T, need, why in sorted(slow, key=lambda s: segs.index(s)):
         notes.append(f"{label} takes at least {need:.1f} s: {why}")

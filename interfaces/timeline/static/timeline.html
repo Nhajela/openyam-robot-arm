@@ -211,7 +211,7 @@ function table() {
     for (let j = 0; j < 6; j++) tr.appendChild(cell(k.q[j], v => { k.q[j] = v; }));
     tr.appendChild(cell(kval(k, 'grip'), v => { k.grip = v; }));
     const te = document.createElement('td');
-    if (i > 0) { const s = document.createElement('select'); ['cubic', 'linear', 'hold'].forEach(o => s.add(new Option(o, o, false, (k.ease || 'cubic') === o)));
+    if (i > 0) { const s = document.createElement('select'); ['cubic', 'flow', 'linear', 'hold'].forEach(o => s.add(new Option(o, o, false, (k.ease || 'cubic') === o)));
       s.onchange = () => { k.ease = s.value; changed(); }; te.appendChild(s); }
     tr.appendChild(te);
     const tn = document.createElement('td'); tn.textContent = seg ? seg.need_s.toFixed(2) : ''; tr.appendChild(tn);

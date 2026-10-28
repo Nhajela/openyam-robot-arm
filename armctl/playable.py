@@ -25,6 +25,15 @@ Semantics chosen here (the spec leaves them open):
   step, so the accel check flags it unless the neighbours match its velocity.
   ``hold``: stay at keyframe k-1 for the whole segment; keyframe k's q must equal
   k-1's (otherwise it would be a jump, reported as ``hold_jump``).
+  ``flow``: a cubic Hermite that does not stop at a keyframe whose segments on both
+  sides are ``flow``: there each joint (and the gripper) passes with a monotone
+  (Fritsch-Butland, scipy-PCHIP) tangent from its neighbours, or zero velocity where that
+  joint changes direction. Everywhere else (first/last keyframe, next to a cubic, linear
+  or hold segment, a loop seam) the velocity is zero, so a lone ``flow`` segment is
+  exactly ``cubic``. Monotone tangents never overshoot: each joint stays between its two
+  keyframe values, so in-box keyframes give an in-box path. The path is not the straight
+  joint-space line, so check table clearance on samples (``coach.clearance``). An optional
+  ``"stop": true`` on a keyframe makes the arm come to rest there anyway. Format 1.1.
 * ``grip`` is 0 (closed) .. 1 (open), optional; omitted carries the previous value
   (first default 0). Gripper is interpolated with the same ease.
 * ``loop`` (1..10) repeats the keyframes. For loop > 1 the last keyframe must equal
@@ -59,7 +68,7 @@ RATE_HZ = 100.0
 MAX_DURATION_S = 60.0
 START_TOL = 0.05  # rad: first keyframe this close to the start pose needs no transition
 LOOP_TOL = 0.01
-EASES = ("linear", "cubic", "hold")
+EASES = ("linear", "cubic", "hold", "flow")
 
 # --- fallback envelope (used only if armctl.envelope is missing or lacks a name) ----
 # URDF limits (rad), yam_description/i2rt/yam.urdf; soft box = URDF shrunk by 0.1 rad.
@@ -186,6 +195,7 @@ class _Key:
     q: np.ndarray
     grip: float
     ease: str
+    stop: bool = False   # "stop": true -> zero velocity here even between two flow segments
 
 
 def _parse(playable: dict[str, Any]) -> tuple[list[_Key], list[dict[str, Any]]]:
@@ -244,7 +254,7 @@ def _parse(playable: dict[str, Any]) -> tuple[list[_Key], list[dict[str, Any]]]:
         if ease not in EASES:
             bad(f"keyframe {i} (t={t}): ease must be one of {EASES}, got {ease!r}", t)
             ease = "cubic"
-        keys.append(_Key(float(t), np.array(q, dtype=float), grip, ease))
+        keys.append(_Key(float(t), np.array(q, dtype=float), grip, ease, k.get("stop") is True))
     if keys and abs(keys[0].t) > 1e-9:
         bad(f"first keyframe must be at t=0, got t={keys[0].t}", keys[0].t)
     for a, b in zip(keys, keys[1:]):
@@ -270,6 +280,39 @@ class Segment:
     speed: float
     loop: int
     seg_index: int | None  # index of the destination keyframe (k) in the authored list
+    m0: np.ndarray | None = None   # "flow": joint velocity at t0 (rad per playback s)
+    m1: np.ndarray | None = None   # "flow": joint velocity at t1
+    gm0: float = 0.0               # "flow": grip velocity at t0 and t1 (per playback s)
+    gm1: float = 0.0
+
+
+def flow_tangents(ts: Any, X: Any, eases: list[str], stops: Any = None) -> np.ndarray:
+    """Velocities at each keyframe for ``flow`` playback: ``ts`` (n,) times, ``X`` (n, c)
+    values, ``eases[i]`` the ease of the segment *into* keyframe i (``eases[0]`` unused),
+    ``stops[i]`` True to come to rest at keyframe i anyway.
+
+    Non-zero only at an interior keyframe, not a stop, whose incoming and outgoing
+    segments are both ``flow``. There, per channel, the Fritsch-Butland weighted harmonic mean of the two
+    secant slopes (scipy's PCHIP rule), or 0 if the channel reverses or rests. It is at
+    most 3x either secant, which keeps every segment monotone (no overshoot).
+    """
+    ts = np.asarray(ts, float)
+    X = np.asarray(X, float).reshape(len(ts), -1)
+    M = np.zeros_like(X)
+    for i in range(1, len(ts) - 1):
+        if eases[i] != "flow" or eases[i + 1] != "flow" or (stops is not None and stops[i]):
+            continue
+        h0, h1 = ts[i] - ts[i - 1], ts[i + 1] - ts[i]
+        if h0 <= 0 or h1 <= 0:
+            continue
+        d0 = (X[i] - X[i - 1]) / h0
+        d1 = (X[i + 1] - X[i]) / h1
+        w1, w2 = 2 * h1 + h0, h1 + 2 * h0
+        same = (d0 * d1) > 0
+        with np.errstate(divide="ignore", invalid="ignore"):
+            m = (w1 + w2) / (w1 / d0 + w2 / d1)
+        M[i] = np.where(same, m, 0.0)
+    return M
 
 
 def _transition_duration(q0: np.ndarray, q1: np.ndarray) -> float:
@@ -309,12 +352,16 @@ def timeline(playable: dict[str, Any]) -> tuple[list[Segment], dict[str, Any] | 
                              "msg": f"loop={loops} but the last keyframe differs from the first "
                                     f"by {gap:.3f} rad; make them equal"})
                 return segs, transition, viol
+        # flow tangents per authored second -> per playback second
+        Mf = flow_tangents([k.t for k in keys], [list(k.q) + [k.grip] for k in keys],
+                           [k.ease for k in keys], [k.stop for k in keys]) * speed
         for i in range(1, len(keys)):
             a, b = keys[i - 1], keys[i]
             dt = (b.t - a.t) / speed
             segs.append(Segment(t, t + dt, a.q, b.q, a.grip, b.grip, b.ease,
                                 f"loop {L + 1}: keyframe {i - 1}->{i} (t {a.t:g}->{b.t:g})",
-                                a.t, speed, L, i))
+                                a.t, speed, L, i, Mf[i - 1, :6], Mf[i, :6],
+                                float(Mf[i - 1, 6]), float(Mf[i, 6])))
             t += dt
     if len(keys) == 1:  # single keyframe: a 0-length hold
         segs.append(Segment(t, t, keys[0].q, keys[0].q, keys[0].grip, keys[0].grip, "hold",
@@ -345,6 +392,12 @@ def _eval(segs: list[Segment], ts: np.ndarray) -> tuple[np.ndarray, np.ndarray, 
         w = _shape(sg.ease, s)
         Q[m] = sg.q0 + np.outer(w, sg.q1 - sg.q0)
         G[m] = sg.g0 + w * (sg.g1 - sg.g0)
+        if sg.ease == "flow" and span > 0 and sg.m0 is not None:
+            # cubic Hermite = smoothstep (h01) + the tangent terms h10, h11
+            h10 = s * (1 - s) ** 2 * span
+            h11 = s * s * (s - 1) * span
+            Q[m] += np.outer(h10, sg.m0) + np.outer(h11, sg.m1)
+            G[m] += h10 * sg.gm0 + h11 * sg.gm1
     return Q, G, idx
 
 
