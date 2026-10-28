@@ -177,9 +177,11 @@
         <h2 id="phTitle"></h2>
         <button class="btn tiny ghost" id="howBtn">How?</button>
       </div>
+      <div class="lowbar" id="lowBar" hidden><span>⬇️ Too low to steer from here.</span><button class="btn" id="lowReady">🙌 Ready</button></div>
       <div class="busybar" id="busyBar" hidden><span id="busyTxt"></span><span class="small">tap STOP to take over</span></div>
 
       <div class="panel" id="panel-tilt" hidden>
+        <button class="btn tiny ghost center-btn" id="resetPoseBtn">🎯 Re-set start pose</button>
         <div class="pad" id="tiltPad">
           <div class="cross v"></div><div class="cross h"></div>
           <div class="dot" id="tiltDot"></div>
@@ -192,8 +194,6 @@
             <div class="pg-sub" id="padGateSub">The arm waits until you're there</div>
           </div>
         </div>
-        <p class="small muted center">Hold the green button at the bottom and tilt. Let go and the arm stops.</p>
-        <button class="btn tiny ghost center-btn" id="resetPoseBtn">🎯 Re-set start pose</button>
       </div>
 
       <div class="panel" id="panel-sticks" hidden>
@@ -292,9 +292,9 @@
     </div>
     <!-- Tilt: the hold button lives here, by the thumb, right above STOP -->
     <div class="dock-row dock-tilt" id="dockTilt">
-      <button class="btn hold dz" id="zDown">▼<small>Down</small></button>
-      <button class="btn hold dock-hold" id="tiltHold">✋ HOLD &amp; TILT</button>
-      <button class="btn hold dz" id="zUp">▲<small>Up</small></button>
+      <div class="btn hold dz" id="zDown" role="button" aria-label="down">▼<small>Down</small></div>
+      <div class="btn hold dock-hold" id="tiltHold" role="button">✋ HOLD &amp; TILT</div>
+      <div class="btn hold dz" id="zUp" role="button" aria-label="up">▲<small>Up</small></div>
     </div>
     <button class="stop" id="stopBtn">■ STOP</button>
   </footer>

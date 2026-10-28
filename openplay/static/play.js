@@ -174,6 +174,11 @@ function handle(m) {
       toast(m.text, m.kind || 'info'); break;
     case 'refused': {
       const r = m.reason || 'Not now';
+      // Cartesian steering is refused once the shoulder sinks too low: say so and offer Ready
+      if (/needs the arm unfolded/.test(r)) {
+        if ($('lowBar').hidden) { releaseAll(); buzz([30, 40, 30]); }
+        $('lowBar').hidden = false; break;
+      }
       toast(/^busy/i.test(r) && S.screen === 'turn' ? `${r}. Tap STOP first.` : r, 'error', '✋'); break;
     }
     case 'say':
@@ -340,7 +345,10 @@ function showView(v) {
   for (const id of ['modes', 'getset', 'play']) $('view-' + id).hidden = id !== v;
   $('modesBtn').hidden = v === 'modes';
   document.body.dataset.view = v;
-  window.scrollTo(0, 0);
+  // driving: land at the bottom, where the live control sits by the thumb
+  const m = modeById(S.mode);
+  if (v === 'play' && m && m.drive) requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight));
+  else window.scrollTo(0, 0);
 }
 // Drive modes need the arm at Ready (Cartesian tilt can't move from folded home): ask for it.
 function sendReady(why) {
@@ -566,6 +574,7 @@ function drawDot() {
 }
 $('sensorsBtn').addEventListener('click', enableSensors);
 $('noSensorBtn').addEventListener('click', () => openMode('sticks'));
+$('lowReady').addEventListener('click', () => { releaseAll(); if (send({ op: 'ready' })) $('lowBar').hidden = true; });
 $('resetPoseBtn').addEventListener('click', () => { S.neutral = null; openMode('tilt', { ready: false }); });
 // Hold to drive: the dock button (by the thumb, above STOP) or the pad itself.
 const tiltDown = (src) => () => {

@@ -444,3 +444,22 @@ input[type=range] { flex: 1; min-width: 0; height: 44px; accent-color: var(--acc
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 .gs-tilt p:empty { display: none; }
+
+/* play view: settings on top, the live control at the bottom by the thumb (above the dock) */
+#view-play { min-height: calc(100dvh - var(--dock-h) - 120px); gap: 10px; }
+#view-play .play-head { order: 0; }
+#view-play #lowBar, #view-play #busyBar { order: 1; }
+#view-play #driveExtras { order: 2; }
+#view-play .panel:not(#driveExtras) { order: 3; margin-top: auto; }
+.btn.hold { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none;
+  display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
+.pad, .stick, .jog { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.lowbar { display: flex; align-items: center; gap: 10px; justify-content: space-between; padding: 10px 12px;
+  border-radius: 14px; background: #2a1d0b; border: 1px solid #7a5a1c; color: #ffd9a8; font-weight: 650; }
+.lowbar[hidden] { display: none; }
+.lowbar .btn { min-height: 44px; }
+#view-play .drive-extras { gap: 8px; }
+#view-play .drive-extras .card.grip { padding: 8px 10px; }
+#view-play #readyBtn { min-height: 46px; }
+body[data-mode="tilt"] .pad { height: clamp(170px, calc(100dvh - var(--dock-h) - 500px), 320px); min-height: 0; }
+body[data-mode="tilt"] #resetPoseBtn { margin: 0 auto; }
