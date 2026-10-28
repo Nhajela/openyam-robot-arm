@@ -62,8 +62,8 @@ SAY_PER_TURN = 6
 SAY_TIMEOUT_S = 60.0
 PENDING_TIMEOUT_S = 120.0
 STREAM_REFUSAL_EVERY_S = 1.0
-MOTION_OPS = {"stream", "move", "say", "grip", "ready", "stop", "pose.save", "pose.goto", "seq.play", "grab"}
-DISCRETE = {"move", "ready", "pose.goto", "seq.play", "grab"}  # (say joins the busy slot once authored)
+MOTION_OPS = {"stream", "move", "say", "grip", "ready", "home", "stop", "pose.save", "pose.goto", "seq.play", "grab"}
+DISCRETE = {"move", "ready", "home", "pose.goto", "seq.play", "grab"}  # (say joins the busy slot once authored)
 LOOPBACK = {"127.0.0.1", "::1", "localhost", "testclient"}
 
 PLACEHOLDER = """<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
@@ -667,6 +667,8 @@ class OpenPlay:
             self._begin(pid, "move", title, f"playing {title}", self._do_move(pid, name, title))
         elif op == "ready":
             self._begin(pid, "ready", "ready", "going to ready", self._do_ready(pid))
+        elif op == "home":
+            self._begin(pid, "home", "home", "going home", self._do_home(pid))
         elif op == "pose.goto":
             found = self._pose_find(pid, m.get("i"))
             if found is None:
@@ -766,6 +768,13 @@ class OpenPlay:
         self.status(pid, "Going to ready", "busy")
         await self.arm.do("ready", timeout=30.0)
         self.status(pid, "Ready", "done")
+
+    async def _do_home(self, pid: str) -> None:
+        # folded on the stops (the daemon approaches the last bit slowly). Tilt and sticks need
+        # the ready pose again afterwards: the phone says so and its get-set step sends ready.
+        self.status(pid, "Going home", "busy")
+        await self.arm.do("home", timeout=40.0)
+        self.status(pid, "Home", "done")
 
     async def _do_goto(self, pid: str, i: int, pose: dict) -> None:
         self.status(pid, f"Going to pose {i + 1}", "busy")
