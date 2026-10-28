@@ -2,14 +2,24 @@
 
 Every program (phone tilt, phone joystick, LLM playables, console, scripts) talks to one daemon. The daemon holds a single control lease, runs a deadman on streamed setpoints, and checks every motion against the safety envelope. It logs every instruction and every refusal. Spec: [`experiments/2026-10-16-linux-real-arm/ARMCTL-SPEC.md`](../experiments/2026-10-16-linux-real-arm/ARMCTL-SPEC.md), section "Programs".
 
-**Status:** runs against `MockBackend` only (a kinematic sim, no hardware). `DimosBackend` is a stub; its docstring lists what it needs.
+**Status:** `MockBackend` (a kinematic sim, no hardware; Cartesian twists use the real Jacobian since 2026-10-28). `DimosBackend` (2026-10-28) drives `armctl/dimos_coordinator.py` and passes `armctl/tests/e2e_dimos_sim.py` against DimOS `--simulation`. **It has not run on the real arm yet**; the plan is in `HANDOVER.md`.
+
+```bash
+# DimOS sim + armctl on the DimOS backend (the sim bus, CLAUDE.md)
+ZENOH_SCOUT_ADDR=224.0.0.124:7450 .venv/bin/python -m armctl.dimos_coordinator --simulation
+ZENOH_SCOUT_ADDR=224.0.0.124:7450 .venv/bin/python -m armctl.daemon --backend dimos
+```
+
+- **Arrival check per backend** (`REACH_TOL_BY_BACKEND`): 0.02 rad on the mock. On DimOS it's wider (j2/j3 0.05, wrist 0.09), because the real arm sags without gravity feedforward.
+- **E-STOP reset:** resetting E-STOP calls `backend.clear_estop()`.
+- **`relax`:** a backend that can't drop torque refuses `relax` with a reason.
 
 ```
 programs  tilt.html · joystick.html (phone, via phonecam's HTTPS relay) · LLM playables · scripts
              │ WebSocket JSON  ws://127.0.0.1:8091/armctl
 armctl.daemon   lease · operator approval · deadman · envelope gate · log
              │ Backend interface
-MockBackend (100 Hz sim)   |   DimosBackend (stub)
+MockBackend (100 Hz sim)   |   DimosBackend (DimOS ControlCoordinator, sim-tested)
 ```
 
 ## Run

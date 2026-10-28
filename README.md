@@ -130,7 +130,7 @@ Played on the real arm so far: joint jog / ready / home, nod, wave, happy-dance,
 - **Grasp:** top-down pick and place planned with the new numpy IK (`armctl/kin.py`, no pinocchio needed).
 - **Chess:** reach map for the board; legal moves, captures, castling and en passant become pick and place sequences.
 
-Log: [experiments/2026-10-28-interfaces/LOG.md](experiments/2026-10-28-interfaces/LOG.md). Before the real arm: `DimosBackend`, table calibration and gripper measurements (see the log's "Next").
+Log: [experiments/2026-10-28-interfaces/LOG.md](experiments/2026-10-28-interfaces/LOG.md). **Open play** ([`openplay/`](openplay/README.md)): people scan a QR code on the laptop screen, queue for a turn and drive the arm from their phones (tilt, joysticks, moves, "Say it" with Claude, poses, grab). The laptop screen is both the show and the operator dashboard. `DimosBackend` connects armctl to DimOS and is tested in DimOS `--simulation`. **Start a hardware session with [HANDOVER.md](HANDOVER.md).**
 
 ## Real arm on macOS: notes (first tested 2026-10-16)
 
