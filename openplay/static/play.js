@@ -2,9 +2,16 @@
 // Plain ES module, no dependencies. Control ideas come from dashboard/static/tilt.html and
 // joystick.html: iOS motion permission asked inside a tap, tilt -> velocity with a deadzone,
 // hold-to-drive deadman, fixed send rate, everything released on lift/hide/disconnect.
+//
+// A turn is three views: pick a mode (cards built from MODES) -> get set (a short how-to; for
+// Tilt the start pose that becomes "still") -> play (the mode's panel). STOP, Modes and Home
+// stay in the dock on every view.
 
 const RATE_MS = 66;                 // ~15 Hz while a control is held
-const TILT_DEAD = 3, TILT_FULL = 25; // degrees (same as tilt.html)
+const TILT_DEAD = 3, TILT_FULL = 25; // degrees from the saved start pose (same as tilt.html)
+const START_BETA = 30;              // start pose: screen up, top tipped ~30 deg toward you
+const START_TOL = 8, START_HOLD_MS = 1000; // get set: within 8 deg, steady for 1 s
+const RETURN_TOL = 10;              // play: a press more than 10 deg off the start pose waits
 const STICK_DEAD = 0.08;
 const JOINTS = ['Base', 'Shoulder', 'Elbow', 'Wrist bend', 'Wrist turn', 'Wrist roll'];
 const CHIPS = ['wave hello', 'do a happy dance', 'bow to the audience', 'look around curiously', 'nod yes three times'];
@@ -16,6 +23,42 @@ const END_REASONS = {
   operator: 'The staff ended your turn.',
 };
 
+// ------------------------------------------------------------------ the modes
+// One entry per mode card. To add a mode (e.g. Chess): add an entry here and a
+// <div class="panel" id="panel-<id>" hidden> in play.html's play view. Fields:
+//   id, emoji, title, pitch (one line on the card), tag (Easy | Creative | Skill),
+//   hue (card colour: green blue violet pink orange yellow teal red), on(features, welcome)
+//   -> shown?, drive (live control: shares speed/grip/Ready and needs the arm at Ready, so
+//   get set sends `ready`), how (the get-set steps), go (the start button's label).
+const MODES = [
+  { id: 'tilt', emoji: '📱', title: 'Tilt', pitch: 'Steer it like a steering wheel', tag: 'Easy', hue: 'green',
+    drive: true, on: (f) => f.tilt,
+    how: [] /* Tilt has its own start-pose step (gsTilt in play.html) */ },
+  { id: 'sticks', emoji: '🕹️', title: 'Sticks', pitch: 'Two thumbs, like a game controller', tag: 'Easy', hue: 'blue',
+    drive: true, on: (f) => f.joystick,
+    how: ['<b>Left stick</b> slides the gripper around: away, toward you, left, right.',
+      '<b>Right stick</b> lifts it up and down and twists it.', 'Let go and the arm stops.'] },
+  { id: 'joints', emoji: '🎚️', title: 'Joints', pitch: 'Bend each joint, one at a time', tag: 'Skill', hue: 'violet',
+    drive: true, on: (f) => f.joystick,
+    how: ['Each bar is one joint, from the base to the wrist.', 'Drag a bar left or right to turn it. Further = faster.',
+      'Let go and it stops.'] },
+  { id: 'moves', emoji: '💃', title: 'Moves', pitch: 'Tap a dance and watch it go', tag: 'Easy', hue: 'pink',
+    on: (f, w) => (w.moves || []).length > 0,
+    how: ['Tap a move. The arm plays it from start to finish.', 'Tap STOP any time to cut it short.'], go: "Show me the moves" },
+  { id: 'say', emoji: '💬', title: 'Say it', pitch: 'Tell it what to do in your own words', tag: 'Creative', hue: 'orange',
+    on: (f) => f.say,
+    how: ['Type what the arm should do: "pretend to be a sleepy cat".', 'Claude turns it into a move and the safety layer checks it.',
+      'Then watch it play.'] },
+  { id: 'poses', emoji: '📍', title: 'Poses', pitch: 'Build your own dance, pose by pose', tag: 'Creative', hue: 'yellow',
+    on: (f) => f.poses,
+    how: ['Drive the arm somewhere (Tilt, Sticks or Joints).', 'Come back here and tap <b>Save this pose</b>. Repeat.',
+      'Play them all as one smooth move.'] },
+  { id: 'grab', emoji: '🦾', title: 'Grab', pitch: 'Pick up a block and move it', tag: 'Skill', hue: 'teal',
+    on: (f, w) => f.grab && (w.spots || []).length > 1,
+    how: ['Choose where the block is now.', 'Choose where it should go.', 'Tap <b>Grab it</b> and watch.'] },
+];
+const modeById = (id) => MODES.find((m) => m.id === id);
+
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const store = {
@@ -24,6 +67,7 @@ const store = {
 };
 const clamp = (v, a = -1, b = 1) => Math.max(a, Math.min(b, v));
 const r3 = (v) => Math.round(v * 1000) / 1000;
+const buzz = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch (_) {} };
 
 // ------------------------------------------------------------------ identity
 function newPid() {
@@ -38,12 +82,14 @@ let myName = store.get('openplay-name', '');
 const S = {
   welcome: null, lobby: null, arm: null, poses: [],
   screen: null, turnRemaining: 0, turnAt: 0, lastTurnMsg: 0, warning: false,
-  tab: sessionStorage.getItem('openplay-tab') || 'drive',
-  mode: sessionStorage.getItem('openplay-mode') || 'tilt',
+  view: 'modes',                  // modes | getset | play (inside a turn)
+  mode: null,                     // id from MODES
+  neutral: null,                  // Tilt: the saved start pose {beta, gamma}
   speed: parseFloat(store.get('openplay-speed', '1')) || 1,
   wantJoin: false,
 };
 const features = () => Object.assign({ say: true, grab: true, tilt: true, joystick: true, poses: true }, (S.welcome && S.welcome.features) || {});
+const modeOn = (m) => !!m && !!m.on(features(), S.welcome || {});
 
 // ------------------------------------------------------------------ connection
 let ws = null, backoff = 500, lastRx = 0, reconnectTimer = null, helloName = null;
@@ -116,8 +162,9 @@ function handle(m) {
     case 'arm':
       S.arm = m; renderArm(); break;
     case 'status':
+      if (m.text === 'Ready' && S.view === 'getset') $('gsReady').textContent = '✅ The arm is at its ready pose.';
       // Say and Poses show their own progress card, so a "busy" echo there would just cover it.
-      if (m.kind === 'busy' && S.screen === 'turn' && (S.tab === 'say' || S.tab === 'poses')) break;
+      if (m.kind === 'busy' && S.screen === 'turn' && S.view === 'play' && (S.mode === 'say' || S.mode === 'poses')) break;
       toast(m.text, m.kind || 'info'); break;
     case 'refused': {
       const r = m.reason || 'Not now';
@@ -140,15 +187,16 @@ function show(name) {
   for (const id of ['lobby', 'turn', 'thanks']) $(id).hidden = id !== name;
   document.body.classList.toggle('in-turn', name === 'turn');
   window.scrollTo(0, 0); clearToast();
-  if (name !== 'turn') releaseAll();
+  if (name !== 'turn') { releaseAll(); stopAim(); }
   wakeLock(name === 'turn');
 }
 function startTurnScreen(remaining) {
   if (remaining != null) { S.turnRemaining = remaining; S.turnAt = performance.now(); }
   S.lastTurnMsg = Date.now();
+  S.neutral = null; // a new turn: find the start pose again
   $('tbName').textContent = myName ? `, ${myName}` : '';
-  show('turn'); selectTab(S.tab); renderClock(); renderArm();
-  try { navigator.vibrate && navigator.vibrate([120, 60, 120]); } catch (_) {}
+  show('turn'); showView('modes'); renderClock(); renderArm();
+  buzz([120, 60, 120]);
 }
 function endTurnScreen(reason) {
   releaseAll();
@@ -233,19 +281,27 @@ function renderClock() {
   document.querySelector('.topbar').classList.toggle('warning', warn);
 }
 setInterval(renderClock, 250);
+// Folded on the stops (all joints ~0): live control has to go to Ready first.
+const armFolded = () => !!(S.arm && S.arm.q && !S.arm.busy && S.arm.q.every((x) => Math.abs(x) < 0.08));
 function renderArm() {
   const a = S.arm, pill = $('armPill'), txt = pill.querySelector('span');
   let cls = '', t = ws && ws.readyState === 1 ? 'waiting for the arm' : 'offline: reconnecting';
   if (a) {
-    if (a.busy) { cls = 'busy'; t = `busy: ${a.busy}`; }
+    if (a.busy) { cls = 'busy'; t = a.busy === 'home' ? 'going home' : a.busy === 'ready' ? 'going to ready' : `busy: ${a.busy}`; }
+    else if (ctl.tilt && !ctl.tiltArmed && ctl.z === 0) { cls = 'busy'; t = 'back to your start pose'; }
     else if (driving()) { cls = 'moving'; t = "you're driving"; }
     else if (a.moving) { cls = 'moving'; t = 'moving'; }
+    else if (armFolded()) { cls = 'still'; t = 'folded at home'; }
     else { cls = 'still'; t = 'still, ready for you'; }
   }
   pill.className = 'armpill ' + cls; txt.textContent = t;
   const busy = a && a.busy;
   $('busyBar').hidden = !busy;
-  if (busy) $('busyTxt').textContent = `The arm is busy: ${busy}`;
+  if (busy) $('busyTxt').textContent = busy === 'home' ? 'Folding the arm up at home…' : busy === 'ready' ? 'Going to the ready pose…' : `The arm is busy: ${busy}`;
+  const homing = busy === 'home', folded = armFolded();
+  $('homeBar').hidden = !(S.screen === 'turn' && (homing || folded));
+  $('homeBarTitle').textContent = homing ? 'Going home…' : 'The arm is folded at home';
+  $('homeReadyBtn').hidden = homing;
   for (const c of document.querySelectorAll('.move')) c.classList.toggle('playing', !!busy && (c.dataset.name === busy || c.dataset.title === busy));
   $('moves').classList.toggle('dim', !!busy);
   for (const j of jogEls) j.q.textContent = a && a.q ? `${a.q[j.i].toFixed(2)} rad` : '';
@@ -253,37 +309,74 @@ function renderArm() {
 }
 $('endBtn').addEventListener('click', () => { if (confirm('End your turn now? The next person will get the arm.')) send({ op: 'leave' }); });
 
-// ------------------------------------------------------------------ tabs + features
+// ------------------------------------------------------------------ views: modes -> get set -> play
 function applyFeatures() {
-  const f = features(), w = S.welcome || {};
-  const has = {
-    drive: f.tilt || f.joystick,
-    moves: (w.moves || []).length > 0,
-    say: f.say, poses: f.poses,
-    grab: f.grab && (w.spots || []).length > 1,
-  };
-  for (const b of $('tabs').children) b.hidden = !has[b.dataset.tab];
-  const modes = { tilt: f.tilt, sticks: f.joystick, joints: f.joystick };
-  for (const b of $('driveModes').children) b.hidden = !modes[b.dataset.mode];
-  if (!modes[S.mode]) S.mode = Object.keys(modes).find((k) => modes[k]) || 'tilt';
-  if (!has[S.tab]) S.tab = Object.keys(has).find((k) => has[k]) || 'drive';
-  selectTab(S.tab); selectMode(S.mode);
+  renderModeGrid();
+  if (S.screen === 'turn' && S.view !== 'modes' && !modeOn(modeById(S.mode))) showView('modes');
 }
-function selectTab(name) {
-  S.tab = name; sessionStorage.setItem('openplay-tab', name);
-  for (const t of document.querySelectorAll('.tab')) t.hidden = t.dataset.tab !== name;
-  for (const b of $('tabs').children) b.setAttribute('aria-selected', String(b.dataset.tab === name));
-  if (name !== 'drive') releaseAll();
+function renderModeGrid() {
+  const grid = $('modeGrid'); grid.replaceChildren();
+  MODES.filter(modeOn).forEach((m, n) => {
+    const b = el('button', 'mcard'); b.dataset.mode = m.id; b.dataset.hue = m.hue || 'blue';
+    b.style.setProperty('--n', n);
+    b.append(el('span', 'mc-emoji', m.emoji), el('span', 'mc-title', m.title), el('span', 'mc-pitch', m.pitch));
+    if (m.tag) b.append(el('span', 'mc-tag ' + m.tag.toLowerCase(), m.tag));
+    b.addEventListener('click', () => { buzz(15); openMode(m.id); });
+    grid.append(b);
+  });
+}
+function showView(v) {
+  S.view = v;
+  releaseAll();
+  if (v !== 'getset') stopAim();
+  for (const id of ['modes', 'getset', 'play']) $('view-' + id).hidden = id !== v;
+  $('modesBtn').hidden = v === 'modes';
+  document.body.dataset.view = v;
   window.scrollTo(0, 0);
 }
-function selectMode(name) {
-  S.mode = name; sessionStorage.setItem('openplay-mode', name);
-  releaseAll();
-  for (const m of ['tilt', 'sticks', 'joints']) $('mode-' + m).hidden = m !== name;
-  for (const b of $('driveModes').children) b.setAttribute('aria-selected', String(b.dataset.mode === name));
+// Drive modes need the arm at Ready (Cartesian tilt can't move from folded home): ask for it.
+function sendReady(why) {
+  if (S.arm && S.arm.busy) return false;
+  if (!send({ op: 'ready' })) return false;
+  const r = $('gsReady'); r.hidden = false; r.textContent = why || '🙌 Moving the arm to its ready pose…';
+  return true;
 }
-for (const b of $('tabs').children) b.addEventListener('click', () => selectTab(b.dataset.tab));
-for (const b of $('driveModes').children) b.addEventListener('click', () => selectMode(b.dataset.mode));
+function openMode(id, opts = {}) {
+  const m = modeById(id); if (!m) return;
+  S.mode = id;
+  const hero = $('gsHero'); hero.dataset.hue = m.hue || 'blue';
+  $('gsEmoji').textContent = m.emoji; $('gsTitle').textContent = m.title; $('gsPitch').textContent = m.pitch;
+  const steps = $('gsSteps'); steps.replaceChildren();
+  for (const h of m.how || []) { const li = el('li'), t = el('span'); t.innerHTML = h; li.append(t); steps.append(li); }
+  steps.hidden = !(m.how || []).length;
+  const tilt = id === 'tilt';
+  $('gsTilt').hidden = !tilt;
+  $('gsGo').hidden = tilt && !S.neutral; // Tilt starts by itself once the start pose is saved
+  $('gsGo').textContent = tilt ? 'Keep my start pose' : m.go || "Let's go!";
+  $('gsReady').hidden = true;
+  showView('getset');
+  if ((m.drive && opts.ready !== false) || armFolded()) sendReady();
+  if (tilt) startAim();
+}
+function startPlay() {
+  const m = modeById(S.mode); if (!m) return showView('modes');
+  if (S.mode === 'tilt' && !S.neutral) return openMode('tilt', { ready: false });
+  $('phEmoji').textContent = m.emoji; $('phTitle').textContent = m.title;
+  for (const p of document.querySelectorAll('#view-play .panel')) p.hidden = p.id !== 'panel-' + m.id;
+  $('driveExtras').hidden = !m.drive;
+  showView('play');
+  buzz(25);
+  if (S.mode === 'tilt') drawDot();
+}
+$('gsGo').addEventListener('click', startPlay);
+$('modesBtn').addEventListener('click', () => { buzz(10); showView('modes'); });
+$('howBtn').addEventListener('click', () => openMode(S.mode, { ready: false }));
+$('homeBtn').addEventListener('click', () => {
+  releaseAll();
+  if (send({ op: 'home' })) buzz([30, 40, 30]);
+});
+$('homeReadyBtn').addEventListener('click', () => { releaseAll(); send({ op: 'ready' }); });
+
 function selectSpeed(v) {
   S.speed = v; store.set('openplay-speed', String(v));
   for (const b of $('speedSeg').children) b.setAttribute('aria-selected', String(parseFloat(b.dataset.speed) === v));
@@ -293,25 +386,40 @@ selectSpeed(S.speed);
 
 // ------------------------------------------------------------------ live control (stream)
 const ctl = {
-  tilt: false, z: 0,
+  tilt: false, tiltArmed: false, z: 0,
   sticks: { L: { x: 0, y: 0, on: false }, R: { x: 0, y: 0, on: false } },
   jog: [0, 0, 0, 0, 0, 0], jogOn: new Set(),
 };
-let streamTimer = null, ori = { beta: null, gamma: null }, neutral = null, sensorsOn = false;
+let streamTimer = null, ori = { beta: null, gamma: null }, sensorsOn = false;
 const driving = () => ctl.tilt || ctl.z !== 0 || ctl.sticks.L.on || ctl.sticks.R.on || ctl.jogOn.size > 0;
 // Refuse to start a live control while the arm is running an action or it's not our turn.
 function canDrive() {
-  if (S.screen !== 'turn') return false;
+  if (S.screen !== 'turn' || S.view !== 'play') return false;
   if (!ws || ws.readyState !== 1) { toast('Not connected right now. Reconnecting…', 'error', '📡'); return false; }
   if (S.arm && S.arm.busy) { toast(`The arm is busy: ${S.arm.busy}. Tap STOP first.`, 'busy', '⏳'); return false; }
+  if (armFolded()) { toast('The arm is folded at home. Tap Ready first.', 'info', '🏠'); return false; }
   return true;
 }
 function axis(d) { const a = Math.abs(d); return a < TILT_DEAD ? 0 : Math.sign(d) * Math.min(1, (a - TILT_DEAD) / (TILT_FULL - TILT_DEAD)); }
 const dz = (v) => (Math.abs(v) < STICK_DEAD ? 0 : (v - Math.sign(v) * STICK_DEAD) / (1 - STICK_DEAD));
+// how far (degrees) the phone is from the saved start pose
+function offStart() {
+  if (!S.neutral || ori.beta === null) return Infinity;
+  return Math.hypot(ori.beta - S.neutral.beta, ori.gamma - S.neutral.gamma);
+}
 function tiltCmd() {
-  if (!ctl.tilt || !neutral || ori.beta === null) return { x: 0, y: 0 };
+  if (!ctl.tilt || !ctl.tiltArmed || !S.neutral || ori.beta === null) return { x: 0, y: 0 };
   // same mapping as tilt.html: tilt the top away = +x (away), tilt left = +y
-  return { x: axis(-(ori.beta - neutral.beta)), y: axis(-(ori.gamma - neutral.gamma)) };
+  return { x: axis(-(ori.beta - S.neutral.beta)), y: axis(-(ori.gamma - S.neutral.gamma)) };
+}
+// A press that starts away from the start pose waits (no jump) until the phone is back.
+function checkTiltGate() {
+  if (!ctl.tilt || ctl.tiltArmed) { $('padGate').hidden = true; return; }
+  const off = offStart();
+  if (off <= RETURN_TOL) { ctl.tiltArmed = true; $('padGate').hidden = true; buzz(20); renderArm(); return; }
+  $('padGate').hidden = false;
+  $('padGateSub').textContent = ori.beta === null ? 'Waiting for the motion sensors…'
+    : `${Math.round(off)}° off. The arm waits until you're there.`;
 }
 function tick() {
   if (!driving()) { stopStream(); return; }
@@ -320,8 +428,11 @@ function tick() {
     send({ op: 'stream', qd: ctl.jog.map((v) => r3(clamp(v) * k)) });
   } else {
     let v = { x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0 };
-    if (S.mode === 'tilt') { const c = tiltCmd(); v.x = c.x; v.y = c.y; v.z = ctl.z; }
-    else if (S.mode === 'sticks') {
+    if (S.mode === 'tilt') {
+      checkTiltGate();
+      if (!ctl.tiltArmed && ctl.z === 0) { drawDot(); return; } // nothing to send until back at the start pose
+      const c = tiltCmd(); v.x = c.x; v.y = c.y; v.z = ctl.z;
+    } else if (S.mode === 'sticks') {
       const L = ctl.sticks.L, R = ctl.sticks.R; // same mapping as joystick.html
       v.x = -dz(L.y); v.y = -dz(L.x); v.z = -dz(R.y); v.yaw = -dz(R.x);
     }
@@ -342,10 +453,11 @@ function stopStream() {
 }
 function maybeStop() { if (!driving()) stopStream(); }
 function releaseAll() {
-  ctl.tilt = false; ctl.z = 0; ctl.jogOn.clear(); ctl.jog.fill(0);
+  ctl.tilt = false; ctl.tiltArmed = false; ctl.z = 0; ctl.jogOn.clear(); ctl.jog.fill(0);
   for (const s of Object.values(ctl.sticks)) { s.on = false; s.x = s.y = 0; s.reset && s.reset(); }
   for (const j of jogEls) j.reset();
   for (const id of ['tiltPad', 'zUp', 'zDown']) $(id).classList.remove('on');
+  $('padGate').hidden = true;
   stopStream(); drawDot();
 }
 function holdable(node, down, up) {
@@ -363,29 +475,80 @@ function holdable(node, down, up) {
   return () => { pidHeld = null; node.classList.remove('on'); };
 }
 
-// tilt ------------------------------------------------------------
+// tilt: sensors + the start pose -------------------------------------
 async function enableSensors() {
   const msg = $('sensorMsg');
+  msg.textContent = '';
   try {
     const E = window.DeviceOrientationEvent;
-    if (!E) throw new Error('This browser has no motion sensors. Try Sticks instead.');
+    if (!E) throw new Error('This browser has no motion sensors.');
     if (typeof E.requestPermission === 'function') { // iOS 13+: only inside a tap
       const r = await E.requestPermission();
-      if (r !== 'granted') throw new Error('Motion access was not allowed. Reload the page to ask again, or use Sticks.');
+      if (r !== 'granted') throw new Error('Motion access was not allowed. Reload the page to ask again.');
     }
     window.addEventListener('deviceorientation', onOrientation);
-    msg.textContent = 'Waiting for sensor data…';
-    setTimeout(() => { if (!sensorsOn) msg.textContent = 'No tilt data yet. This device may not have motion sensors: try Sticks.'; }, 2500);
-  } catch (e) { msg.textContent = e.message; }
+    $('sensorsBtn').hidden = true; $('aim').hidden = false;
+    $('aimMsg').textContent = 'Waiting for the motion sensors…'; $('aimSub').textContent = '';
+    setTimeout(() => {
+      if (!sensorsOn) { $('aimMsg').textContent = 'No tilt data from this phone'; $('noSensorBtn').hidden = !modeOn(modeById('sticks')); }
+    }, 2500);
+  } catch (e) {
+    msg.textContent = e.message;
+    $('noSensorBtn').hidden = !modeOn(modeById('sticks'));
+  }
 }
 function onOrientation(e) {
   if (e.beta === null || e.beta === undefined) return;
-  ori = { beta: e.beta, gamma: e.gamma };
-  if (!sensorsOn) {
-    sensorsOn = true;
-    $('sensorGate').hidden = true; $('tiltPad').hidden = false; $('zRow').hidden = false; $('tiltHint').hidden = false;
+  ori = { beta: e.beta, gamma: e.gamma || 0 };
+  if (!sensorsOn) { sensorsOn = true; $('noSensorBtn').hidden = true; }
+  if (aim.on) aimStep();
+  if (ctl.tilt) { checkTiltGate(); drawDot(); }
+}
+// Get set: the dot shows the phone relative to the start pose; within START_TOL for
+// START_HOLD_MS fills the ring, and the average over that second is saved as "still".
+const aim = { on: false, since: 0, sb: 0, sg: 0, n: 0, done: false };
+const AIM_LEN = 2 * Math.PI * 54;
+function startAim() {
+  Object.assign(aim, { on: true, since: 0, n: 0, sb: 0, sg: 0, done: false });
+  $('aimFill').style.strokeDashoffset = String(AIM_LEN);
+  $('aim').classList.remove('locked');
+  $('sensorsBtn').hidden = sensorsOn; $('aim').hidden = !sensorsOn;
+  $('noSensorBtn').hidden = true; $('sensorMsg').textContent = '';
+  if (sensorsOn) { $('aimMsg').textContent = 'Find the start pose'; aimStep(); }
+}
+function stopAim() { aim.on = false; }
+function aimStep() {
+  if (!aim.on || aim.done || ori.beta === null) return;
+  const db = ori.beta - START_BETA, dg = ori.gamma, off = Math.hypot(db, dg);
+  const R = 46, sc = R / 30; // 30 deg off = the rim
+  const k = Math.min(1, R / Math.max(1e-6, Math.hypot(dg * sc, db * sc)));
+  $('aimDot').style.transform = `translate(${dg * sc * k}px, ${-db * sc * k}px)`;
+  $('aim').classList.toggle('near', off <= START_TOL);
+  const now = performance.now();
+  if (off > START_TOL) {
+    aim.since = 0; aim.n = aim.sb = aim.sg = 0;
+    $('aimFill').style.strokeDashoffset = String(AIM_LEN);
+    $('aimMsg').textContent = Math.abs(db) >= Math.abs(dg)
+      ? (db < 0 ? 'Tip the top up toward you a bit more' : 'Tip it back down a little')
+      : (dg < 0 ? 'Level it: lower the right side a bit' : 'Level it: lower the left side a bit');
+    $('aimSub').textContent = `${Math.round(off)}° from the start pose`;
+    return;
   }
-  if (ctl.tilt) drawDot();
+  if (!aim.since) aim.since = now;
+  aim.n++; aim.sb += ori.beta; aim.sg += ori.gamma;
+  const p = clamp((now - aim.since) / START_HOLD_MS, 0, 1);
+  $('aimFill').style.strokeDashoffset = String(AIM_LEN * (1 - p));
+  $('aimMsg').textContent = 'Hold it right there…';
+  $('aimSub').textContent = 'Keep still while the ring fills';
+  if (p >= 1) {
+    aim.done = true;
+    S.neutral = { beta: aim.sb / aim.n, gamma: aim.sg / aim.n };
+    $('aim').classList.add('locked');
+    $('aimMsg').textContent = '🎯 Start pose saved!';
+    $('aimSub').textContent = 'Come back to it whenever you start driving.';
+    buzz([40, 50, 90]);
+    setTimeout(() => { if (S.view === 'getset' && S.mode === 'tilt') startPlay(); }, 900);
+  }
 }
 function drawDot() {
   const c = tiltCmd();
@@ -393,7 +556,14 @@ function drawDot() {
   if (r.width) $('tiltDot').style.transform = `translate(${-c.y * (r.width / 2 - 30)}px, ${-c.x * (r.height / 2 - 30)}px)`;
 }
 $('sensorsBtn').addEventListener('click', enableSensors);
-holdable($('tiltPad'), () => { neutral = { ...ori }; ctl.tilt = true; startStream(); }, () => { ctl.tilt = false; drawDot(); maybeStop(); });
+$('noSensorBtn').addEventListener('click', () => openMode('sticks'));
+$('resetPoseBtn').addEventListener('click', () => { S.neutral = null; openMode('tilt', { ready: false }); });
+holdable($('tiltPad'), () => {
+  // the start pose stays the saved one: a press never re-zeroes
+  ctl.tilt = true; ctl.tiltArmed = offStart() <= RETURN_TOL;
+  if (!ctl.tiltArmed) buzz([20, 30, 20]);
+  checkTiltGate(); startStream();
+}, () => { ctl.tilt = false; ctl.tiltArmed = false; $('padGate').hidden = true; drawDot(); maybeStop(); });
 holdable($('zUp'), () => { ctl.z = 1; startStream(); }, () => { ctl.z = 0; maybeStop(); });
 holdable($('zDown'), () => { ctl.z = -1; startStream(); }, () => { ctl.z = 0; maybeStop(); });
 
@@ -455,7 +625,7 @@ $('readyBtn').addEventListener('click', () => { releaseAll(); send({ op: 'ready'
 // STOP ------------------------------------------------------------
 $('stopBtn').addEventListener('click', () => {
   releaseAll(); send({ op: 'stop' });
-  try { navigator.vibrate && navigator.vibrate(40); } catch (_) {}
+  buzz(40);
 });
 
 // ------------------------------------------------------------------ moves
@@ -466,7 +636,7 @@ function renderMoves() {
     b.append(el('span', 'em', m.emoji || '🤖'), el('span', 'tt', m.title || m.name));
     if (m.blurb) b.append(el('span', 'bl', m.blurb));
     if (m.duration_s) b.append(el('span', 'du', `${Math.round(m.duration_s)} s`));
-    b.addEventListener('click', () => { releaseAll(); send({ op: 'move', name: m.name }); });
+    b.addEventListener('click', () => { releaseAll(); buzz(15); send({ op: 'move', name: m.name }); });
     box.append(b);
   }
   renderArm();
@@ -611,4 +781,5 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 show('lobby');
 applyFeatures();
 connect();
-window.openplay = { S, send, ctl, ws: () => ws }; // debugging / tests
+// debugging / tests / screenshots
+window.openplay = { S, send, handle, ctl, ws: () => ws, MODES, showView, openMode, startPlay, startTurnScreen, onOrientation };

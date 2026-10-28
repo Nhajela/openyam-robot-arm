@@ -35,6 +35,7 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 | `say` | `text` (≤ 200 chars) | English to motion via Claude; progress comes back as `say` messages |
 | `grip` | `value` 0 (closed)..1 (open) | |
 | `ready` | | go to the ready pose |
+| `home` | | fold the arm onto its stops (the daemon's `home`; the last stretch is slow). Status `Going home` then `Home`. Live tilt and sticks need the ready pose, so after `home` the phone sends `ready` before driving again (its get-set step does this) |
 | `stop` | | stop whatever is happening (accepted from the active player at any time) |
 | `pose.save` | | remember the arm's current pose (q + grip) in your pose list |
 | `pose.delete` | `i` | |
@@ -52,7 +53,7 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 | `lobby` | `queue: [{name, you}]`, `position` (1-based, null if not queued), `active: {name, remaining_s} \| null`, `you_active: bool`, `eta_s` (null if unknown). Sent on every change and once a second while a turn is running |
 | `turn` | `remaining_s`: your turn started (and once a second during it; `warning: true` in the last 30 s) |
 | `turn_end` | `reason`: `time` \| `left` \| `idle` \| `skipped` \| `operator` |
-| `arm` | `q: [6], grip, moving, busy` (name of the running action or null), `mode`. 10 Hz to the active player, 2 Hz to everyone else |
+| `arm` | `q: [6], grip, moving, busy` (name of the running action or null, e.g. `ready`, `home`, a move title), `mode`. 10 Hz to the active player, 2 Hz to everyone else |
 | `status` | `text, kind`: `info` \| `busy` \| `done` \| `error`: human-readable result of the last command ("Playing Happy dance (8 s)") |
 | `say` | `stage`: `thinking` \| `playing` \| `done` \| `error`; `text` (what they asked), `title`, `duration_s`, `note` (e.g. "no Claude key: playing the closest library move") |
 | `poses` | `list: [{i, q, grip}]` |
@@ -93,7 +94,7 @@ HTTP on the display listener: `GET /` (display page), `GET /qr.png` (QR of the j
 ## Server rules
 
 - Only the active player's motion ops reach the arm; anyone else gets `refused {reason: "not your turn"}`. `stop` from the active player always goes through.
-- One discrete action at a time (move, say, seq, grab, ready, pose.goto). A new one while busy is refused with what's running. A `stream` during an action is refused too (send `stop` first).
+- One discrete action at a time (move, say, seq, grab, ready, home, pose.goto). A new one while busy is refused with what's running. A `stream` during an action is refused too (send `stop` first).
 - A turn ends at time-out, on `leave`, after 60 s with no command, after 20 s disconnected, or by the operator. At turn end the arm stops and returns to `ready`, then the next player starts.
 - `auto_play` on: playables are sent with the daemon's Play pressed by openplay (POST `/playable/confirm` on the daemon's loopback operator API). This is an explicit operator choice, shown on the display. It defaults to on for the mock backend and off otherwise. When off, each playable is shown as `pending` until the operator approves it on the laptop. That Approve is the operator pressing Play: openplay then confirms on the daemon itself (the display is loopback-only, like the console), so there is one approval, not two.
 - `say` is limited to one at a time per player, 6 per turn, 60 s timeout. Without `ANTHROPIC_API_KEY` (or if Claude fails), it plays the closest library move by keyword and says so.

@@ -406,3 +406,52 @@ async def _scenario(stack) -> None:
     kinds = {json.loads(line)["kind"] for line in log.splitlines()}
     assert {"join", "turn", "turn_end", "stop", "operator"} <= kinds
     print(f"\nscenario took {time.monotonic() - t0:.1f} s")
+
+
+def test_home_op(stack):
+    """`home` behaves like `ready`: only the active player, one action at a time, then folded."""
+    asyncio.run(asyncio.wait_for(_home_scenario(), 90))
+
+
+async def _home_scenario() -> None:
+    disp = await Client.connect(f"ws://127.0.0.1:{LOCAL_PORT}/display/ws", "display-home")
+    hello = await disp.wait("hello", lambda m: m["lease"] is True, timeout=15)
+    url = f"wss://127.0.0.1:{PHONE_PORT}/ws?k={KEY}"
+    c = await Client.connect(url, "cara", ssl=SSL_CTX)
+    d = await Client.connect(url, "dev", ssl=SSL_CTX)
+    await c.send("hello", pid="pid-cara", name="Cara")
+    await c.wait("welcome")
+    await d.send("hello", pid="pid-dev", name="Dev")
+    await d.wait("welcome")
+    await c.send("join")
+    await c.wait("turn", timeout=25)
+    await disp.send("extend", s=300)
+    await d.send("join")
+    await d.wait("lobby", lambda m: m["position"] == 1)
+
+    # not your turn
+    md = d.mark()
+    await d.send("home")
+    assert (await d.wait("refused", since=md))["reason"] == "not your turn"
+
+    # accepted on your turn; a second one while it runs is refused as busy
+    mc, mdisp = c.mark(), disp.mark()
+    await c.send("home")
+    await c.send("home")
+    assert (await c.wait("refused", since=mc))["reason"] == "busy: going home"
+    await c.wait("status", lambda m: m["text"] == "Going home" and m["kind"] == "busy", since=mc)
+    await disp.wait("arm", lambda m: m["busy"] == "home", since=mdisp, timeout=5)
+    await c.send("ready")
+    assert (await c.wait("refused", lambda m: m["reason"].startswith("busy"), since=mc + 1))["reason"] == "busy: going home"
+    await c.wait("status", lambda m: m["text"] == "Home" and m["kind"] == "done", since=mc, timeout=40)
+    folded = (await disp.wait("arm", lambda m: m["busy"] is None, since=disp.mark(), timeout=5))["q"]
+    assert folded == pytest.approx([0.0] * 6, abs=0.03)
+
+    # and back to ready, as the phone's get-set step does before driving
+    mc = c.mark()
+    await c.send("ready")
+    await c.wait("status", lambda m: m["text"] == "Ready", since=mc, timeout=40)
+    q = (await disp.wait("arm", lambda m: m["busy"] is None, since=disp.mark(), timeout=5))["q"]
+    assert q == pytest.approx(hello["poses"]["ready"], abs=0.03)
+    for x in (c, d, disp):
+        await x.close()

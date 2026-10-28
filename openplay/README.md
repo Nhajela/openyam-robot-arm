@@ -8,6 +8,8 @@ The laptop is connected to the arm and shows a QR code on its screen. Anyone can
 - **Poses:** drive the arm to a position, save it, repeat, then play them all as one smooth sequence. The arm's speed limits are respected, and it tells you where it had to slow down.
 - **Grab:** pick an object from one spot on the table and put it on another.
 
+On the phone a turn plays like a game: **pick a mode** (big cards; modes whose server feature is off are hidden) → **get set** (a short how-to, one tap to start) → **play**. For **Tilt** the get-set step is the start pose: hold the phone in both hands, screen up, top tipped ~30° toward you, elbows at your sides; a dial fills when you hold within ~8° for 1 s and that becomes "still" for the whole turn. Pressing the pad more than ~10° away from it shows "back to your start pose" and sends nothing until you're there (no jumps). Get set sends `ready` for the driving modes. **STOP**, **◀ Modes** and **🏠 Home** (folds the arm on its stops; driving starts from Ready again) are always in the dock. Modes live in one list, `MODES` in `static/play.js`. Screenshots: [screenshots/](screenshots/) (made with `tools/phone_screens.py`, headless Chromium, no arm needed).
+
 The laptop screen is part of the show. It shows the arm live in 3D, the QR, who's playing and who's next, captions of what people asked for, and a "ghost" preview of Claude's choreography. The person at the laptop is the operator: E-STOP, approve moves, skip, extend, pause.
 
 Contract: [PROTOCOL.md](PROTOCOL.md). Handover and status: [../HANDOVER.md](../HANDOVER.md).
