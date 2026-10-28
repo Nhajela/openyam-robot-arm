@@ -219,3 +219,23 @@ The coordinator integrated and committed each piece separately.
 - `~/src/openyam/` (two clones + `dimos-venv`, about 7.5 GB), `~/.cache/openyam/` (pose model), `~/.local/share/dimos/` (DimOS data).
 - No services, ports or config. Every test process was stopped.
 
+
+## 2026-10-28 12:30-13:20 IST: chess board vision v1 (`interfaces/chess_vision/`), synthetic only
+
+Environment: pheonix-drone, Linux 6.8, repo `.venv` (Python 3.12.3, OpenCV-contrib 4.14.0, numpy 2.5.4, python-chess 1.11.2), worktree based on a312001. No camera was opened and nothing talked to the arm: everything ran against `interfaces/chess_vision/synth.py` renders.
+
+- **Decision (markers):** DICT_4X4_50 **IDs 10 (a1), 11 (h1), 12 (h8), 13 (a8)**, 40 mm, one diagonally outside each corner. IDs 0-9 stay with `vision/targets`. Printable sheet: `interfaces/chess_vision/markers/board_markers_A4.pdf`. The marker IDs fix the orientation; each marker's printed rotation is solved for.
+- **Decision (lean-aware sampling):** an oblique camera sees tall pieces lean away from it, so each square's sample disc is shifted away from the camera by lean × 0.6 square (capped at ¼ square). Lean comes from the marker PnP. Fusion weights each camera per square by 1/(1+(lean/0.6)²) × marker quality × visibility, and fuses with a weighted mean of logits.
+- **Problem / Fix:** the first features (raw colour difference) left the logistic badly scaled. A white pawn on e2 came out at P = 0.43 with a difference 20× the empty level. Log features fixed it. The colour feature "median of changed pixels" picked the shaded sides of white pieces on light squares, so it read b1/d1 as black. The 90th percentile of changed pixels, plus the fraction brighter than the empty square, fixed it.
+- **Problem / Fix:** from the side camera, the a8 rook hides the a8 marker in the start position. Calibration now reuses the empty board's homography for the start frames when the visible markers agree with it.
+- **Observation (results, `pytest -s interfaces/tests/test_chess_vision.py`):** markers placed 2-3 mm off and rotated, three cameras (overhead 72 cm, sides about 47-50° elevation), 10 random positions with lighting gain 0.65-1.25, gradients and tint:
+  - fused: 100% occupancy, 100% colour
+  - overhead alone: 100% / 100%
+  - side alone: 89.5% / 97.4%; left alone: 89.5% / 100%
+  - side + left fused: 94.1% / 99.0%
+  - grid error: 1.3 mm mean from the nominal marker geometry, **0.17 mm** after the empty-board 7×7 corner refinement
+  - e2e4, exd5, O-O and en passant change exactly the right squares
+- **Insight:** an overhead view is what makes it reliable. Side views alone lose the squares behind tall pieces, as CHESS.md predicted.
+- **Decision (arm scan seam, from the coordinator):** the arm *does* have a camera (the wide-angle USB CAMERA 4K between the gripper fingers, served as `dashboard`). CHESS.md said otherwise; that is now fixed. `PosedFrame` (a frame plus a camera pose from FK × hand-eye) is accepted by the sensor. The planned `ArmScanBoardSensor` and an optional Claude vision second opinion are described in the chess_vision README and are not built.
+- **Tests:** `pytest armctl/tests interfaces/tests openplay/tests` gives **320 passed**. `/dev/video0` and `/dev/video1` exist (checked with `ls`, not opened; the console holds the camera).
+- **Next:** print the markers and tape them to the real board. Calibrate with an overhead phone (`calibrate --source top=phone:top ...`), then run `watch` while playing a few moves.
