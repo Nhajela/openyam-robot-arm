@@ -52,7 +52,10 @@ STATE_HZ = 20.0
 TTL_DEFAULT_MS = 200
 TTL_MAX_MS = 500
 NUDGE_MAX = 0.2  # rad per nudge
-REACH_TOL = 0.02  # rad, execute-then-verify
+REACH_TOL = 0.02  # rad, execute-then-verify (mock); see REACH_TOL_BY_BACKEND
+# The real arm has no gravity feedforward: it sags ~0.03 rad on j2/j3 and ~0.06 rad on the
+# wrist (2026-10-16 SUMMARY.md), so a single 0.02 rad check would refuse every real move.
+REACH_TOL_BY_BACKEND = {"mock": (0.02,) * 6, "dimos": (0.02, 0.05, 0.05, 0.09, 0.09, 0.09)}
 MAX_MSG = 256 * 1024
 REFUSAL_REPEAT_S = 1.0  # same stream refusal at most once per second per client
 SWITCH_STOP_TIMEOUT_S = 3.0
@@ -229,6 +232,7 @@ class Daemon:
     def __init__(self, backend: Backend, *, auto_approve: bool = False, envelope: env.Envelope | None = None):
         self.backend = backend
         self.envelope = envelope or backend.envelope
+        self.reach_tol = np.array(REACH_TOL_BY_BACKEND.get(getattr(backend, "name", ""), (REACH_TOL,) * 6), float)
         backend.on_event = self._on_backend_event
         self.auto_approve = auto_approve
         self.clients: dict[str, Client] = {}
@@ -348,11 +352,11 @@ class Daemon:
                 return
             q = np.array(self.backend.state()["q"])
             err = np.abs(q - b["target"])
-            if err.max() > REACH_TOL:
-                i = int(err.argmax())
+            if np.any(err > self.reach_tol):
+                i = int(np.argmax(err / self.reach_tol))
                 self.backend.stop()
                 await self._refuse(b["client"], f"{b['cmd']} did not reach target: {env.JOINTS[i]} error "
-                                   f"{err[i]:.3f} rad > {REACH_TOL}; stopped", b["id"], b["cmd"])
+                                   f"{err[i]:.3f} rad > {self.reach_tol[i]:.2f}; stopped", b["id"], b["cmd"])
                 return
             self.log(f"[{b['client'].tag}] done {b['cmd']} (max error {err.max():.4f} rad)")
             await b["client"].send({"op": "done", "id": b["id"], "cmd": b["cmd"]})
@@ -451,6 +455,10 @@ class Daemon:
 
     async def estop_reset(self, by: str = "operator") -> None:
         self.estopped = False
+        try:
+            self.backend.clear_estop()
+        except Exception as e:  # the daemon latch is cleared either way; say what the backend said
+            self.log(f"backend clear_estop failed: {e}", logging.ERROR)
         self.log(f"E-STOP reset by {by}")
         await self.broadcast({"op": "estop", "latched": False})
 
@@ -626,7 +634,10 @@ class Daemon:
             return
         self._require_lease(client)
         if cmd == "relax":
-            self.backend.relax()
+            try:
+                self.backend.relax()
+            except (NotImplementedError, RuntimeError) as e:
+                raise Refused(f"relax: {e}") from None
             self.streaming = False
             self.busy = None
             self.log(f"[{client.tag}] do relax: torque off", logging.WARNING)

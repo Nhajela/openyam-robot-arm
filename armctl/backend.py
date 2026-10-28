@@ -206,6 +206,9 @@ class Backend(abc.ABC):
     def stop(self) -> None:
         """Cancel any trajectory/stream, decelerate within the accel caps, hold position."""
 
+    def clear_estop(self) -> None:
+        """The operator reset E-STOP in the daemon: clear any latch the backend keeps. Default: nothing."""
+
     @abc.abstractmethod
     def estop(self) -> None:
         """Emergency: halt now (hold position, torque stays on so the arm doesn't drop)."""
@@ -1066,6 +1069,10 @@ class DimosBackend(Backend):
             samples, dt, t0 = self._jplan
             return now < t0 + (len(samples) - 1) * dt
         return now < self._brake_until
+
+    def clear_estop(self) -> None:
+        with self.lock:
+            self._clear_estop_locked()
 
     def _clear_estop_locked(self) -> None:
         if self._estop_latched:
