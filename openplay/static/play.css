@@ -463,3 +463,11 @@ input[type=range] { flex: 1; min-width: 0; height: 44px; accent-color: var(--acc
 #view-play #readyBtn { min-height: 46px; }
 body[data-mode="tilt"] .pad { height: clamp(170px, calc(100dvh - var(--dock-h) - 500px), 320px); min-height: 0; }
 body[data-mode="tilt"] #resetPoseBtn { margin: 0 auto; }
+
+/* ARM FAULTED (armctl state.fault): a latched DimOS adapter fault, motors off */
+.faultbar { position: fixed; left: 0; right: 0; top: 0; z-index: 50; display: flex; flex-direction: column; gap: 0.15rem;
+  padding: 0.8rem 1rem calc(0.8rem + env(safe-area-inset-top, 0px)); background: #8a0f0f; color: #fff; text-align: center;
+  box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, .4); }
+.faultbar[hidden] { display: none; }
+.faultbar b { font-size: 1.25rem; letter-spacing: .04em; }
+.faultbar small { opacity: .8; font-size: 0.8rem; overflow-wrap: anywhere; }

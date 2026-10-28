@@ -303,7 +303,8 @@ class OpenPlay:
             return None
         b = self.busy
         m = {"op": "arm", "q": s.get("q"), "grip": s.get("grip"), "moving": s.get("moving"),
-             "busy": (b["title"] if b else None) or s.get("busy"), "mode": s.get("mode")}
+             "busy": (b["title"] if b else None) or s.get("busy"), "mode": s.get("mode"),
+             "fault": getattr(self.arm, "fault", None)}
         if display:
             m["estop"], m["lease"], m["adapter"] = self.arm.estop, self.arm.has_lease, self.arm.adapter
         return m
@@ -311,6 +312,8 @@ class OpenPlay:
     def daemon_health(self) -> str:
         if not self.arm.connected:
             return "offline"
+        if getattr(self.arm, "fault", None):
+            return "faulted"
         if self.arm.estop:
             return "estop"
         return "connected" if self.arm.has_lease else "waiting for lease"
@@ -491,9 +494,14 @@ class OpenPlay:
             self.event("operator", "Open play has the arm" if data.get("ours") else "Open play lost the arm")
         elif kind == "estop":
             self.event("estop", "E-STOP is on" if data.get("latched") else "E-STOP reset")
+        elif kind == "fault":
+            self.event("estop", f"ARM FAULTED ({data.get('reason') or 'DimOS adapter fault'}): "
+                                "support the arm, run tools/disable_all.py")
         elif kind == "refused":  # stream guard ("j3 at the soft limit"): tell the driver, quietly
             a = self.lobby.active
-            if a and data.get("stream"):
+            if a and data.get("edge"):  # edge-of-reach watchdog: steer the other way
+                self.status(a.pid, f"Edge of reach: steer back ({data.get('reason', '')[:80]})", "info")
+            elif a and data.get("stream"):
                 self.status(a.pid, f"The arm can't go further that way ({data.get('reason', '')[:80]})", "info")
 
     # ------------------------------------------------------------------ phone protocol

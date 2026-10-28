@@ -76,6 +76,7 @@ class ArmBridge:
         self.client_id: str | None = None
         self.holder: str | None = None
         self.estop = False
+        self.fault: dict | None = None  # armctl state.fault: latched DimOS adapter fault (arm limp)
         self.connected = False
         self.waiting_approval = False
         self.ws = None
@@ -106,6 +107,8 @@ class ArmBridge:
         return self.has_lease and not self.estop
 
     def unavailable_reason(self) -> str | None:
+        if self.fault:
+            return "ARM FAULTED: support the arm, run tools/disable_all.py"
         if self.estop:
             return "E-STOP is on"
         if not self.connected:
@@ -158,6 +161,7 @@ class ArmBridge:
                 self.hello, self.client_id = h, h["client"]
                 self.holder = (h.get("lease") or {}).get("client")
                 self.estop = bool(h.get("estop"))
+                self.fault = h.get("fault") or None
                 self.connected = True
                 self.on_event("connected", {"backend": self.backend})
                 retry, first = 1.0, True
@@ -216,6 +220,10 @@ class ArmBridge:
                     self.state = m
                     self.holder = (m.get("lease") or {}).get("client")
                     self.estop = bool(m.get("estop"))
+                    f = m.get("fault") or None
+                    if f and not self.fault:
+                        self.on_event("fault", f)
+                    self.fault = f
                     continue
                 if op == "lease":
                     had = self.has_lease
@@ -225,6 +233,10 @@ class ArmBridge:
                 elif op == "estop":
                     self.estop = bool(m.get("latched"))
                     self.on_event("estop", {"latched": self.estop})
+                elif op == "fault":
+                    if not self.fault:
+                        self.fault = {k: v for k, v in m.items() if k != "op"}
+                        self.on_event("fault", self.fault)
                 q = self._replies.get(m.get("id")) if m.get("id") is not None else None
                 if q is not None:
                     q.put_nowait(m)

@@ -98,7 +98,7 @@ def test_cap_velocity_and_describe():
     assert s == pytest.approx(0.5) and qd.tolist() == pytest.approx([0.3, 0.15, 0, 0, 0, 0])
     d = env.DEFAULT.describe()
     json.dumps(d)
-    assert d["soft_limits"]["j4"] == [-1.593, 1.471]
+    assert d["soft_limits"]["j4"] == [-1.5581, 1.471]  # DimOS adapter lower -1.65806 (2026-10-28)
 
 
 def test_plan_move_respects_caps():

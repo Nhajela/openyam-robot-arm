@@ -166,7 +166,7 @@ function handle(m) {
     case 'turn_end':
       endTurnScreen(m.reason); break;
     case 'arm':
-      S.arm = m; renderArm(); break;
+      S.arm = m; renderFault(); renderArm(); break;
     case 'status':
       if (m.text === 'Ready' && S.view === 'getset') $('gsReady').textContent = '✅ The arm is at its ready pose.';
       // Say and Poses show their own progress card, so a "busy" echo there would just cover it.
@@ -191,6 +191,17 @@ function handle(m) {
       chessMessage(m); $('chessLobbyCard').hidden = !chessInvolves(); break;
     case 'pong': break;
   }
+}
+
+// A latched DimOS adapter fault (armctl state.fault): the arm is limp and refuses everything
+// until the operator restarts it. Shown above every screen; steering is released.
+function renderFault() {
+  const f = S.arm && S.arm.fault;
+  const bar = $('faultBar');
+  if (!f) { bar.hidden = true; return; }
+  if (bar.hidden) { releaseAll(); buzz([200, 80, 200]); }
+  bar.hidden = false;
+  $('faultWhy').textContent = f.reason || '';
 }
 
 // ------------------------------------------------------------------ screens
