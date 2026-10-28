@@ -24,6 +24,7 @@ Safety rules carry across all experiments: start folded on the stops, probe befo
 
 Interfaces and interactions worth trying. Add yours, and say who to talk to.
 
+- **Arm scans the board itself (chess, after grasping works):** a small wrist camera; the arm roams to 3–4 top-down poses over the board, takes a picture at each, and a Claude vision model reads the position (constrained to legal moves) alongside the per-square occupancy diff. No separate overhead camera, and the same camera helps with grasp precision. Costs: about 10–15 s per scan, the arm moves over the human's side of the board, plus wrist-camera cabling and hand-eye calibration. See `interfaces/grasp/CHESS.md` § Camera placement. (Naman, 28 Oct)
 - **armctl wrapper on top of DimOS**: home(), ready(), named poses, slow joint moves, limit-aware jogging. Never leaves a soft-limit box inside the URDF limits. (Naman)
 - Go-home / named poses from a script (`openyam-planner-coordinator` + `Arm` SDK).
 - **Programs over one protocol** (see ARMCTL-SPEC § Programs): phone tilt, phone joystick, English → playable motion sequences (dance, wave, nod), keyboard, console. Switchable, one control lease. (Naman)
