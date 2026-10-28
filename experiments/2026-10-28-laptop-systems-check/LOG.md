@@ -169,3 +169,20 @@ Pre-flight: no DimOS processes. Probe: j1–j6 within 0.04 of 0, no faults, j4 r
   1. **Run 2 with `--kp j4=22 --kd j4=2`** (merged today): the error should drop roughly in proportion (~0.04 at 0.0). This needs no DimOS change.
   2. Better long-term: scale the j4 gravity feedforward by about 0.83, or fix the gripper mass in the gravity URDF (the gripper + camera actually fitted may weigh less than modelled). That needs a DimOS-side hook.
   3. j4 runs warm (46–49 °C rotor during holds) but within a normal range. Watch it after the kp increase.
+
+### 13:19–13:29 j4 hold test, run 2: `--kp j4=22 --kd j4=2`; Naman at the arm
+Same procedure as run 1. Coordinator `gains[OVERRIDE j4]: kp=[80,80,80,22,10,10] kd=[5,5,5,2,1.5,1.5]`; the daemon's `armctl_info` confirms j4 kp 22 / kd 2. A leftover agent **mock** daemon was on :8591 (no CAN, no DimOS): ignored. ([logs/j4test-run2.log](logs/j4test-run2.log), CSV [logs/j4-hold-20261028-132005.csv](logs/j4-hold-20261028-132005.csv), `logs/j4test2-*.log`)
+
+| j4 target | model τ4 | err run 1 (kp 10) | **err run 2 (kp 22)** | kp·err run 1 | kp·err run 2 | measured τ4 run 2 | rotor °C run 2 |
+|---|---|---|---|---|---|---|---|
+| 0.0 | 2.378 | +0.0937 | **+0.0484** | 0.94 | 1.06 | 1.971 | 42→51 |
+| −0.3 | 2.560 | +0.1091 | **+0.0503** | 1.09 | 1.11 | 2.187 | 51→55 |
+| +0.3 | 1.984 | +0.0412 | **+0.0252** | 0.41 | 0.55 | 1.622 | 54→50 |
+| +0.7 | 1.191 | +0.0151 | **+0.0081** | 0.15 | 0.18 | 0.995 | 50→47 |
+
+`home`: done, max error **0.0319** (run 1: 0.0616). Shutdown 13:29: daemon, coordinator, `disable_all`: all 7 disabled, no faults; j4 rotor 48 °C.
+- **Result:** j4's holding error **halved in every pose** (worst case 0.109 → 0.050 rad). `ready` now verifies with 0.07 rad of margin under the 0.12 wrist tolerance.
+- **Insight:** kp·err (the spring's share of the torque) is about the same in both runs (≈1.0–1.1 N·m at the heavy poses). So the error is a **fixed torque surplus from the gravity feedforward**, and the error scales as 1/kp. This confirms run 1's reading: the model's j4 gravity is about 1 N·m (≈ 40%) too strong at the heavy poses. (The script's printed `kp*err` column assumed kp 10; it now takes `--kp4`.)
+- **Cost:** j4 runs about 5 °C hotter while holding (peak 55 °C rotor vs 49 °C). That's acceptable for a DM4310, but long holds at heavy poses warm it, so watch it during open play.
+- **Decision:** real-arm runs use `--kp j4=22 --kd j4=2` from now on (HANDOVER §5 start line updated). The root fix (scale the j4 gravity feedforward ≈0.6–0.8, or correct the gripper/camera mass in `yam_gripper_gravity.urdf`) is the next DimOS-side step.
+- No hum or chatter was reported by Naman during the run.

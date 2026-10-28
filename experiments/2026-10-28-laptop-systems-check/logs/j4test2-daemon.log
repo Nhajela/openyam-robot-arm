@@ -1,0 +1,28 @@
+07:49:56.686 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-28 13:19:56 INFO DimosBackend connected: DimOS REAL (openyam_damiao) on 224.0.0.123:7449, coordinator pid 49815, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-28 13:19:56 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 49815, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-28 13:19:56 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-28 13:19:56 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-28 13:19:56 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-28 13:19:57 INFO [c1 script] hello name='systems-check' from 127.0.0.1
+2026-10-28 13:19:57 INFO [c1 script] disconnected
+2026-10-28 13:20:05 INFO [c2 script] hello name='j4-hold-test' from 127.0.0.1
+2026-10-28 13:20:05 INFO [c2 script] acquire (auto-approved)
+2026-10-28 13:20:05 INFO [c2 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-28 13:20:05 INFO DimosBackend: move_joints#1 -> DimOS trajectory 51 points (from 500 samples), 4.99 s
+2026-10-28 13:20:05 INFO [c2 script] do move_joints -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.99 s
+2026-10-28 13:20:11 INFO [c2 script] done move_joints (max error 0.0483 rad)
+2026-10-28 13:22:11 INFO DimosBackend: move_joints#2 -> DimOS trajectory 24 points (from 219 samples), 2.18 s
+2026-10-28 13:22:11 INFO [c2 script] do move_joints -> [0.0, 0.5, 0.8, -0.3, 0.0, 0.0] in 2.18 s
+2026-10-28 13:22:15 INFO [c2 script] done move_joints (max error 0.0503 rad)
+2026-10-28 13:24:15 INFO DimosBackend: move_joints#3 -> DimOS trajectory 36 points (from 345 samples), 3.44 s
+2026-10-28 13:24:15 INFO [c2 script] do move_joints -> [0.0, 0.5, 0.8, 0.3, 0.0, 0.0] in 3.44 s
+2026-10-28 13:24:20 INFO [c2 script] done move_joints (max error 0.0371 rad)
+2026-10-28 13:26:20 INFO DimosBackend: move_joints#4 -> DimOS trajectory 25 points (from 236 samples), 2.35 s
+2026-10-28 13:26:20 INFO [c2 script] do move_joints -> [0.0, 0.5, 0.8, 0.7, 0.0, 0.0] in 2.35 s
+2026-10-28 13:26:24 INFO [c2 script] done move_joints (max error 0.0352 rad)
+2026-10-28 13:28:24 INFO DimosBackend: home#5 -> DimOS trajectory 83 points (from 819 samples), 8.18 s
+2026-10-28 13:28:24 INFO [c2 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.18 s
+2026-10-28 13:28:34 INFO [c2 script] done home (max error 0.0319 rad)
+2026-10-28 13:28:34 INFO lease revoked by c2 script (release) (was c2 script); stopped
+2026-10-28 13:28:34 INFO [c2 script] disconnected

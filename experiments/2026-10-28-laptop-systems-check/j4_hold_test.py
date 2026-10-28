@@ -37,7 +37,7 @@ from interfaces.client import ArmClient, Refused  # noqa: E402
 GRAVITY_URDF = Path.home() / ".local/share/dimos/repo/data/yam_description/urdf/yam_gripper_gravity.urdf"
 READY = [0.0, 0.5, 0.8, 0.0, 0.0, 0.0]
 J4_OFFSETS = (0.0, -0.3, 0.3, 0.7)
-KP_J4 = 10.0  # dimos/robot/manipulators/openyam/config.py
+KP_J4 = 10.0  # DimOS default (dimos/robot/manipulators/openyam/config.py); --kp4 overrides
 
 
 def model_tau_j4(q6) -> float | None:
@@ -138,8 +138,12 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--url", default="ws://127.0.0.1:8091/armctl")
     ap.add_argument("--hold", type=float, default=120.0, help="seconds to hold each pose")
+    ap.add_argument("--kp4", type=float, default=None, help="j4 kp the coordinator runs (for the kp*err column; default 10)")
     ap.add_argument("--console", default=None, help="lab console base URL for j4 torque/temperature (read-only)")
+    args = ap.parse_args()
+    if args.kp4:
+        KP_J4 = args.kp4
     try:
-        asyncio.run(main(ap.parse_args()))
+        asyncio.run(main(args))
     except KeyboardInterrupt:
         print("interrupted (stop sent)")
