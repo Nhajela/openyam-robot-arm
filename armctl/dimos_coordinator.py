@@ -45,6 +45,18 @@ Then the daemon on the same bus (the backend refuses a REAL coordinator unless t
 
 Options: ``--ik-margin`` (>= 0.1), ``--joint-vel`` (eef-twist joint speed cap, <= 0.3 on real),
 ``--traj-vel-limit`` (trajectory backstop, <= 1.0), ``--twist-timeout`` (s), ``--with-planner``.
+
+Holding gains (``armctl/gains.py``): ``--kp JOINT=VALUE`` / ``--kd JOINT=VALUE``, repeatable, override
+single entries of DimOS's WholeBodyConfig (default kp 80,80,80,10,10,10 / kd 5,5,5,1.5,1.5,1.5);
+joints not named keep the default. Caps: kp <= 120 on j1-j3, <= 40 on j4-j6; kd <= 8 on j1-j3,
+<= 5 on j4-j6. E.g. stiffer j4 against its gravity sag::
+
+    ... -m armctl.dimos_coordinator --simulation --kp j4=22 --kd j4=2     # plumbing check first
+    ... -m armctl.dimos_coordinator --real --can-port can0 --kp j4=22 --kd j4=2
+
+Try in ``--simulation`` first (the mock adapter ignores gains: it only checks the plumbing). On
+the real arm watch j4's temperature and listen for buzz/chatter; stop and drop the override at the
+first sign of either. The effective gains are in the startup line and in ``armctl_info()["gains"]``.
 """
 from __future__ import annotations
 
@@ -77,6 +89,7 @@ from dimos.core.core import rpc  # noqa: E402
 from dimos.core.global_config import global_config  # noqa: E402
 from dimos.robot.manipulators.common.coordinators import ArmTwistCoordinator  # noqa: E402
 from dimos.robot.manipulators.common.topics import EEF_TWIST_TASK_NAME  # noqa: E402
+from armctl import gains as _gains  # noqa: E402
 from dimos.robot.manipulators.openyam.config import (  # noqa: E402
     OPENYAM_ARM_JOINTS,
     OPENYAM_GRIPPER_JOINT,
@@ -105,12 +118,14 @@ class ArmctlTwistCoordinator(ArmTwistCoordinator):
         return {"launcher": LAUNCHER, "adapters": hw,
                 "simulation": all(a == SIM_ADAPTER for a in hw.values()),
                 "can_port": global_config.can_port, "tasks": tasks, "pid": os.getpid(),
+                "gains": {c.hardware_id: _gains.gains_dict(c.wb_config) for c in self.config.hardware},
                 "scout_addr": os.environ.get("ZENOH_SCOUT_ADDR")}
 
 
 def build(*, ik_margin: float, joint_vel: float, traj_vel: float, twist_timeout: float,
-          with_planner: bool):
+          with_planner: bool, kp: dict[str, float] | None = None, kd: dict[str, float] | None = None):
     hw = openyam_hardware()
+    hw.wb_config = _gains.override_wb_config(hw.wb_config, kp or {}, kd or {})
     model = make_openyam_model_config()
     arm = list(OPENYAM_ARM_JOINTS)
     coord = ArmctlTwistCoordinator.blueprint(
@@ -167,6 +182,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--traj-vel-limit", type=float, default=0.5, help="trajectory task velocity backstop, rad/s")
     ap.add_argument("--twist-timeout", type=float, default=0.3, help="eef-twist command timeout, s")
     ap.add_argument("--with-planner", action="store_true", help="also run the DimOS planner (not needed by armctl)")
+    ap.add_argument("--kp", action="append", metavar="JOINT=VALUE",
+                    help="override one joint's holding kp, repeatable (e.g. --kp j4=22); "
+                         "caps: j1-j3 <= 120, j4-j6 <= 40")
+    ap.add_argument("--kd", action="append", metavar="JOINT=VALUE",
+                    help="override one joint's holding kd, repeatable (e.g. --kd j4=2); "
+                         "caps: j1-j3 <= 8, j4-j6 <= 5")
     a = ap.parse_args(argv)
 
     if a.ik_margin < 0.1:
@@ -177,6 +198,11 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("--traj-vel-limit must be in (0, 1]")
     if not 0 < a.twist_timeout <= 0.5:
         ap.error("--twist-timeout must be in (0, 0.5]")
+    try:
+        kp_over = _gains.parse_overrides(a.kp, "kp")
+        kd_over = _gains.parse_overrides(a.kd, "kd")
+    except ValueError as e:
+        ap.error(str(e))
     bus = os.environ["ZENOH_SCOUT_ADDR"].strip()
     if a.simulation:
         if a.can_port or os.environ.get("CAN_PORT"):
@@ -204,7 +230,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     hw, bp = build(ik_margin=a.ik_margin, joint_vel=a.joint_vel, traj_vel=a.traj_vel_limit,
-                   twist_timeout=a.twist_timeout, with_planner=a.with_planner)
+                   twist_timeout=a.twist_timeout, with_planner=a.with_planner, kp=kp_over, kd=kd_over)
     if a.simulation and hw.adapter_type != SIM_ADAPTER:
         print(f"refusing: --simulation but adapter is {hw.adapter_type!r}", file=sys.stderr)
         return 1
@@ -214,7 +240,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"armctl.dimos_coordinator: mode={'SIMULATION' if a.simulation else 'REAL can=' + a.can_port} "
           f"adapter={hw.adapter_type} bus={os.environ['ZENOH_SCOUT_ADDR']} tasks={list(EXPECTED_TASKS)} "
           f"ik_margin={a.ik_margin} joint_vel={a.joint_vel} traj_vel_limit={a.traj_vel_limit} "
-          f"twist_timeout={a.twist_timeout} planner={a.with_planner}", flush=True)
+          f"twist_timeout={a.twist_timeout} planner={a.with_planner} "
+          f"gains[{'OVERRIDE ' + ','.join(sorted({*kp_over, *kd_over})) if kp_over or kd_over else 'dimos-default'}]: "
+          f"{_gains.describe(hw.wb_config)}", flush=True)
     if a.real:
         print("REAL ARM: Ctrl-C stops the coordinator but may leave torque on: run tools/disable_all.py after.",
               flush=True)
