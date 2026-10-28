@@ -6,9 +6,11 @@ Goal: a person sits at a real chess board and plays the arm. The arm sees or is 
 - `chess_arm.py`: rules (python-chess), the move → pick and place planner (captures to a graveyard, castling, en passant), a reach map, and Stockfish or a greedy fallback.
 - `grasp.py`: top-down grasps.
 - `vision/`: ArUco tags, camera calibration, tag poses.
+- `interfaces/chess_vision/`: board vision v1 (corner markers, per-square occupancy and colour, multi-camera `CameraBoardSensor`).
+- the wrist camera between the gripper fingers (USB CAMERA 4K, wide-angle, served by the lab console as `dashboard`).
 
 **What's missing:**
-- knowing the human's move
+- knowing the human's move (v1 vision built, untested on the real board)
 - a calibrated board
 - grasps reliable enough for tall, narrow pieces on a crowded board
 
@@ -34,15 +36,15 @@ The game never depends on vision being right. We track the game state from the s
 
 ### Camera placement: can the arm use its own camera?
 
-The OpenYAM has no camera of its own. Options, best first:
+Yes. The arm has a **wrist camera**: the "USB CAMERA 4K" (Sunplus 1bcf:2d4f, `/dev/video0`, up to 3840×2160 MJPG), a wide-angle module mounted between the gripper fingers, with both jaws visible in its frame. The lab console holds the device and serves its frames as `http://127.0.0.1:8090/camera.jpg` (`vision/sources.py` source `dashboard`). Options, best first:
 
 | Camera | Pros | Cons |
 |---|---|---|
 | **Fixed overhead, looking straight down** (USB webcam on a boom or tripod, or a phone on a gooseneck stand, 60–80 cm above the board) | sees all 64 squares at once; tall pieces barely hide neighbours; one calibration | needs a stand; the arm hides part of the board while it moves (only look when the arm is parked at "watch" pose, out of view) |
 | Fixed at an angle (laptop webcam or a phone at the side) | easy to set up | tall pieces hide the squares behind them; back ranks foreshorten. OK for the "I moved" mode with a confirmation step, poor for fully automatic |
-| **Wrist camera on the gripper** (small USB cam, ~2 cm) | the arm looks wherever it needs to; close-ups make grasps precise ("visual servoing" for the last centimetre) | the arm must move over the board to look (slow, and it's the human's space); new cabling; a hand-eye calibration |
+| **The wrist camera (already fitted, between the fingers)** | the arm looks wherever it needs to; 3-4 top-down scan poses cover the board with no extra camera; close-ups make grasps precise ("visual servoing" for the last centimetre) | the arm must move over the board to look (slow, and it's the human's space); the wide-angle lens needs intrinsics and distortion calibration; the jaws hide the lower image corners; the camera pose = FK(gripper tip) × a hand-eye transform that still has to be calibrated |
 
-**Recommendation:** an overhead phone or webcam for move detection (phonecam already streams phones over Wi-Fi, so `vision/sources.py phone:board` works today). Later, possibly a wrist camera for grasp precision only. The arm parks at a **"watch" pose** to the side, clear of the camera's view of the board, whenever we look.
+**Recommendation:** an overhead phone or webcam for move detection (phonecam already streams phones over Wi-Fi, so `vision/sources.py phone:board` works today). The wrist camera serves grasp precision, and later an "arm scan" mode (see [chess_vision/README.md](../chess_vision/README.md#arm-scan-mode-planned-not-implemented), seam in place, not built). The arm parks at a **"watch" pose** to the side, clear of the camera's view of the board, whenever we look.
 
 ## 2. The board and the arm agreeing on where squares are
 
@@ -79,8 +81,8 @@ Updated 2026-10-28: the primary flow is **layer 2** (real board + chess clock + 
    - server: the game, the clock press → `BoardSensor` snapshots → `rank_moves` / `decide`, the engine's moves on the arm through the usual approval path (`openplay/chess_play.py`, `openplay/server.py`; contract in `openplay/PROTOCOL.md` "Chess")
    - the sensor contract and move matching: `interfaces/chess_vision/sensor.py` (`Snapshot`, `BoardSensor`, `rank_moves`, `decide`, `FakeBoardSensor`)
    - chess is refused on a real arm until `workcell.json` has `calibrated: true`
-2. **Board cameras** (`interfaces/chess_vision/camera.py`, `CameraBoardSensor`, being built separately against the same contract): tag registration, rectification, per-square occupancy and colour, JPEG frames for the display. Develop against synthetic renders first, then the real board. Run open play with `--chess-sensor camera`.
+2. **Board cameras — board vision v1 built, 🧪 synthetic renders only** (`interfaces/chess_vision/camera.py`, `CameraBoardSensor`; see its [README](../chess_vision/README.md)): tag registration, rectification, per-square occupancy and colour, JPEG frames for the display. Develop against synthetic renders first, then the real board. Run open play with `--chess-sensor camera`.
 3. **On the arm:** calibrate the board corners (`fit_table_frame`), measure the gripper, then the arm's first real chess move with a foam block standing in for a piece.
 4. **Self-check after the arm's moves, and recovery prompts** (the same comparison: did the piece arrive?).
 5. **Fully automatic detection** (still-board trigger, hand detection, maybe MediaPipe hands): the clock press becomes optional.
-6. Optional: a wrist camera for the last centimetre of each grasp.
+6. **Wrist camera** (the arm has one: the 4K module between the gripper fingers): the last centimetre of each grasp, and an arm-scan board view (3–4 top-down poses, plus an optional Claude vision second opinion; planned, see the chess_vision README).

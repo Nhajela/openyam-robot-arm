@@ -183,7 +183,8 @@ class OpenPlay:
     def __init__(self, *, daemon_url: str = DEFAULT_URL, turn_s: float = 600.0, auto_play: str = "auto",
                  join_url: str = "", urdf_dir: Path = DEFAULT_URDF_DIR, events_log: Path | None = EVENTS_LOG,
                  lin_mps: float = LIN_MPS, ang_rps: float = ANG_RPS, joint_rps: float = JOINT_RPS,
-                 workcell: Path | None = None, chess_sensor: Any = "fake", chess_clock_s: float = 600.0):
+                 workcell: Path | None = None, chess_sensor: Any = "fake", chess_clock_s: float = 600.0,
+                 chess_cameras: list[str] | None = None, chess_calib: str | None = None):
         self.lobby = Lobby(turn_s=turn_s)
         self.arm = ArmBridge(daemon_url, on_event=self._arm_event, lin_mps=lin_mps, ang_rps=ang_rps,
                              joint_rps=joint_rps)
@@ -208,7 +209,7 @@ class OpenPlay:
         self.workcell_path = workcell                # None: interfaces/grasp/workcell.json
         self.chess = None                            # the one chess game (openplay.chess_play.Game)
         self.chess_clock_s = chess_clock_s
-        self.chess_sensor_kind, self.chess_sensor, self.chess_sensor_error = make_chess_sensor(chess_sensor)
+        self.chess_sensor_kind, self.chess_sensor, self.chess_sensor_error = make_chess_sensor(chess_sensor, chess_cameras, chess_calib)
         self.chess_ref = None                        # reference board snapshot (the human's move is compared to it)
         self.chess_frames: dict[str, bytes] = {}     # latest camera JPEGs, for the display strip
         self.chess_frames_t: float | None = None
@@ -1510,7 +1511,8 @@ class OpenPlay:
             gone(c)
 
 
-def make_chess_sensor(kind: Any) -> tuple[str, Any, str | None]:
+def make_chess_sensor(kind: Any, cameras: list[str] | None = None,
+                      calib: str | None = None) -> tuple[str, Any, str | None]:
     """-> (kind, sensor or None, error). ``kind``: "fake" (FakeBoardSensor: mock/sim rehearsal,
     tests), "camera" (interfaces.chess_vision.camera.CameraBoardSensor), or a sensor object."""
     if not isinstance(kind, str):
@@ -1526,7 +1528,9 @@ def make_chess_sensor(kind: Any) -> tuple[str, Any, str | None]:
         try:
             from interfaces.chess_vision.camera import CameraBoardSensor
 
-            return "camera", CameraBoardSensor(), None
+            if not cameras:
+                raise ValueError("no cameras: pass --chess-camera NAME=SOURCE (e.g. top=phone:top, wrist=dashboard)")
+            return "camera", (CameraBoardSensor(cameras, calib) if calib else CameraBoardSensor(cameras)), None
         except Exception as e:
             log.warning("chess camera: %s: %s", type(e).__name__, e)
             return "camera", None, (f"chess camera mode is unavailable ({type(e).__name__}: {e}); "
@@ -1596,7 +1600,8 @@ async def serve(args) -> None:
     events = Path(args.events_log) if args.events_log else None
     op = OpenPlay(daemon_url=args.daemon, turn_s=args.turn, auto_play=args.auto_play, join_url=join_url,
                   urdf_dir=Path(args.urdf_dir), events_log=events, lin_mps=args.lin_mps,
-                  ang_rps=args.ang_rps, joint_rps=args.joint_rps, chess_sensor=args.chess_sensor)
+                  ang_rps=args.ang_rps, joint_rps=args.joint_rps, chess_sensor=args.chess_sensor,
+                  chess_cameras=args.chess_camera, chess_calib=args.chess_calib)
     # The room key is a secret: only on an interactive terminal (and on the loopback display).
     shown = join_url if os.isatty(1) else join_url.split("?k=")[0] + f"?k=<key: see http://127.0.0.1:{args.local_port}>"
     print(f"open play: phones join at {shown}", flush=True)
@@ -1648,6 +1653,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--lin-mps", type=float, default=LIN_MPS, help="stream v=1 linear speed, m/s")
     ap.add_argument("--ang-rps", type=float, default=ANG_RPS, help="stream v=1 angular speed, rad/s")
     ap.add_argument("--joint-rps", type=float, default=JOINT_RPS, help="stream qd=1 joint speed, rad/s")
+    ap.add_argument("--chess-camera", action="append", default=None, metavar="NAME=SOURCE",
+                    help="camera for --chess-sensor camera, repeatable (vision/sources.py: top=phone:top, wrist=dashboard)")
+    ap.add_argument("--chess-calib", default=None, help="board calibration folder (interfaces.chess_vision.calibrate --out)")
     ap.add_argument("--chess-sensor", choices=CHESS_SENSORS, default="fake",
                     help="how chess sees the human's move: fake (no camera: tap-to-move; mock/sim) or camera "
                          "(interfaces.chess_vision.camera)")

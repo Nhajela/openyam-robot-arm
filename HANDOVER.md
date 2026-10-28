@@ -84,7 +84,7 @@ Then test with two real phones on the Wi-Fi:
 **Steps:**
 1. **Coordinator + daemon at safe caps.** The real bus has to be exported explicitly:
    ```sh
-   ZENOH_SCOUT_ADDR=224.0.0.123:7449 .venv/bin/python -m armctl.dimos_coordinator --real --can-port can0
+   ZENOH_SCOUT_ADDR=224.0.0.123:7449 .venv/bin/python -m armctl.dimos_coordinator --real --can-port can0 --kp j4=22 --kd j4=2   # stiffer j4: halves its sag (28 Oct j4 test)
    ZENOH_SCOUT_ADDR=224.0.0.123:7449 ARMCTL_DIMOS_EXPECT=real .venv/bin/python -m armctl.daemon --backend dimos
    ```
    The daemon log must say `DimOS REAL` with the three expected tasks; the console shows the adapter.
