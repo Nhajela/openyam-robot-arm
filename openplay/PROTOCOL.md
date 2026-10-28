@@ -48,7 +48,7 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 
 | op | fields |
 |---|---|
-| `welcome` | `pid, name, moves: [{name, title, emoji, duration_s, blurb}], spots: [{name, title}], turn_s, features: {say, grab, tilt, joystick, poses}, speeds: {lin_mps, ang_rps, joint_rps}` |
+| `welcome` | `pid, name, moves: [{name, title, emoji, duration_s, blurb}], spots: [{name, title}], turn_s, features: {say, grab, tilt, joystick, poses, chess}, speeds: {lin_mps, ang_rps, joint_rps}` |
 | `lobby` | `queue: [{name, you}]`, `position` (1-based, null if not queued), `active: {name, remaining_s} \| null`, `you_active: bool`, `eta_s` (null if unknown). Sent on every change and once a second while a turn is running |
 | `turn` | `remaining_s`: your turn started (and once a second during it; `warning: true` in the last 30 s) |
 | `turn_end` | `reason`: `time` \| `left` \| `idle` \| `skipped` \| `operator` |
@@ -69,7 +69,7 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 | `hello` | `join_url, backend, adapter` (`mock` \| `sim` \| `real`; unknown on a non-mock backend means treat it as real), `turn_s, auto_play, paused, moves, spots, envelope` (armctl envelope `describe()`), `poses` (named poses), `urdf: bool` (true when `/urdf/i2rt/yam.urdf` is served), `lease` (does openplay hold the daemon lease), `daemon` (`connected` \| `waiting for lease` \| `estop` \| `offline`). Right after `hello` the server also sends the current `lobby`, `pending` (or null) and the in-progress `say`, so a reconnecting display shows the full state |
 | `arm` | `q, grip, moving, busy, mode, estop, lease, adapter` at 20 Hz |
 | `lobby` | `queue: [{pid, name}], active: {pid, name, remaining_s} \| null, players: int` (the `pid`s are needed for kick) |
-| `event` | `t` (unix s), `who` (name or null), `kind`: `join` \| `leave` \| `turn` \| `turn_end` \| `move` \| `say` \| `seq` \| `grab` \| `stop` \| `refused` \| `operator` \| `estop`, `text` (a caption to show) |
+| `event` | `t` (unix s), `who` (name or null), `kind`: `join` \| `leave` \| `turn` \| `turn_end` \| `move` \| `say` \| `seq` \| `grab` \| `chess` \| `stop` \| `refused` \| `operator` \| `estop`, `text` (a caption to show) |
 | `say` | as for the phone, plus `who`, plus `keyframes` (the playable's keyframes, for a ghost preview) on `playing` |
 | `pending` | `pending: {id, who, title, duration_s, keyframes} \| null`: an action waiting for the operator (only when `auto_play` is off) |
 | `config` | `auto_play, paused, turn_s` after a change |
@@ -88,7 +88,45 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 | `turn_s` | `s` |
 | `estop` / `estop_reset` | forwarded to the daemon's operator API |
 
-HTTP on the display listener: `GET /` (display page), `GET /qr.png` (QR of the join URL), `GET /api/join` (`{url}`), `GET /urdf/...` (yam_description if found), `GET /static/...`.
+HTTP on the display listener: `GET /` (display page), `GET /qr.png` (QR of the join URL), `GET /api/join` (`{url}`), `GET /urdf/...` (yam_description if found), `GET /chess/frame/<name>` (latest board-camera JPEG), `GET /static/...`.
+
+## Chess (a real board, the chess clock, the cameras)
+
+One game at a time: there is one real board on the table. Humans move their own pieces by hand and then press the chess clock ("I've moved"). The server compares a reference snapshot of the board with a new one (`interfaces/chess_vision/sensor.py`: `BoardSensor.snapshot()`, `rank_moves`, `decide`) to find which legal move was made. The arm plays the engine's moves on the board (pick and place, captures to the graveyard row, castling, en passant; a promotion asks a human to swap the piece) through the normal validate → operator approval → Play path. Sensor: `--chess-sensor fake` (default; `FakeBoardSensor`, which sees nothing a human does, so in mock/sim rehearsals humans use the tap fallback) or `--chess-sensor camera` (`interfaces.chess_vision.camera.CameraBoardSensor`; if it can't be imported or started, chess is refused with the reason).
+
+### Phone → server
+
+| op | fields | meaning |
+|---|---|---|
+| `chess.new` | `opponent`: `engine` \| `human`, `color`: `white` \| `black` | active player only. Refused while another game with moves is on and its players are still here, and on a real arm while `workcell.json` has `calibrated: false` |
+| `chess.accept` | | play the other side of a waiting human game (anyone connected, while the game's owner has the arm) |
+| `chess.clock` | | "I've moved": the player to move pressed the clock |
+| `chess.pick` | `uci` | choose one of the `candidates` the camera was unsure between |
+| `chess.move` | `uci` (e.g. `e2e4`, `e7e8q`) | the tap-to-move fallback: "this is the move I made on the board". Checked with python-chess; illegal moves are refused with the squares that piece can go to |
+| `chess.resign` | | resign (or cancel a game nobody accepted) |
+
+The game's moves are accepted only while the active player is one of its players (the opponent in a human game may move from the lobby screen). Human moves never move the arm; only the engine's moves do.
+
+### Server → phone and display: `chess`
+
+`{op: "chess", game, calibrated, arm_ok, refusal, sensor}` on every change, after `welcome` and after the display's `hello`. `refusal` is why chess can't run now (uncalibrated board on a real arm, camera unavailable) or null; `calibrated` mirrors `workcell.json`. The display's copy adds `frames` (camera names; `GET /chess/frame/<name>` on the display listener returns the latest JPEG) and `frames_t`.
+
+`game` is null or: `id, opponent, status` (`waiting` \| `playing` \| `over`), `fen, turn, check, white, black` (`{name, engine}`; the display's copy adds `pid`), `last` (`{uci, san, from, to, by, how}`; `how`: `camera` \| `picked` \| `tap` \| `arm`), `san` (move list), `captured, moving` (the arm is playing this SAN), `thinking, looking` (reading the board), `candidates` (`[{uci, san, score}]` to pick from), `unseen` (text: "I couldn't see your move", show the tap board), `attention` (something on the real board needs a human: the operator presses Board fixed), `clock` (`{white, black, running, clock_s}`, seconds left; nobody loses on time), `eval` (`{pawns, source}`, white's material lead), `result, reason`. The phone's copy adds `you` (`white` \| `black` \| null), `your_move`, `owner` and `legal` (UCI moves, only when it's your move).
+
+### Display → server (operator)
+
+| op | meaning |
+|---|---|
+| `chess.clock` | press the clock for the player to move (key `c`; a USB/BT button can send `c`. Space stays E-STOP) |
+| `chess.fixed` | the board has been fixed by hand (`attention` cleared). If it's the arm's move, it tries again |
+| `chess.reset` | end the game |
+
+### Flow
+
+1. Human to move: reference snapshot, the human's clock runs.
+2. `chess.clock`: snapshot, rank the legal moves. One confident move → applied ("You played Nf3" on phone and display). Several close (always for a promotion) → `candidates`. Nothing → `unseen` and the clock runs again (press again, or tap the move).
+3. Engine game: the arm's clock runs while it thinks and moves; with auto-play off the operator approves once per move (a capture is two pick and places, one approval). The playables end at `ready`, clear of the board; then a new reference snapshot and the human's clock.
+4. A move that stops half-way (STOP, E-STOP, turn end) is recorded and `attention` asks for a human to finish it by hand; a denied move sets `attention` and the operator's Board fixed retries it.
 
 ## Server rules
 

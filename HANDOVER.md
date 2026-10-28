@@ -122,7 +122,7 @@ Then test with two real phones on the Wi-Fi:
 
 ## 8. Next (after the first hardware session)
 
-- Chess mode in open play: phone board, display panel; then board vision v1 (`CHESS.md` §5).
+- Chess mode in open play: built in the mock (real board + phone chess clock + display panel; `--chess-sensor fake|camera`; refused on the real arm until `workcell.json` is calibrated). Next: the board camera (`interfaces/chess_vision/camera.py`), then calibration (`CHESS.md` §5).
 - A spline ease, so pose sequences and recordings flow instead of stopping at each keyframe.
 - A per-joint `REACH_TOL` and a gravity feedforward from measured sag.
 - A torque-state readout from CAN replies inside `DimosBackend`.

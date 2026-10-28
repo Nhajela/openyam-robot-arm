@@ -3,6 +3,8 @@
 // joystick.html: iOS motion permission asked inside a tap, tilt -> velocity with a deadzone,
 // hold-to-drive deadman, fixed send rate, everything released on lift/hide/disconnect.
 
+import { openChess, chessMessage, chessInvolves } from './chess.js';
+
 const RATE_MS = 66;                 // ~15 Hz while a control is held
 const TILT_DEAD = 3, TILT_FULL = 25; // degrees (same as tilt.html)
 const STICK_DEAD = 0.08;
@@ -129,6 +131,8 @@ function handle(m) {
       S.poses = m.list || []; renderPoses(); break;
     case 'seq':
       renderSeq(m); break;
+    case 'chess':
+      chessMessage(m); $('chessLobbyCard').hidden = !chessInvolves(); break;
     case 'pong': break;
   }
 }
@@ -261,6 +265,7 @@ function applyFeatures() {
     moves: (w.moves || []).length > 0,
     say: f.say, poses: f.poses,
     grab: f.grab && (w.spots || []).length > 1,
+    chess: !!f.chess,
   };
   for (const b of $('tabs').children) b.hidden = !has[b.dataset.tab];
   const modes = { tilt: f.tilt, sticks: f.joystick, joints: f.joystick };
@@ -608,6 +613,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 
 // ------------------------------------------------------------------ start
 show('lobby');
+for (const id of ['chessTurn', 'chessLobby']) openChess($(id), { send, toast });
 applyFeatures();
 connect();
 window.openplay = { S, send, ctl, ws: () => ws }; // debugging / tests

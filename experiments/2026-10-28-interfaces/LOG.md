@@ -219,3 +219,20 @@ The coordinator integrated and committed each piece separately.
 - `~/src/openyam/` (two clones + `dimos-venv`, about 7.5 GB), `~/.cache/openyam/` (pose model), `~/.local/share/dimos/` (DimOS data).
 - No services, ports or config. Every test process was stopped.
 
+
+## 2026-10-28 13:20 IST: chess mode in open play (real board + chess clock + cameras), mock only
+
+**Environment:** lab laptop `pheonix-drone`, Ubuntu 24.04, `.venv` Python 3.12, python-chess, no Stockfish installed (the 1-ply "take the most valuable piece" picker plays). Branch `worktree-agent-af03803894b736657` on top of `f89c234`. No daemon, no DimOS, no motors, no CAN: every test runs the server in-process against a fake arm that validates playables with `armctl.playable.validate`.
+
+- **Decision (direction from the station):** the board is a real board. The human moves by hand and presses a chess clock ("I've moved") on the phone (or `c` on the laptop; Space stays E-STOP). The server compares a reference snapshot with a new one and finds the legal move; tap-to-move is only the fallback. The arm plays the engine's moves (pick and place, captures to the graveyard row) through the usual validate → approve → Play path, one approval per move (a capture is two pick and places).
+- **Built:**
+  - `interfaces/chess_vision/sensor.py`: the shared contract (`Snapshot`, `BoardSensor`), `rank_moves` (per-square occupancy/colour vs the position after each legal move, minus unexplained changes elsewhere), `decide` (seen / ambiguous / unseen), `FakeBoardSensor`. The camera sensor (`camera.py`) is being written separately against it.
+  - `openplay/chess_play.py`: the game, clocks, material eval, move → plan (`interfaces.grasp.chess_arm.plan`, dance caps if valid, else default), engine, the calibration refusal.
+  - server: `chess.new|accept|clock|pick|move|resign`, operator `chess.clock|fixed|reset`, `GET /chess/frame/<name>`, `--chess-sensor fake|camera`. Contract: `openplay/PROTOCOL.md` "Chess".
+  - phone: `openplay/static/chess.js` + `chess.css` (clock screen, candidates, fallback board); display: `display_chess.js` (board, clocks, eval bar, camera strip, warnings, rail controls).
+- **Observation (ranking, fake sensor):** with ±0.15 noise on every reading, quiet moves, captures, both castlings, en passant are all "seen" with the right move first; a capture is found even with colour unknown; no change → "unseen"; a promotion is always "ambiguous" (four pieces look alike), so the phone asks. Two knocked-over pawns halve the score (→ ask instead of guess).
+- **Observation (plans on the placeholder board):** each pick and place is ~21–23 s at dance caps (~40–45 s at default caps); a capture is two of them.
+- **Safety:** chess is refused when the daemon's adapter is not mock/sim (unknown counts as real) while `workcell.json` has `calibrated: false`; the display always shows the uncalibrated warning. A move stopped half-way sets `attention` (finish by hand, operator presses Board fixed).
+- **Tests:** `pytest armctl/tests interfaces/tests openplay/tests`: **333 passed** (new: `openplay/tests/test_chess.py` 24, `interfaces/tests/test_chess_vision.py` 18).
+- **Screenshots** (in-process server with a fake arm, headless chromium): [phone clock](media/openplay-chess-phone-clock.png), [display panel](media/openplay-chess-display.png). The "Arm disconnected" banner on the display is from the fake arm sending no state.
+- **Idea:** the eval bar is material only; with Stockfish installed, send its eval instead.

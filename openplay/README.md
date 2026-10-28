@@ -7,6 +7,7 @@ The laptop is connected to the arm and shows a QR code on its screen. Anyone can
 - **Say it:** type what you want ("wave at the kids"). Claude choreographs it, and the arm's safety layer checks it before it plays.
 - **Poses:** drive the arm to a position, save it, repeat, then play them all as one smooth sequence. The arm's speed limits are respected, and it tells you where it had to slow down.
 - **Grab:** pick an object from one spot on the table and put it on another.
+- **Chess:** play the arm (or another player) on a real board. Move your piece by hand and hit the big clock button on your phone; cameras work out your move (a tap board is the fallback) and the arm plays its reply. Chess stays off on the real arm until the board is calibrated (`interfaces/grasp/workcell.json` `calibrated: true`). `--chess-sensor camera` uses the board cameras; the default `fake` has none, so rehearsals use the tap board.
 
 The laptop screen is part of the show. It shows the arm live in 3D, the QR, who's playing and who's next, captions of what people asked for, and a "ghost" preview of Claude's choreography. The person at the laptop is the operator: E-STOP, approve moves, skip, extend, pause.
 
