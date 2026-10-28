@@ -550,6 +550,10 @@ class OpenPlay:
                 self.refuse(c, reason)
             return
         if op == "stream":
+            # OPENPLAY_NO_CARTESIAN=1: Tilt/Sticks off (DimOS IK can drive a joint past the
+            # adapter limit until the armctl watchdog lands, 28 Oct); Joints mode still works.
+            if os.environ.get("OPENPLAY_NO_CARTESIAN") and m.get("v") is not None and not _zero_stream(m):
+                return self.refuse(c, "Tilt and Sticks are off for this session: use Joints, Moves or Say it")
             return await self._stream(c, m)
         if op == "pose.save":
             return self._pose_save(c, pid)
