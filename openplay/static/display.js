@@ -729,7 +729,8 @@ function measure() {
     // the invitation sits top-left; put the arm lower and to the right of the free area
     focus = { cx: right * 0.64, cy: H * 0.42, span: Math.max(1.35, 1.0 * H / right) };
   } else {
-    focus = { cx: right * 0.52, cy: H * 0.6, span: Math.max(1.0, 0.85 * H / right) };
+    // tall moves reach ~0.8 m: leave room above the arm so the gripper stays in view
+    focus = { cx: right * 0.52, cy: H * 0.66, span: Math.max(1.3, 1.1 * H / right) };
   }
   layoutDirty = false;
 }
