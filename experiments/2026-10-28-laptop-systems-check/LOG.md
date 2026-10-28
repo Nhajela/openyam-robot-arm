@@ -140,3 +140,11 @@ Every check short of torque passed: CAN link, all 7 motors, deps, 291 unit tests
 - **Open play on the DimOS sim** (window `openplay`, pane `%3`): `.venv/bin/python -m openplay.server --daemon ws://127.0.0.1:8791/armctl --host-ip 192.168.100.191 --turn 300`. It says `Connected to the arm (dimos backend); auto-play off`. Display: http://127.0.0.1:8451. Phones: the QR code, `https://192.168.100.191:8450/?k=...` (self-signed certificate). Log: [logs/openplay-sim.log](logs/openplay-sim.log).
 - **Decision:** three coding agents in separate git worktrees, mock/pytest only, no CAN, no zenoh: (a) a j4/wrist kp/kd override for `armctl.dimos_coordinator`, (b) a flowing spline ease for pose sequences, (c) chess mode in open play.
 
+
+### 13:20 Direction: phone UX and chess on a real board
+- **Decision (Naman):** the phone should feel like a game. You choose a mode from cards, get a "get set" screen (for tilt, a **start pose** to hold the phone in, which becomes "still" for the whole turn), then play, with STOP, a **🏠 Home** button (new server `home` op) and a Modes button. An agent is building it in a worktree.
+- **Decision (Naman):** chess is played on a **real board**, not a tappable one. The human moves, hits a **chess-clock** "I've moved" button (phone, laptop, later a physical button), **cameras around the board** see the change, the server matches it to a legal move, and the robot moves the real pieces. Tap-to-move stays only as the fallback when vision is unsure. This is CHESS.md §1 layer 2 promoted to the main flow.
+  - Shared interface `interfaces/chess_vision/sensor.py`: `Snapshot` (per-square occupancy + colour probabilities, camera thumbnails), the `BoardSensor` protocol, and `rank_moves(board, before, after)`.
+  - Game agent: clock UI, game flow, `rank_moves`, `FakeBoardSensor`.
+  - Vision agent: `CameraBoardSensor`, i.e. ArUco corner markers → homography per camera, per-square occupancy and colour, multi-camera fusion, calibration CLI, synthetic-image tests.
+- Merged `9f9ec21` (`--kp/--kd` per-joint gain overrides) as `630226e`. One conflict, because the agent's worktree started from `d4a5c10`; resolved by keeping both sides; armctl 171 passed. Pushed `a312001`.
