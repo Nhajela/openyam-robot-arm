@@ -1,0 +1,4 @@
+{
+  "why": "Lab laptop table (28 Oct 2026): glass wall and wooden posts directly behind the arm. Scan poses at j1 -2.10/-2.45 (tip 15-23 cm behind the base) stopped 0.18/0.53 rad short, probably against the window frame/post. Hard j1 >= -1.80 (soft -1.70) keeps the tip at or in front of the base line on the arm's right. Remove or edit if the arm is moved.",
+  "limits": {"j1": [-1.80, 1.5708]}
+}
