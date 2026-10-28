@@ -23,6 +23,7 @@ You can turn a live session into a timeline: record it, then edit and replay it.
 | **Open play**: QR → queue → turns, phone controls, laptop show + operator rail | [`openplay/`](../openplay/README.md) | mock + DimOS sim |
 | Pose recorder → playable | `timeline/poses.py` | mock (used by open play's Poses tab) |
 | Grab between named spots | `grasp/spots.py` | mock (spots are placeholders) |
+| **Wrist camera: find and grasp a cup** (closed loop), lens + hand-eye + table calibration from one taped sheet | [`wristcam/`](wristcam/README.md) | new: synthetic renders + fake arm only; real-arm procedure in its README |
 
 ## Setup
 
