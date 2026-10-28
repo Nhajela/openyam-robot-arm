@@ -516,6 +516,7 @@ $('poseSave').addEventListener('click', () => { releaseAll(); send({ op: 'pose.s
 $('poseClear').addEventListener('click', () => { if (confirm('Delete all your saved poses?')) send({ op: 'pose.clear' }); });
 $('seqGentle').addEventListener('click', () => { releaseAll(); send({ op: 'seq.play', style: 'gentle' }); });
 $('seqLively').addEventListener('click', () => { releaseAll(); send({ op: 'seq.play', style: 'lively' }); });
+$('seqFlow').addEventListener('click', () => { releaseAll(); send({ op: 'seq.play', style: 'flow' }); });
 function renderPoses() {
   const ol = $('poses'); ol.replaceChildren();
   S.poses.forEach((p, n) => {

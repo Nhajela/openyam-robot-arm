@@ -679,7 +679,7 @@ class OpenPlay:
             poses = [{"q": p["q"], "grip": p["grip"]} for p in self.poses.get(pid, [])]
             if not poses:
                 return self.refuse(c, "save a pose first")
-            style = m.get("style") if m.get("style") in ("gentle", "lively") else "lively"
+            style = m.get("style") if m.get("style") in ("gentle", "lively", "flow") else "lively"
             self._begin(pid, "seq", "my sequence", "playing a pose sequence", self._do_seq(pid, poses, style))
         elif op == "grab":
             if not self.features["grab"]:

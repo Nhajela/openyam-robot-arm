@@ -219,3 +219,16 @@ The coordinator integrated and committed each piece separately.
 - `~/src/openyam/` (two clones + `dimos-venv`, about 7.5 GB), `~/.cache/openyam/` (pose model), `~/.local/share/dimos/` (DimOS data).
 - No services, ports or config. Every test process was stopped.
 
+
+## 2026-10-28 13:03 IST: flowing playback (spline ease), pure code, no arm
+
+**Environment:** lab laptop `pheonix-drone`, Linux 6.8, Python 3.12.3 (`.venv`), branch `worktree-agent-acf1742e3007211fe` on `main` @ `f89c234`. Tests only (mock/pure code); no DimOS, no zenoh, no CAN, nothing moved.
+
+- **Decision (format):** a new ease `"flow"` in `armctl/playable.py` (format 1.1) instead of dense keyframes. The daemon samples playables through `playable.sample`, so what is validated is exactly what plays, and the timeline stays editable (keyframes are still the poses). An older lab refuses `flow` as an unknown ease rather than mis-playing it.
+- **Decision (curve):** a cubic Hermite with **monotone PCHIP tangents** (Fritsch-Butland, as in scipy), not Catmull-Rom. Catmull-Rom overshoots a keyframe (e.g. a pose saved at a joint's soft limit); PCHIP keeps each joint between its two keyframe values, so in-box keys give an in-box path. Zero velocity at the ends, next to non-flow segments, at `"stop": true` keyframes, and per joint where that joint turns round. A lone flow segment equals cubic.
+- **Decision (guarantee):** `interfaces/timeline/flow.make_flow` time-stretches (`playable.retime`, else uniform) until `playable.validate` passes, never clips; it checks table clearance on every 100 Hz sample and turns a dipping segment back into a straight cubic move (reported in the notes). Anything else raises.
+- **Observation:** 3-pose demo sequence, dance caps: lively 11.0 s (stop + hold at each pose) → flow 10.1 s; max j1 vel 0.48 rad/s, acc 1.26 rad/s² (caps 0.6 / 2.0). Monotone 4-pose sequence: velocity at interior keyframes ≈ 0.21 rad/s (j1), 0 only at ready and at the turn-round pose.
+- **Insight:** with poses that reverse most joints (typical saved poses) PCHIP rests those joints anyway, so the gain is mostly the removed holds. Recordings gain most: keys sit mid-motion, so playback now follows the recording without stopping at each key.
+- **Observation:** `openplay/static/kin.js` preview implements the same rule; compared with `playable.sample` on a flowing sequence, max difference 5e-5 rad (JSON rounding).
+- **Tests:** `.venv/bin/python -m pytest -q armctl/tests interfaces/tests openplay/tests` → **304 passed** (new: `interfaces/tests/test_flow.py`, 13 tests).
+- **Idea / caveat for the real arm:** first try `style="flow"` in `--simulation` and at the `default` caps; the Hermite's acceleration is continuous within a segment but jumps at keyframes (C1, not C2), within the caps. Watch j4, which already lags at ready.

@@ -40,7 +40,7 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 | `pose.delete` | `i` | |
 | `pose.clear` | | |
 | `pose.goto` | `i` | move to saved pose `i` |
-| `seq.play` | `style`: `gentle` \| `lively` | play your saved poses in order as one smooth timeline that respects the arm's speed limits |
+| `seq.play` | `style`: `gentle` \| `lively` \| `flow` | play your saved poses in order as one smooth timeline that respects the arm's speed limits (`flow`: passes through the poses without stopping) |
 | `grab` | `from`, `to` (spot names from `welcome.spots`) | pick an object at one spot and put it at another |
 | `ping` | | → `pong` |
 

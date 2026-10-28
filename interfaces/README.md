@@ -75,6 +75,11 @@ Watch the mock arm in the console (`dashboard/start-all.sh`, http://127.0.0.1:80
   - `fit(p, "shrink")` keeps the timing (the beat) and shrinks the offending moves.
   - Motion model: cubic ease peaks at 1.5·d/T velocity and 6·d/T² acceleration.
 - **`record.py`** turns a recording (measured joints over time, from any interface) into keyframes. It keeps the pauses, then refines until the cubic playback is within 0.04 rad of the recording, then fits the caps.
+- **Flow instead of stop-start** (`flow.py`). A `cubic` move comes to rest at every keyframe. The `flow` ease (in `armctl/playable.py`, format 1.1) is a monotone cubic Hermite (PCHIP tangents): the arm passes through a keyframe between two flow segments without stopping, and rests only at the ends, at `"stop": true` keyframes, and per joint where that joint turns round. `make_flow(p)` converts a playable and guarantees the validator still passes:
+  - Soft limits: monotone tangents never overshoot (each joint stays between its two keyframe values), and the validator checks every sample anyway.
+  - Speed caps: if the curve is too fast it is **time-stretched** (`playable.retime`, else a uniform stretch) until it passes. Positions are never clipped.
+  - Table: the curve is not the straight joint-space line, so every 100 Hz sample is checked with FK. A segment that would dip goes back to a straight `cubic` move, and the notes say so.
+  - Use it with `sequence_playable(poses, style="flow")` (or `flow=True` with `lively`/`gentle`; open play's Poses tab has a **Flow** button) and `record.to_playable(rec, name, flow=True)` / `python -m interfaces.timeline.record rec.json --flow` (rests only where the recording paused). The timeline editor offers `flow` as an ease. Tests: `interfaces/tests/test_flow.py`.
 - **`server.py`** + `static/timeline.html` is the editor, at http://127.0.0.1:8097. It has one lane per joint plus the gripper. You drag keyframes, double-click to add one and right-click to delete one. Green bars show what each joint can reach, red marks what the arm can't do. The buttons are Stretch/Shrink to fit, Record (observes the daemon while another interface drives the arm), Send to arm (the operator approves and presses Play) and Save.
 
 ## Grasp and chess (`grasp/`)

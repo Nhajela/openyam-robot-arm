@@ -14,6 +14,8 @@ the timing and scales the offending moves down.
 
 Motion model (same as armctl.playable): ``cubic`` ease peaks at 1.5 d/T velocity and
 6 d/T^2 acceleration; ``linear`` at d/T (and needs matching neighbours); ``hold`` doesn't move.
+``flow`` depends on its neighbours, so its segments are judged (and stretched) by the
+validator itself rather than by this per-segment model.
 """
 from __future__ import annotations
 
@@ -90,7 +92,8 @@ def explain(p: dict, *, table: bool = True) -> dict[str, Any]:
         gneed = abs(b["grip"] - a["grip"]) * (1.5 if b["ease"] == "cubic" else 1.0) / gcap * speed
         problems = []
         for j in range(6):
-            if need[j] > (b["t"] - a["t"]) * 1.001 + 1e-9:
+            # a "flow" segment's speed depends on its neighbours: the validator judges it
+            if b["ease"] != "flow" and need[j] > (b["t"] - a["t"]) * 1.001 + 1e-9:
                 problems.append({
                     "joint": JOINTS[j], "kind": "too_fast", "need_s": round(float(need[j]), 3),
                     "max_move": round(float(dmax[j]), 3),
@@ -201,8 +204,16 @@ def fit(p: dict, how: str = "stretch") -> dict:
             ga, gb = a.get("grip"), b.get("grip")
             gneed = 0.0 if ga is None or gb is None else abs(gb - ga) * 1.5 / gcap
             need = max(float(need_time(d, ease, vcap, acap).max()), gneed) * speed * 1.02
+            if ease == "flow":  # timed by the validator below
+                need = 0.0
             new_dt = max(dt_old, need)
             b["t"] = round(a["t"] + new_dt, 3)
+        if any(k.get("ease") == "flow" for k in kfs):
+            from .flow import fit_caps
+            try:
+                q = fit_caps(q)
+            except ValueError:  # not a speed problem: leave it for the report
+                pass
         return q
     if how == "shrink":
         for i in range(1, len(kfs)):
