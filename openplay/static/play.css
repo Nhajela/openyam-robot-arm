@@ -170,6 +170,15 @@ body:not(.in-turn) .toasts { top: calc(12px + env(safe-area-inset-top)); }
 .dock > * { width: 100%; max-width: 560px; margin-left: auto; margin-right: auto; }
 .dock-row { display: flex; gap: 8px; }
 .dockbtn { flex: 1; min-height: 50px; font-size: 16px; border-radius: 14px; }
+/* Tilt's hold button sits in the dock, by the thumb, right above STOP (only on the Tilt play view) */
+.dock-tilt { display: none; }
+body[data-view="play"][data-mode="tilt"] .dock-tilt { display: flex; }
+body[data-view="play"][data-mode="tilt"] { --dock-h: calc(226px + env(safe-area-inset-bottom)); }
+.dock-hold { flex: 2.4; min-height: 72px; font-size: 19px; font-weight: 900; letter-spacing: .03em;
+  background: #1d4433; border-color: var(--ok); color: #bdf5d9; }
+.dock-hold.on { background: var(--ok); color: #06281a; }
+.dock-tilt .dz { flex: 1; min-height: 72px; font-size: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; gap: 2px; }
+.dock-tilt .dz small { font-size: 12px; font-weight: 600; }
 #homeBtn { color: #ffd9a8; border-color: #5a4126; background: #1f1810; }
 /* STOP: the biggest thing on the page, at the bottom where the thumb already is */
 .stop {

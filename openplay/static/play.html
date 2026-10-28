@@ -186,16 +186,13 @@
           <span class="pad-lbl t">tilt forward: away</span>
           <span class="pad-lbl l">left</span><span class="pad-lbl r">right</span>
           <span class="pad-lbl b">tilt back: toward you</span>
-          <div class="pad-cta" id="padCta">Hold &amp; tilt</div>
+          <div class="pad-cta" id="padCta">Hold ▼ below &amp; tilt</div>
           <div class="pad-gate" id="padGate" hidden>
             <div class="pg-big">↩ Back to your start pose</div>
             <div class="pg-sub" id="padGateSub">The arm waits until you're there</div>
           </div>
         </div>
-        <div class="row">
-          <button class="btn hold" id="zUp">▲ Up</button>
-          <button class="btn hold" id="zDown">▼ Down</button>
-        </div>
+        <p class="small muted center">Hold the green button at the bottom and tilt. Let go and the arm stops.</p>
         <button class="btn tiny ghost center-btn" id="resetPoseBtn">🎯 Re-set start pose</button>
       </div>
 
@@ -292,6 +289,12 @@
     <div class="dock-row">
       <button class="btn dockbtn" id="modesBtn">◀ Modes</button>
       <button class="btn dockbtn" id="homeBtn">🏠 Home</button>
+    </div>
+    <!-- Tilt: the hold button lives here, by the thumb, right above STOP -->
+    <div class="dock-row dock-tilt" id="dockTilt">
+      <button class="btn hold dz" id="zDown">▼<small>Down</small></button>
+      <button class="btn hold dock-hold" id="tiltHold">✋ HOLD &amp; TILT</button>
+      <button class="btn hold dz" id="zUp">▲<small>Up</small></button>
     </div>
     <button class="stop" id="stopBtn">■ STOP</button>
   </footer>

@@ -352,6 +352,7 @@ function sendReady(why) {
 function openMode(id, opts = {}) {
   const m = modeById(id); if (!m) return;
   S.mode = id;
+  document.body.dataset.mode = id;
   const hero = $('gsHero'); hero.dataset.hue = m.hue || 'blue';
   $('gsEmoji').textContent = m.emoji; $('gsTitle').textContent = m.title; $('gsPitch').textContent = m.pitch;
   const steps = $('gsSteps'); steps.replaceChildren();
@@ -464,7 +465,7 @@ function releaseAll() {
   ctl.tilt = false; ctl.tiltArmed = false; ctl.z = 0; ctl.jogOn.clear(); ctl.jog.fill(0);
   for (const s of Object.values(ctl.sticks)) { s.on = false; s.x = s.y = 0; s.reset && s.reset(); }
   for (const j of jogEls) j.reset();
-  for (const id of ['tiltPad', 'zUp', 'zDown']) $(id).classList.remove('on');
+  for (const id of ['tiltPad', 'tiltHold', 'zUp', 'zDown']) $(id).classList.remove('on');
   $('padGate').hidden = true;
   stopStream(); drawDot();
 }
@@ -566,12 +567,21 @@ function drawDot() {
 $('sensorsBtn').addEventListener('click', enableSensors);
 $('noSensorBtn').addEventListener('click', () => openMode('sticks'));
 $('resetPoseBtn').addEventListener('click', () => { S.neutral = null; openMode('tilt', { ready: false }); });
-holdable($('tiltPad'), () => {
+// Hold to drive: the dock button (by the thumb, above STOP) or the pad itself.
+const tiltDown = (src) => () => {
   // the start pose stays the saved one: a press never re-zeroes
   ctl.tilt = true; ctl.tiltArmed = offStart() <= RETURN_TOL;
+  $('tiltPad').classList.add('on'); $('tiltHold').classList.add('on');
   if (!ctl.tiltArmed) buzz([20, 30, 20]);
   checkTiltGate(); startStream();
-}, () => { ctl.tilt = false; ctl.tiltArmed = false; $('padGate').hidden = true; drawDot(); maybeStop(); });
+};
+const tiltUp = () => {
+  ctl.tilt = false; ctl.tiltArmed = false; $('padGate').hidden = true;
+  $('tiltPad').classList.remove('on'); $('tiltHold').classList.remove('on');
+  drawDot(); maybeStop();
+};
+holdable($('tiltHold'), tiltDown('dock'), tiltUp);
+holdable($('tiltPad'), tiltDown('pad'), tiltUp);
 holdable($('zUp'), () => { ctl.z = 1; startStream(); }, () => { ctl.z = 0; maybeStop(); });
 holdable($('zDown'), () => { ctl.z = -1; startStream(); }, () => { ctl.z = 0; maybeStop(); });
 
