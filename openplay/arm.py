@@ -95,6 +95,13 @@ class ArmBridge:
         return self.hello.get("backend")
 
     @property
+    def adapter(self) -> str | None:
+        """"sim" | "real" from the daemon's state (DimosBackend), "mock" for the mock backend."""
+        if self.backend == "mock":
+            return "mock"
+        return self.state.get("adapter") or self.hello.get("adapter")
+
+    @property
     def ready(self) -> bool:
         return self.has_lease and not self.estop
 

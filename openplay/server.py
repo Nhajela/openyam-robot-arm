@@ -285,7 +285,7 @@ class OpenPlay:
         m = {"op": "arm", "q": s.get("q"), "grip": s.get("grip"), "moving": s.get("moving"),
              "busy": (b["title"] if b else None) or s.get("busy"), "mode": s.get("mode")}
         if display:
-            m["estop"], m["lease"] = self.arm.estop, self.arm.has_lease
+            m["estop"], m["lease"], m["adapter"] = self.arm.estop, self.arm.has_lease, self.arm.adapter
         return m
 
     def daemon_health(self) -> str:
@@ -302,7 +302,7 @@ class OpenPlay:
 
     def display_hello(self) -> dict:
         h = self.arm.hello
-        return {"op": "hello", "join_url": self.join_url, "backend": self.arm.backend,
+        return {"op": "hello", "join_url": self.join_url, "backend": self.arm.backend, "adapter": self.arm.adapter,
                 "turn_s": self.lobby.turn_s, "auto_play": self.auto_play, "paused": self.lobby.paused,
                 "moves": self.moves, "spots": self.spots, "envelope": h.get("envelope"),
                 "poses": h.get("poses"), "urdf": (self.urdf_dir / "i2rt" / "yam.urdf").is_file(),

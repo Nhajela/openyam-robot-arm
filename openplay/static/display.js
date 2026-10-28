@@ -63,18 +63,25 @@ function handle(m) {
 function onHello(m) {
   S.hello = m;
   onConfig(m);
-  const real = m.backend && m.backend !== 'mock';
-  const pill = $('backendPill');
-  pill.textContent = m.backend ? (real ? `real arm · ${m.backend}` : 'mock arm') : 'backend ?';
-  pill.className = 'pill ' + (real ? 'real' : 'mock');
-  const rb = $('railBackend');
-  rb.textContent = m.backend || '?';
-  rb.className = 'rail-backend ' + (real ? 'real' : 'mock');
+  S.adapter = m.adapter || null;
+  renderBackend();
   $('qrImg').src = '/qr.png?v=' + Date.now();
   $('joinUrl').textContent = m.join_url || '';
   buildJoints();
   if (m.urdf) tryThree();
   renderLobby();
+}
+// Only say "sim" when the daemon reports it; an unknown adapter on a non-mock backend is shown as real.
+function renderBackend() {
+  const backend = S.hello && S.hello.backend, adapter = S.adapter;
+  const real = backend && backend !== 'mock' && adapter !== 'sim';
+  const pill = $('backendPill');
+  pill.textContent = !backend ? 'backend ?' : backend === 'mock' ? 'mock arm'
+    : adapter === 'sim' ? `simulated arm · ${backend}` : `real arm · ${backend}`;
+  pill.className = 'pill ' + (real ? 'real' : 'mock');
+  const rb = $('railBackend');
+  rb.textContent = !backend ? '?' : backend === 'mock' ? 'mock' : `${backend} ${adapter === 'sim' ? 'sim' : 'REAL'}`;
+  rb.className = 'rail-backend ' + (real ? 'real' : 'mock');
 }
 function onConfig(m) {
   for (const k of ['auto_play', 'paused', 'turn_s']) if (m[k] !== undefined && m[k] !== null) S.cfg[k] = m[k];
@@ -90,6 +97,7 @@ function onConfig(m) {
 function onArm(m) {
   const wasEstop = !!(S.arm && S.arm.estop);
   S.arm = m; S.armAt = performance.now(); S.armCount++;
+  if (m.adapter && m.adapter !== S.adapter) { S.adapter = m.adapter; renderBackend(); }
   if (Array.isArray(m.q) && m.q.length >= 6) target.q = m.q.slice(0, 6).map(Number);
   if (Number.isFinite(+m.grip)) target.grip = +m.grip;
   if (!!m.estop !== wasEstop) { updateBanner(); updateHealth(); $('resetBtn').disabled = !m.estop; }
