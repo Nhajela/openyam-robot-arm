@@ -2,19 +2,20 @@
 
 The starting point for a local session on the lab laptop with the real arm. It says what was built on the server (serenity: no arm, no camera, no CAN), how it was tested, and the step-by-step plan for the first hardware session. **Keep it current:** update the status table and "Next" whenever something changes.
 
-> **Status at a glance:** everything runs in armctl's **mock** sim, and the full stack (DimOS coordinator → armctl daemon on `DimosBackend` → open play → phone) also runs in DimOS **`--simulation`**. **Nothing new has moved the real arm.** Branch: `interfaces-mirror-timeline-grasp` (local commits on serenity; push and PR when Naman says so).
+> **Status at a glance:** everything runs in armctl's **mock** sim, and the full stack (DimOS coordinator → armctl daemon on `DimosBackend` → open play → phone) also runs in DimOS **`--simulation`**. **Nothing new has moved the real arm.** The code lives on Naman's fork, **`Nhajela/openyam-robot-arm` `main`**. Our GitHub account can't push to `Edge-City/openyam-robot-arm` (pull-only), so work goes to the fork; a PR to Edge-City is optional.
 
 ## 1. Pull it onto the laptop
 
 ```sh
 cd ~/openyam-robot-arm                       # the laptop checkout with the DimOS .venv (README §2)
-git fetch origin && git checkout interfaces-mirror-timeline-grasp
+git remote add fork https://github.com/Nhajela/openyam-robot-arm.git   # once
+git pull fork main
 uv pip install --python .venv/bin/python -r interfaces/requirements.txt qrcode anthropic
 .venv/bin/python -c "import cv2; cv2.aruco; import mediapipe, chess, dimos"   # if aruco broke: interfaces/README.md "Setup"
 .venv/bin/python -m pytest -q armctl/tests interfaces/tests openplay/tests    # expect ~253 passed
 ```
 
-If the branch isn't on GitHub yet, push it from serenity first: `cd ~/src/openyam/openyam-robot-arm && git push -u origin interfaces-mirror-timeline-grasp`.
+The serenity checkout (`~/src/openyam/openyam-robot-arm`) has `main` tracking `fork/main`, so a plain `git push` there goes to the fork.
 
 Read, in order:
 1. `CLAUDE.md` (safety rules)
@@ -113,7 +114,7 @@ Then test with two real phones on the Wi-Fi:
 
 ## 7. Open questions for Naman
 
-- Push the branch and open a PR to `Edge-City/openyam-robot-arm`?
+- Open a PR from the fork to `Edge-City/openyam-robot-arm`? It needs someone with write access there to merge it. The code is on the fork's `main`.
 - Which Anthropic API key (and spending cap) should open play use at events?
 - Event network: LAN with a self-signed cert (warning on each phone), our domain with a real cert pointed at the laptop's LAN IP, or a tunnel (see `openplay/README.md`).
 - Turn length for busy nights (3 / 5 / 10 min)?

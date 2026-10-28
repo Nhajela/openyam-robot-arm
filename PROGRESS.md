@@ -64,6 +64,6 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ### Next
 1. ⏳ **Laptop + arm:** rehearse on DimOS sim, then the first hardware session in [HANDOVER.md §5](HANDOVER.md). The order: coordinator `--real`, ready/home, gripper direction, joystick, moves at 0.3 rad/s, open play with auto-play off, mirror with `--clutch`, calibration, first grasp.
-2. ❗ Push and PR or merge to `main`? An Anthropic key and spending cap for Say it? Event network (LAN self-signed vs our domain vs tunnel)?
+2. ✅ Merged to `main` and pushed to the fork `Nhajela/openyam-robot-arm` (Edge-City is pull-only for our account). ❗ Still open: an Anthropic key and spending cap for Say it, and the event network (LAN self-signed vs our domain vs tunnel).
 3. ⏳ Chess mode in open play (phone board + display panel), then board vision v1.
 4. ⏳ A spline ease (flowing sequences), gravity feedforward or measured sag, and torque state from CAN.
