@@ -10,6 +10,26 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ---
 
+## 2026-10-28 (late afternoon/evening): real-arm day: phone, harness, layout, wrist camera, gravity cause
+
+**Where:** lab laptop, real arm. Notebook: [experiments/2026-10-28-laptop-systems-check/LOG.md](experiments/2026-10-28-laptop-systems-check/LOG.md); research: [experiments/2026-10-28-prior-art/](experiments/2026-10-28-prior-art/REPORT.md), [j4 gravity](experiments/2026-10-28-j4-gravity-scale/LOG.md).
+
+- ✅ **Phone on the real arm:** open play with moves (dance moves slowed to fit the caps), Joints, Say it (Claude), Home/Ready, game-style mode menu, thumb-reach dock, "too low to steer" bar.
+- ✅ **j4:** holding error tracks gravity (0.015–0.109 rad); kp 22 halves it. **Cause found:** DimOS's gravity URDF gives the gripper 1.19 kg vs i2rt's 0.60–0.69 kg → ~1 N·m excess on j4. `--gravity-scale j4=…` built (not yet run on the arm).
+- ❗ **Incident: arm went limp** (j1 sent to +1.62 past DimOS's +1.571 adapter limit). **Fixed with a harness:** limits = i2rt ∩ DimOS ∩ site; a model-file check at connect; a last-line gate; an edge-of-reach watchdog for Tilt/Sticks; fault → E-STOP + banner. Per-site limits in `armctl/site_limits.json`.
+- ✅ **Layout:** the base was rotated (folded gripper points down the table); glass on the arm's right; temporary site limit j1 soft −0.6..+1.2.
+- 🧪 **Wrist camera:** a bracket camera ~60° off the fingers (measured). Lens calibrated (fisheye, fx ≈ 537, 44 views, RMS 0.79). Hand-eye **not yet accepted**: the printed board is not the 29.97 mm it claims (the fit says ~22.9 mm); the new gates refuse bad results.
+- 🧪 Merged from agents: chess on a real board (clock + vision v1), flowing sequences, wristcam pipeline, hand-eye gates/solvers.
+- ❗ **End of day:** j4 stopped answering on CAN after running hot (all LEDs red). Power off overnight.
+
+### Next (tomorrow)
+1. Power on → probe: j4 must answer.
+2. Gravity: `--gravity-scale j4=0.83` (sim plumbing, then real, short holds, watch j4 temperature).
+3. **First pick (Route A, no camera):** measure the cup's position/size and the gripper gap with a ruler → plan (top-down or rim pinch) → sim → real at 0.2 rad/s.
+4. Ruler: board width (7 squares) + base board thickness → re-solve hand-eye (`WRISTCAM_SQUARE_MM`, `--table-z`) → camera pick.
+
+---
+
 ## 2026-10-28 (afternoon): laptop systems check + first real-arm steps (lab laptop, arm)
 
 **Where:** lab laptop `pheonix-drone`, Ubuntu 24.04, DimOS 0.0.14, `main` @ `2bb9b6d` + the tolerance change. Notebook: [experiments/2026-10-28-laptop-systems-check/LOG.md](experiments/2026-10-28-laptop-systems-check/LOG.md).

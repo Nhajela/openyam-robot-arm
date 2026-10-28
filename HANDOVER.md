@@ -4,6 +4,16 @@ The starting point for a local session on the lab laptop with the real arm. It s
 
 > **Status at a glance:** everything runs in armctl's **mock** sim, and the full stack (DimOS coordinator → armctl daemon on `DimosBackend` → open play → phone) also runs in DimOS **`--simulation`**. **On 28 Oct the laptop ran §5 steps 1–3 on the real arm (ready, home, gripper); nothing beyond that has moved it.** The code lives on Naman's fork, **`Nhajela/openyam-robot-arm` `main`**. Our GitHub account can't push to `Edge-City/openyam-robot-arm` (pull-only), so work goes to the fork; a PR to Edge-City is optional.
 
+## 0. Start here (next session, after 28 Oct)
+
+1. The arm's power supply was switched OFF overnight because **j4 overheated and stopped answering on CAN** (all LEDs red). Power on, then `.venv/bin/python -I tools/probe_motors.py can0`: all 7 must answer with no faults. If j4 is still silent, inspect its connector/cable before anything else.
+2. Real-arm start line (site limits in `armctl/site_limits.json` load automatically):
+   `ZENOH_SCOUT_ADDR=224.0.0.123:7449 .venv/bin/python -m armctl.dimos_coordinator --real --can-port can0 --kp j4=22 --kd j4=2`
+   then try adding `--gravity-scale j4=0.83` (see `experiments/2026-10-28-j4-gravity-scale/LOG.md`; check in `--simulation` first). **Keep holds short and fold home when idle**: j4 runs hot.
+3. First pick (no camera): measure the cup's position from the base centre with a ruler, plus its rim diameter and height and the open gripper gap → plan top-down or rim-pinch → sim → real.
+4. Camera route: measure the printed board (7 squares wide) and the base board's thickness → `WRISTCAM_SQUARE_MM=…` → `handeye solve --dir interfaces/wristcam/data/he1 --write-workcell --table-z …` (gates must pass).
+5. Open play: `openplay.server --daemon ws://127.0.0.1:8091/armctl --auto-play off`. Don't `export` `OPENPLAY_NO_CARTESIAN` in a shared shell.
+
 ## 1. Pull it onto the laptop
 
 ```sh
