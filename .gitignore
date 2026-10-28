@@ -24,3 +24,4 @@ music/clips/*
 .claude/
 *-local.jpg
 *-local.png
+experiments/*/scan-*-local/

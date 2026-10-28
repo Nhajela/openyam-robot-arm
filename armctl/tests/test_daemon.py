@@ -75,7 +75,7 @@ def test_hello_required_and_reply():
         await a.op("hello", program="tilt", name="iPhone")
         h = a.last("hello")
         assert h["client"] == a.client.id and h["protocol"] == "armctl/0"
-        assert h["envelope"]["soft_limits"]["j4"] == [-1.593, 1.471]
+        assert h["envelope"]["soft_limits"]["j4"] == [-1.5581, 1.471]
     run(body)
 
 

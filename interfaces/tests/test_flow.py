@@ -121,8 +121,8 @@ def test_flow_style_refusals_unchanged():
 
 # ---------------------------------------------------------------- caps, limits, table
 def test_too_tight_timing_is_stretched_until_it_passes_never_clipped():
-    # monotone j1 sweep, timed far too fast for the caps
-    kfs = [_kf(0, READY)] + [_kf(0.3 * i, np.array(READY) + [0.3 * i, 0, 0, 0, 0, 0]) for i in range(1, 6)]
+    # monotone j1 sweep (to j1 1.40, inside the DimOS-safe soft limit 1.471), timed far too fast for the caps
+    kfs = [_kf(0, READY)] + [_kf(0.3 * i, np.array(READY) + [0.28 * i, 0, 0, 0, 0, 0]) for i in range(1, 6)]
     p = _playable(kfs, caps="dance")
     assert not pl.validate(p)["ok"]
     f, notes = make_flow(p)

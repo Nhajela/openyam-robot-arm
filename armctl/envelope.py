@@ -41,14 +41,33 @@ import numpy as np
 JOINTS: tuple[str, ...] = ("j1", "j2", "j3", "j4", "j5", "j6")
 N = len(JOINTS)
 
-# URDF limits (rad), yam_description/i2rt/yam.urdf.
-URDF_LIMITS: dict[str, tuple[float, float]] = {
+# Limits of the model armctl plans with (yam_description/i2rt/yam.urdf), rad.
+I2RT_URDF_LIMITS: dict[str, tuple[float, float]] = {
     "j1": (-2.618, 3.142),
     "j2": (0.0, 3.665),
     "j3": (0.0, 3.142),
     "j4": (-1.693, 1.571),
     "j5": (-1.571, 1.571),
     "j6": (-2.094, 2.094),
+}
+# Limits the DimOS Damiao adapter enforces on the REAL arm (yam_description/urdf/
+# yam_gripper_gravity.urdf, its kinematic model): a joint reading more than 0.05 rad past one
+# latches a feedback fault and the arm goes limp. On 2026-10-28 armctl let j1 go to +1.62
+# (its own limit was +3.04) and the arm dropped. DimosBackend re-reads the installed file and
+# refuses to start if these pinned values are looser than it (armctl/dimos_limits.py).
+DIMOS_ADAPTER_LIMITS: dict[str, tuple[float, float]] = {
+    "j1": (-3.92699, 1.5708),
+    "j2": (0.0, 3.66519),
+    "j3": (0.0, 4.01426),
+    "j4": (-1.65806, 1.65806),
+    "j5": (-1.5708, 1.5708),
+    "j6": (-2.35619, 1.8326),
+}
+# Hard limits = the intersection of both: nothing armctl allows can fault DimOS.
+URDF_LIMITS: dict[str, tuple[float, float]] = {
+    j: (round(max(I2RT_URDF_LIMITS[j][0], DIMOS_ADAPTER_LIMITS[j][0]), 4),
+        round(min(I2RT_URDF_LIMITS[j][1], DIMOS_ADAPTER_LIMITS[j][1]), 4))
+    for j in I2RT_URDF_LIMITS
 }
 DEFAULT_MARGIN = 0.1  # rad, per side
 VEL_CAP = 0.3  # rad/s per joint (conservative start; raise per joint after hardware tests)
