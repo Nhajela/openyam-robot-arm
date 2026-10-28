@@ -1,0 +1,87 @@
+{
+ "model": "fisheye",
+ "K": [
+  [
+   492.643174,
+   0.0,
+   693.128913
+  ],
+  [
+   0.0,
+   489.326266,
+   372.372332
+  ],
+  [
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "D": [
+  0.15440377,
+  -0.0128507,
+  -0.03430135,
+  0.01376725
+ ],
+ "size": [
+  1280,
+  720
+ ],
+ "rms": 0.6294257946543167,
+ "meta": {
+  "per_view_rms": [
+   0.855,
+   0.258,
+   0.222,
+   0.371,
+   0.789,
+   0.528,
+   0.314,
+   0.309,
+   0.826,
+   0.267,
+   0.905,
+   0.479,
+   0.252,
+   0.714,
+   1.22
+  ],
+  "dropped_views": [],
+  "n_views": 15,
+  "chosen_by": "lowest reprojection error (more parameters must win by > 10%)",
+  "candidates": {
+   "fisheye": 0.6294,
+   "rational": 0.6256,
+   "pinhole": 0.6358
+  },
+  "failed": {},
+  "coverage": {
+   "cells_hit": 0.475,
+   "radius_reached": 0.8383510268104446,
+   "grid": [
+    8,
+    5
+   ],
+   "n_views": 15
+  },
+  "calibrated_at": "2026-10-28T15:55:05",
+  "board": {
+   "dict": "DICT_5X5_100",
+   "squares": [
+    7,
+    5
+   ],
+   "square_mm": 29.972,
+   "marker_mm": 21.9795,
+   "tag_dict": "DICT_4X4_50",
+   "tag_ids": [
+    2,
+    3,
+    4
+   ],
+   "tag_mm": 40.0,
+   "table_frame": "origin at the board centre, x = long edge (+x arrow), y = toward the top of the print, z up"
+  },
+  "source_dir": "interfaces/wristcam/data/intr1"
+ }
+}
