@@ -21,6 +21,7 @@ Safety rules carry across all experiments: start folded on the stops, probe befo
 | [2026-10-28-j4-gravity-scale](2026-10-28-j4-gravity-scale/LOG.md) | Naman (+ Claude) | Why j4 holds off target: DimOS's gravity URDF gripper is 1.19 kg vs i2rt's 0.69 (+1 N·m on j4); fits; `--gravity-scale j4=…` per-joint feedforward scale in armctl.dimos_coordinator | code + offline analysis done; real-arm test next |
 | [2026-10-28-laptop-systems-check](2026-10-28-laptop-systems-check/LOG.md) | Naman (+ Claude) | Pull fork `main` onto the lab laptop; check CAN, motors (read-only), deps, tests, DimOS-sim e2e before the first hardware session | active: all green, real-arm steps next |
 | [2026-10-28-prior-art](2026-10-28-prior-art/REPORT.md) | Naman (+ Claude research agent) | Find repos, models, datasets and people on the same infra (i2rt YAM, Damiao, DimOS) to reuse: j4 gravity, wrist-camera calibration, cup grasp, chess, phone teleop, LLM control | done (desk research) |
+| [2026-10-28-j4-gravity-scale](2026-10-28-j4-gravity-scale/LOG.md) | Naman (+ Claude agent) | Why j4 holds off target: DimOS's gravity URDF gives the gripper 1.19 kg vs i2rt's 0.60–0.69 kg (~1 N·m extra on j4); `--gravity-scale j4=…` override | built + unit-tested; real-arm test next |
 | [2026-10-28-wristcam](2026-10-28-wristcam/LOG.md) | Naman (+ Claude) | Wrist camera: calibrate (lens, hand-eye, table) from one taped sheet; find a cup and grasp it in a closed loop | active: synthetic tests green; real-arm calibration next |
 
 ## Ideas backlog
