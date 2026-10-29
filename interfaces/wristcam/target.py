@@ -245,6 +245,7 @@ def segment(frame, view: View, uv, box=None, cfg: PickConfig | None = None) -> t
     gm[:3], gm[-3:], gm[:, :3], gm[:, -3:] = cv2.GC_BGD, cv2.GC_BGD, cv2.GC_BGD, cv2.GC_BGD
     try:
         bgd, fgd = np.zeros((1, 65), np.float64), np.zeros((1, 65), np.float64)
+        cv2.setRNGSeed(0)   # GrabCut seeds its GMMs from OpenCV's global RNG: same frame, same mask
         cv2.grabCut(sub, gm, None, bgd, fgd, 4, cv2.GC_INIT_WITH_MASK)
         fg = ((gm == cv2.GC_FGD) | (gm == cv2.GC_PR_FGD)).astype(np.uint8)
     except cv2.error:
@@ -473,8 +474,28 @@ def resolve(frame, view: View, req: TargetRequest, wc: Workcell, cfg: PickConfig
     uv = np.array(req.pixel, float)
     check_pixel(frame, view, uv, wc, cfg)
     mask, info = segment(frame, view, uv, req.box, cfg)
+    return target_from_mask(frame, view, mask, wc, cfg, req=req, info=info, max_open=max_open)
+
+
+def target_from_mask(frame, view: View, mask, wc: Workcell, cfg: PickConfig | None = None, req: TargetRequest | None = None,
+                     info: dict | None = None, label: str = "", max_open: float | None = None) -> Target:
+    """An object's image mask (from any segmenter: the tap GrabCut above, YOLO-E, Claude + GrabCut)
+    -> ``Target``: footprint and height on the table plane (prism fit), grasp width and yaw, refusal.
+    Raises TargetRefused when the mask is cut off by the picture's edge, too small or out of reach."""
+    cfg = cfg or PickConfig()
+    mask = (np.asarray(mask) > 0).astype(np.uint8) * 255
+    if info is None:
+        h, w = mask.shape[:2]
+        ys, xs = np.nonzero(mask)
+        if not len(xs):
+            raise TargetRefused("nothing there to pick up", "empty")
+        edge = xs.min() <= 1 or ys.min() <= 1 or xs.max() >= w - 2 or ys.max() >= h - 2
+        info = {"touches_image": bool(edge), "touches_jaw": False, "source": "mask"}
     if info["touches_image"]:
         raise TargetRefused("that object is cut off at the edge of the picture: pick one nearer the middle", "edge")
+    if req is None:
+        ys, xs = np.nonzero(mask)
+        req = TargetRequest("mask", list(view.q or []), "prompt", (float(xs.mean()), float(ys.mean())), label=label)
     hs = np.arange(0.0, cfg.max_height + 1e-9, 0.01)
     fp = footprint(mask, view, hs)
     height, known = fp["height"], fp["observable"]
@@ -493,7 +514,7 @@ def resolve(frame, view: View, req: TargetRequest, wc: Workcell, cfg: PickConfig
     cnts, _ = cv2.findContours((mask > 0).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     outline = cv2.approxPolyDP(max(cnts, key=cv2.contourArea), 1.5, True).reshape(-1, 2).tolist()
     kind = "cup" if fp["model"] == "circle" and height > 0.03 else "object"
-    label = req.label or ("cup" if kind == "cup" else "object")
+    label = label or req.label or ("cup" if kind == "cup" else "object")
     sigma = float(np.hypot(0.002 + 0.01 * fp["cost"], 0.0 if known else 0.004))
     t = Target(tuple(float(v) for v in xy), float(height), tuple(size), float(yaw), tuple(float(v) for v in top_px),
                outline, np.asarray(corners).tolist(), bool(known), sigma, label, kind, None, req.to_dict())
@@ -767,6 +788,109 @@ class SeededFinder:
                          float(score), extra={"coverage": round(cov, 3), "source": src, "ncc": round(score, 3)})
 
 
+# --------------------------------------------------------------------------- name it: open-vocabulary
+def resolve_prompt(frame, view: View, prompt: str | None, detector, wc: Workcell, cfg: PickConfig | None = None,
+                   max_open: float | None = None) -> tuple[Target | None, list[dict]]:
+    """"Pick up the blue marker": the detector's masks (``interfaces.wristcam.detect``) ->
+    ``Target`` via the same geometry as a tap (``target_from_mask``). Returns (best, candidates):
+    best = the highest-scoring detection that makes a target the gripper can take (else the best
+    one with a ``refusal``, so the player sees why); candidates = every detection with its xy,
+    score and why it was or wasn't chosen. ``prompt=None``: everything the detector sees.
+    Raises TargetRefused("not_found") when nothing matches."""
+    cfg = cfg or PickConfig()
+    _sync_view(detector, view)
+    dets = sorted(detector.detect(frame, [prompt] if prompt else None), key=lambda d: -d.score)
+    cands, ok, refused = [], [], []
+    for d in dets:
+        c = {"label": d.label, "score": round(float(d.score), 3), "box": [round(float(v), 1) for v in d.box]}
+        try:
+            t = target_from_mask(frame, view, d.mask, wc, cfg, label=d.label, max_open=max_open)
+        except TargetRefused as e:
+            c.update(error=str(e), code=e.code)
+            cands.append(c)
+            continue
+        t.fit["detector"] = {"name": getattr(detector, "name", "?"), "score": float(d.score), "box": list(d.box)}
+        c.update(xy=[round(float(v), 4) for v in t.xy_table], height=round(t.height, 4),
+                 size=[round(float(v), 4) for v in t.size], refusal=t.refusal)
+        cands.append(c)
+        (refused if t.refusal else ok).append(t)
+    best = ok[0] if ok else (refused[0] if refused else None)
+    if best is None:
+        what = f"'{prompt}'" if prompt else "anything I can pick up"
+        why = "; ".join(f"{c['label']}: {c['error']}" for c in cands if "error" in c)[:300]
+        raise TargetRefused(f"I can't see {what} here" + (f" ({why})" if why else ""), "not_found")
+    return best, cands
+
+
+def _sync_view(detector, view: View) -> None:
+    """The synthetic detector renders ground truth and needs the frame's camera pose."""
+    if hasattr(detector, "set_view"):
+        detector.set_view(view.cam, view.T_base_cam)
+
+
+class DetectorFinder:
+    """``ObjectFinder`` that re-detects the named object at every look of the engine's closed loop
+    (the open-vocabulary detector, not a template), and keeps the one nearest the prediction with
+    the target's size. Falls back to ``SeededFinder`` (template + re-segment) when the detector
+    misses, so one bad look doesn't lose it."""
+
+    def __init__(self, target: Target, detector, prompt: str | None = None, cfg: PickConfig | None = None,
+                 gate: float = 0.04, size_tol: float = 0.4, fallback: bool = True):
+        self.t, self.detector, self.cfg = target, detector, cfg or PickConfig()
+        self.prompt = prompt or target.label
+        self.xy = np.array(target.xy_table, float)
+        self.height, self.size = float(target.height), tuple(target.size)
+        self.gate, self.size_tol = gate, size_tol
+        self.models = ("circle",) if target.kind == "cup" else ("rect", "circle")
+        self.fallback = SeededFinder(target, cfg) if fallback else None
+        self.history: list[dict] = []
+
+    def find(self, frame, view: View, hint: Hint | None = None) -> Detection | None:
+        centre = np.array(hint.near_table if hint is not None and hint.near_table is not None else self.xy, float)
+        radius = float(hint.radius if hint is not None else self.gate)
+        _sync_view(self.detector, view)
+        best, rec = None, {"centre": centre.round(4).tolist(), "radius": radius, "dets": 0}
+        try:
+            dets = self.detector.detect(frame, [self.prompt])
+        except Exception as e:           # a detector failure is a miss, not a crash of the pick
+            dets, rec["error"] = [], str(e)[:200]
+        rec["dets"] = len(dets)
+        for d in dets:
+            try:
+                fp = footprint(d.mask, view, [self.height], self.models)
+            except Exception:
+                continue
+            xy, size = np.asarray(fp["xy"], float), fp["size"]
+            dist = float(np.linalg.norm(xy - centre))
+            ok_size = all(abs(a - b) <= self.size_tol * b + 0.006 for a, b in zip(size, self.size))
+            if dist <= radius + 0.01 and ok_size and (best is None or dist < best[0]):
+                best = (dist, xy, d, fp)
+        if best is None:
+            if self.fallback is not None:
+                self.fallback.xy = self.xy.copy()
+                det = self.fallback.find(frame, view, hint)
+                rec["result"] = "fallback " + ("found" if det is not None else "lost")
+                self.history.append(rec)
+                if det is not None:
+                    self.xy = np.array(det.xyz_table[:2], float)
+                    det.extra["source"] = "template (detector missed)"
+                return det
+            rec["result"] = "lost"
+            self.history.append(rec)
+            return None
+        _, xy, d, fp = best
+        self.xy = xy
+        p_t = np.array([xy[0], xy[1], self.height])
+        uvp = view.project_table([p_t])[0]
+        dist_cam = float(np.linalg.norm(view.T_table_cam[:3, 3] - p_t))
+        sigma = float(np.hypot(0.002, 2.0 * dist_cam / view.cam.K[0, 0]))
+        rec.update(result="detector", xy=xy.round(4).tolist(), score=round(float(d.score), 3))
+        self.history.append(rec)
+        return Detection("target", view.table_to_base(p_t)[0].tolist(), p_t.tolist(), float(fp["yaw"]),
+                         float(self.size[1]), self.height, sigma, uvp.tolist() if np.isfinite(uvp).all() else None,
+                         float(d.score), extra={"source": "detector", "label": d.label})
+
+
 # --------------------------------------------------------------------------- engine glue
 def pick_config(t: Target, wc: Workcell, place_table=None, **kw):
     """GraspConfig for a target: its width and height, look first where it was seen, close across
@@ -800,14 +924,15 @@ def look_pose(wc: Workcell, cam: CameraModel, T_tip_cam, q_seed, xy=None, h=None
 
 
 def run_pick(arm, target: Target, cam: CameraModel, T_tip_cam, wc: Workcell, cfg: PickConfig | None = None,
-             place_table=None, on_event=None, log_path=None, frames_dir=None, **grasp_kw) -> dict:
-    """The closed loop on ``target``: GraspEngine + SeededFinder. ``on_event(state, event, data)``
+             place_table=None, on_event=None, log_path=None, frames_dir=None, finder=None, **grasp_kw) -> dict:
+    """The closed loop on ``target``: GraspEngine + a finder that keeps the target across looks
+    (default SeededFinder; ``DetectorFinder`` for a named object). ``on_event(state, event, data)``
     is called for every engine log line (progress for a UI)."""
     from .engine import GraspEngine
 
     if target.refusal:
         return {"ok": False, "reason": target.refusal, "trace": ["refused"]}
-    finder = SeededFinder(target, cfg)
+    finder = finder or SeededFinder(target, cfg)
 
     class _Engine(GraspEngine):
         def log(self, event, **kw):
