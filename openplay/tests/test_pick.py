@@ -308,3 +308,42 @@ def test_operator_approves_the_look_and_the_pick(tmp_path):
         assert len(op.arm.cmds) == n                          # denied: nothing moved
         assert any("said no" in m.get("text", "") for m in a.msgs if m.get("op") == "status")
     asyncio.run(main())
+
+
+def test_detector_lists_what_it_sees_and_picks_a_named_box(tmp_path):
+    """With an open-vocabulary detector (ground truth here; YOLO-E on the laptop): the look lists
+    what it sees, a typed name is found without Claude, a tap uses the detector's outline, and
+    the closed loop re-detects the named box at every look."""
+    from interfaces.wristcam import detect as D
+
+    async def main():
+        op, disp, (a, b), world = await station(tmp_path, answer='{"found": false, "reason": "should not be asked"}')
+        world.cups[0].label, world.boxes[0].label = "red cup", "green box"
+        op.pick._det = D.SynthDetector(world)
+        f = await look(op, a)
+        p = a.last("pick")
+        assert sorted(c["label"] for c in p["candidates"]) == ["green box", "red cup"]
+        assert "I can see" in p["text"]
+        await op.phone_msg(a, {"op": "pick.ask", "frame": f["id"], "text": "green box"})
+        await until(lambda: stage(a) == "target", what="target by name")
+        t = a.last("pick")["target"]
+        assert t["label"] == "green box" and t["refusal"] is None
+        assert op.pick.target_prompt == "green box"
+        assert np.hypot(op.pick.target.xy_table[0] - BOX_XY[0], op.pick.target.xy_table[1] - BOX_XY[1]) < 0.004
+        # a tap on the cup uses the detector's outline (labelled), not GrabCut
+        lf = op.pick.frame
+        v = lf.view(CAM, T_TC, op.pick.workcell().T_base_table)
+        uv = v.project_table([[CUP_XY[0] + 0.02, CUP_XY[1], 0.08]])[0]
+        await op.phone_msg(a, {"op": "pick.tap", "frame": f["id"], "x": float(uv[0] / lf.size[0]), "y": float(uv[1] / lf.size[1])})
+        await until(lambda: a.last("pick")["target"] and a.last("pick")["target"]["label"] == "red cup", what="cup by tap")
+        # back to the box by name, then pick it
+        await op.phone_msg(a, {"op": "pick.ask", "frame": f["id"], "text": "green box"})
+        await until(lambda: a.last("pick")["target"]["label"] == "green box", what="box again")
+        await op.phone_msg(a, {"op": "pick.confirm", "target": a.last("pick")["target"]["id"]})
+        await until(lambda: stage(a) in ("done", "failed"), timeout=300, what="the pick")
+        res = a.last("pick")["result"]
+        print("\npick by name:", res)
+        assert stage(a) == "done" and res["lifted"]
+        box = world.boxes[0]
+        assert np.hypot(box.xy[0] - BOX_XY[0], box.xy[1] - BOX_XY[1]) < 0.006 and box.z0 == 0.0
+    asyncio.run(main())

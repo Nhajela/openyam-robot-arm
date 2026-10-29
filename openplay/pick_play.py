@@ -41,6 +41,8 @@ SETTLE_S = 1.0             # wait after a move before taking the still
 PHONE_FRAME_W = 960        # px wide, the still sent to the phone and the display
 LIVE_FRAME_W = 640         # px wide, the engine's looks on the display
 ASK_TIMEOUT_S = 60.0
+DETECT_TIMEOUT_S = 60.0    # the first YOLO-E call loads the model (and may download its weights)
+MAX_SEEN = 8               # labels shown as "I can see: ..." after a look
 RESOLVE_TIMEOUT_S = 30.0
 PICK_TIMEOUT_S = 600.0
 STAGE_TEXT = {
@@ -144,7 +146,8 @@ class BridgeArm:
 class PickStation:
     def __init__(self, op, frame_source: Callable[[], np.ndarray] | None = None, locator=None,
                  intrinsics: str | Path | None = None, handeye: str | Path | None = None,
-                 settle_s: float = SETTLE_S, grip_settle_s: float = 1.5, pick_cfg=None):
+                 settle_s: float = SETTLE_S, grip_settle_s: float = 1.5, pick_cfg=None,
+                 detector=None, detector_kind: str = ""):
         from interfaces.wristcam import target as TG
 
         self.op = op
@@ -158,6 +161,44 @@ class PickStation:
         self.target = None          # target.Target waiting for "Pick this?"
         self.abort = threading.Event()
         self.task: asyncio.Task | None = None
+        # open-vocabulary detector (interfaces.wristcam.detect): masks for taps and names, re-detection
+        # while picking. None / unavailable -> the GrabCut tap path and Claude, as before.
+        self._det = detector
+        self._det_kind = detector_kind if detector is None else None
+        self.det_note: str | None = None       # why there is no detector (shown in logs, not to players)
+        self.frame_dets: list = []             # detections on the current still
+        self.target_prompt: str | None = None  # the name the target was found by (for re-detection)
+
+    # ------------------------------------------------------------------ detector
+    def detector(self):
+        if self._det is None and self._det_kind:
+            try:
+                from interfaces.wristcam import detect as D
+                self._det = D.make_detector(self._det_kind)
+            except Exception as e:
+                self.det_note = f"{self._det_kind}: {type(e).__name__}: {e}"
+                log.warning("pick: no detector (%s); taps use GrabCut, names use Claude", self.det_note)
+            self._det_kind = None
+        return self._det
+
+    async def _detect(self, frame, view, prompts):
+        """Detections, or None when the detector is missing or fails (first call loads the model)."""
+        from interfaces.wristcam import target as TG
+
+        det = self.detector()
+        if det is None:
+            return None
+        try:
+            def go():
+                TG._sync_view(det, view)
+                return det.detect(frame, prompts)
+            return await asyncio.wait_for(asyncio.to_thread(go), DETECT_TIMEOUT_S)
+        except Exception as e:
+            self.det_note = f"{type(e).__name__}: {e}"
+            log.warning("pick: detector failed (%s); falling back", self.det_note)
+            if isinstance(e, (ImportError, FileNotFoundError, ModuleNotFoundError)):
+                self._det = None             # don't try again this session
+            return None
 
     @staticmethod
     def _fresh(pid):
@@ -254,6 +295,7 @@ class PickStation:
         self.s = self._fresh(pid)
         self.frame = None
         self.target = None
+        self.frame_dets, self.target_prompt = [], None
         if old and old != pid:
             self.op.to_pid(old, self.msg())
         self.push()
@@ -406,8 +448,26 @@ class PickStation:
         msg = self._frame_msg("still", lf.image, PHONE_FRAME_W)
         o.to_pid(pid, msg)
         o.to_displays(msg)
-        self.set(stage="frame", text="Tap the thing to pick up, or say what it is", error=None)
+        view = lf.view(cam, T_tc, wc.T_base_table)
+        dets = await self._detect(lf.image, view, None)
+        self.frame_dets = dets or []
+        seen = self._seen(lf, self.frame_dets)
+        if seen:
+            names = ", ".join(dict.fromkeys(c["label"] for c in seen))
+            self.set(stage="frame", candidates=seen, error=None,
+                     text=f"I can see: {names}. Tap one, or say what it is")
+        else:
+            self.set(stage="frame", text="Tap the thing to pick up, or say what it is", error=None)
         o.status(pid, "Tap what the arm should pick up", "done")
+
+    @staticmethod
+    def _seen(lf, dets) -> list[dict]:
+        w, h = lf.size
+        out = []
+        for d in sorted(dets, key=lambda d: -d.score)[:MAX_SEEN]:
+            c = d.centre
+            out.append({"x": round(float(c[0]) / w, 4), "y": round(float(c[1]) / h, 4), "label": d.label})
+        return out
 
     async def _still(self):
         """A frame and the q it was taken at: the arm must be still across the grab."""
@@ -433,16 +493,31 @@ class PickStation:
         uv = (x * lf.size[0], y * lf.size[1])
         self.set(stage="finding", text="Finding the edges of what you tapped", error=None, candidates=[])
         req = TG.TargetRequest(lf.id, lf.q, "tap", uv)
+        d = self._det_at(uv)
+        if d is not None:                    # the detector's outline under the finger
+            cam, T_tc, wc = await asyncio.to_thread(self.calibration)
+            view = lf.view(cam, T_tc, wc.T_base_table)
+            TG.check_pixel(lf.image, view, np.array(uv, float), wc, self.cfg)   # jaws, reach, table: as before
+            t = await asyncio.wait_for(asyncio.to_thread(
+                TG.target_from_mask, lf.image, view, d.mask, wc, self.cfg, req, None, d.label), RESOLVE_TIMEOUT_S)
+            self.target_prompt = d.label
+            self._chose(pid, lf, t)
+            return
+        self.target_prompt = None
         await self._resolve(pid, req)
 
-    async def _resolve(self, pid: str, req) -> None:
-        from interfaces.wristcam import target as TG
+    def _det_at(self, uv):
+        """The detection whose mask contains the tap (the smallest one: a marker on a book is the
+        marker), else the nearest centre within 30 px; None if nothing is there."""
+        u, v = int(round(uv[0])), int(round(uv[1]))
+        inside = [d for d in self.frame_dets if 0 <= v < d.mask.shape[0] and 0 <= u < d.mask.shape[1] and d.mask[v, u] > 0]
+        if inside:
+            return min(inside, key=lambda d: d.area)
+        near = [(float(np.hypot(*(d.centre - [uv[0], uv[1]]))), d) for d in self.frame_dets]
+        near = [x for x in near if x[0] < 30]
+        return min(near, key=lambda x: x[0])[1] if near else None
 
-        lf = self.frame
-        cam, T_tc, wc = await asyncio.to_thread(self.calibration)
-        view = lf.view(cam, T_tc, wc.T_base_table)
-        t = await asyncio.wait_for(asyncio.to_thread(TG.resolve, lf.image, view, req, wc, self.cfg),
-                                   RESOLVE_TIMEOUT_S)
+    def _chose(self, pid, lf, t) -> None:
         if self.frame is not lf:
             return
         self.target = t
@@ -454,12 +529,42 @@ class PickStation:
         self.op.event("pick", f"{self.op.name(pid)} chose the {t.label} at table "
                               f"({t.xy_table[0]:+.3f}, {t.xy_table[1]:+.3f}) m", self.op.name(pid))
 
+    async def _resolve(self, pid: str, req) -> None:
+        from interfaces.wristcam import target as TG
+
+        lf = self.frame
+        cam, T_tc, wc = await asyncio.to_thread(self.calibration)
+        view = lf.view(cam, T_tc, wc.T_base_table)
+        t = await asyncio.wait_for(asyncio.to_thread(TG.resolve, lf.image, view, req, wc, self.cfg),
+                                   RESOLVE_TIMEOUT_S)
+        self._chose(pid, lf, t)
+
     async def _do_ask(self, pid: str, text: str) -> None:
         from interfaces.wristcam import target as TG
 
         lf = self.frame
-        self.set(stage="finding", text=f'Asking Claude to find "{text}"', error=None, candidates=[])
         self.op.event("pick", f'{self.op.name(pid)} asked for "{text}"', self.op.name(pid))
+        if self.detector() is not None:      # the open-vocabulary detector first: fast, no API call
+            self.set(stage="finding", text=f'Looking for "{text}"', error=None, candidates=[])
+            cam, T_tc, wc = await asyncio.to_thread(self.calibration)
+            view = lf.view(cam, T_tc, wc.T_base_table)
+            dets = await self._detect(lf.image, view, [text])
+            if dets:
+                class _Given:                # resolve_prompt over the detections we already have
+                    name = "given"
+
+                    def detect(self, frame, prompts=None):
+                        return dets
+                try:
+                    t, _ = await asyncio.wait_for(asyncio.to_thread(
+                        TG.resolve_prompt, lf.image, view, text, _Given(), wc, self.cfg), RESOLVE_TIMEOUT_S)
+                    self.target_prompt = text
+                    self._chose(pid, lf, t)
+                    return
+                except TG.TargetRefused as e:
+                    log.info("pick: detector found %r but: %s; asking Claude", text, e)
+        self.target_prompt = None
+        self.set(stage="finding", text=f'Asking Claude to find "{text}"', error=None, candidates=[])
         if self.locator is None:
             self.locator = TG.ClaudeLocator(model=self.cfg.model or None)
         ans = await asyncio.wait_for(asyncio.to_thread(self.locator.locate, lf.image, text), ASK_TIMEOUT_S)
@@ -513,8 +618,11 @@ class PickStation:
             if text:
                 loop.call_soon_threadsafe(self.progress, text, stage)
 
-        res = await asyncio.wait_for(asyncio.to_thread(TG.run_pick, arm, t, cam, T_tc, wc, self.cfg, None, on_event),
-                                     PICK_TIMEOUT_S)
+        finder = None
+        if self.target_prompt and self.detector() is not None:   # re-detect it by name at every look
+            finder = TG.DetectorFinder(t, self.detector(), self.target_prompt, self.cfg)
+        res = await asyncio.wait_for(asyncio.to_thread(TG.run_pick, arm, t, cam, T_tc, wc, self.cfg, None, on_event,
+                                                       finder=finder), PICK_TIMEOUT_S)
         lifted = "verify" in res.get("trace", []) and "place" in res.get("trace", [])
         summary = {"ok": bool(res.get("ok")), "lifted": lifted, "reason": res.get("reason", ""),
                    "trace": res.get("trace"), "observations": res.get("observations")}

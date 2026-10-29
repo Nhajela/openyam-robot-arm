@@ -1948,7 +1948,8 @@ async def serve(args) -> None:
                   urdf_dir=Path(args.urdf_dir), events_log=events, lin_mps=args.lin_mps,
                   ang_rps=args.ang_rps, joint_rps=args.joint_rps, chess_sensor=args.chess_sensor,
                   chess_cameras=args.chess_camera, chess_calib=args.chess_calib, trace_log=trace,
-                  stream_ttl_ms=args.stream_ttl_ms)
+                  stream_ttl_ms=args.stream_ttl_ms,
+                  pick_opts={"detector_kind": "" if args.pick_detector == "none" else args.pick_detector})
     # The room key is a secret: only on an interactive terminal (and on the loopback display).
     shown = join_url if os.isatty(1) else join_url.split("?k=")[0] + f"?k=<key: see http://127.0.0.1:{args.local_port}>"
     print(f"open play: phones join at {shown}", flush=True)
@@ -1992,6 +1993,8 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--daemon", default=DEFAULT_URL, help="armctl daemon WebSocket")
     ap.add_argument("--phone-host", default="0.0.0.0", help="phone listener bind address")
     ap.add_argument("--phone-port", type=int, default=8450)
+    ap.add_argument("--pick-detector", choices=["yoloe", "claude", "none"], default="yoloe",
+                    help="Pick it up: open-vocabulary detector for taps and names (yoloe: GPU; none: GrabCut taps + Claude names)")
     ap.add_argument("--learn-url", default=LEARN_URL,
                     help="public explainer shown as a second QR on the display ('' hides it)")
     ap.add_argument("--local-port", type=int, default=8451, help="display + operator listener (127.0.0.1)")
