@@ -227,7 +227,7 @@ def finger_dir_for_cam_axis(cam_axis, at_xyz, T_tip_cam=None) -> np.ndarray:
 def cam_pose(q, T_tip_cam=None) -> np.ndarray:
     """T_base_cam for joint angles q."""
     from armctl import kin
-    return kin.fk(q) @ (T_TIP_CAM_NOMINAL if T_tip_cam is None else np.asarray(T_tip_cam, float))
+    return kin.fk_vision(q) @ (T_TIP_CAM_NOMINAL if T_tip_cam is None else np.asarray(T_tip_cam, float))
 
 
 def ray_plane(origin, dirs, plane_point, plane_normal) -> np.ndarray:

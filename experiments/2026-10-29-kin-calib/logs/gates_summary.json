@@ -1,0 +1,62 @@
+{
+ "he2 nominal FK": {
+  "rms_px": 12.16,
+  "spread_mm": 6.59,
+  "spread_deg": 1.264,
+  "board_scale": 1.0823,
+  "gates": {
+   "reprojection": false,
+   "spread_mm": false,
+   "spread_deg": false,
+   "table_z": true,
+   "optical_axis": true,
+   "camera_distance": true,
+   "board_scale": false
+  }
+ },
+ "he1 nominal FK": {
+  "rms_px": 5.63,
+  "spread_mm": 5.92,
+  "spread_deg": 1.435,
+  "board_scale": 1.1048,
+  "gates": {
+   "reprojection": false,
+   "spread_mm": true,
+   "spread_deg": false,
+   "table_z": false,
+   "optical_axis": true,
+   "camera_distance": true,
+   "board_scale": false
+  }
+ },
+ "he2 corrected FK": {
+  "rms_px": 4.39,
+  "spread_mm": 3.31,
+  "spread_deg": 0.67,
+  "board_scale": 0.9945,
+  "gates": {
+   "reprojection": false,
+   "spread_mm": true,
+   "spread_deg": true,
+   "table_z": true,
+   "optical_axis": true,
+   "camera_distance": true,
+   "board_scale": true
+  }
+ },
+ "he1 corrected FK": {
+  "rms_px": 3.16,
+  "spread_mm": 3.87,
+  "spread_deg": 1.004,
+  "board_scale": 1.0107,
+  "gates": {
+   "reprojection": false,
+   "spread_mm": true,
+   "spread_deg": false,
+   "table_z": false,
+   "optical_axis": true,
+   "camera_distance": true,
+   "board_scale": true
+  }
+ }
+}

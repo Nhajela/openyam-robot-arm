@@ -1,0 +1,296 @@
+{
+ "T_tip_cam": [
+  [
+   -0.008391,
+   0.70783,
+   0.706332,
+   -0.079662
+  ],
+  [
+   0.999548,
+   -0.014454,
+   0.026358,
+   0.002458
+  ],
+  [
+   0.028866,
+   0.706234,
+   -0.707389,
+   0.037783
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "T_base_board": [
+  [
+   0.114061,
+   -0.992203,
+   0.050228,
+   0.457194
+  ],
+  [
+   -0.993473,
+   -0.113994,
+   0.004192,
+   0.066567
+  ],
+  [
+   0.001567,
+   -0.050378,
+   -0.998729,
+   -0.028397
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "T_base_table": [
+  [
+   0.114061,
+   0.992203,
+   -0.050228,
+   0.414055
+  ],
+  [
+   -0.993473,
+   0.113994,
+   -0.004192,
+   -0.015663
+  ],
+  [
+   0.001567,
+   0.050378,
+   0.998729,
+   -0.030912
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "method": "HORAUD",
+ "methods": {
+  "TSAI": {
+   "spread_mm": 3.33,
+   "spread_deg": 0.696,
+   "t_mm": [
+    -80.2,
+    1.9,
+    37.0
+   ],
+   "axis_vs_nominal_deg": 14.9,
+   "prior": "ok"
+  },
+  "PARK": {
+   "spread_mm": 3.31,
+   "spread_deg": 0.67,
+   "t_mm": [
+    -79.7,
+    2.5,
+    37.8
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  },
+  "HORAUD": {
+   "spread_mm": 3.31,
+   "spread_deg": 0.67,
+   "t_mm": [
+    -79.7,
+    2.5,
+    37.8
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  },
+  "ANDREFF": {
+   "spread_mm": 13.55,
+   "spread_deg": 0.67,
+   "t_mm": [
+    -62.2,
+    -0.9,
+    13.2
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  },
+  "DANIILIDIS": {
+   "spread_mm": 3.27,
+   "spread_deg": 0.693,
+   "t_mm": [
+    -82.0,
+    4.1,
+    35.5
+   ],
+   "axis_vs_nominal_deg": 14.9,
+   "prior": "ok"
+  },
+  "RWHE-SHAH": {
+   "spread_mm": 3.71,
+   "spread_deg": 0.67,
+   "t_mm": [
+    -84.0,
+    2.7,
+    38.3
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  },
+  "RWHE-LI": {
+   "spread_mm": 6.07,
+   "spread_deg": 0.67,
+   "t_mm": [
+    -86.5,
+    4.3,
+    47.7
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  }
+ },
+ "rms_px": 4.395,
+ "per_view_px": [
+  6.399,
+  6.519,
+  2.646,
+  3.659,
+  3.487,
+  5.127,
+  7.811,
+  2.442,
+  3.391,
+  2.973,
+  2.706,
+  2.853,
+  5.821,
+  2.528,
+  2.642
+ ],
+ "n_views": 15,
+ "spread_mm": 3.31,
+ "spread_deg": 0.67,
+ "solved_at": "2026-10-29T09:44:53",
+ "prior": "ok",
+ "kin_correction": {
+  "joint_offsets": [
+   0.0,
+   0.0,
+   -0.01376,
+   -0.04102,
+   -0.02394,
+   0.0
+  ],
+  "origin_deltas": [
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ]
+  ],
+  "tip_delta": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "compliance": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "source": "experiments/2026-10-29-kin-calib (model M1b, kincal.py)"
+ },
+ "board_scale_fit": {
+  "factor": 0.9945,
+  "sigma": 0.0029
+ },
+ "gates": [
+  {
+   "name": "reprojection",
+   "ok": false,
+   "value": 4.395,
+   "limit": 3.0,
+   "text": "reprojection 4.39 px (< 3)"
+  },
+  {
+   "name": "spread_mm",
+   "ok": true,
+   "value": 3.3061,
+   "limit": 6.0,
+   "text": "board-pose spread 3.31 mm (< 6)"
+  },
+  {
+   "name": "spread_deg",
+   "ok": true,
+   "value": 0.6697,
+   "limit": 1.0,
+   "text": "board-pose spread 0.67 deg (< 1)"
+  },
+  {
+   "name": "table_z",
+   "ok": true,
+   "value": 0.0109,
+   "limit": 0.02,
+   "text": "table origin z -0.031 m vs expected -0.020 (|diff| < 0.02)"
+  },
+  {
+   "name": "optical_axis",
+   "ok": true,
+   "value": 15.1167,
+   "limit": 25.0,
+   "text": "optical axis 15.1 deg from the nominal 60 deg mounting (< 25)"
+  },
+  {
+   "name": "camera_distance",
+   "ok": true,
+   "value": 0.0882,
+   "limit": 0.15,
+   "text": "camera 8.8 cm from the tip (< 15)"
+  },
+  {
+   "name": "board_scale",
+   "ok": true,
+   "value": 0.0055,
+   "limit": 0.05,
+   "text": "board scale vs arm kinematics x0.995 (|x-1| < 0.05; PnP distances disagree with FK if not)"
+  }
+ ],
+ "data": "/home/naman/openyam-robot-arm/interfaces/wristcam/data/he2",
+ "note": "he2 hand-eye with the kinematic correction (kin_corrections.json); experiment 2026-10-29-kin-calib. NOT the main calib: copy only after review."
+}

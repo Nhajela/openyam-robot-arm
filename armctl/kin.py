@@ -73,37 +73,150 @@ _ORIGINS = [_origin(xyz, rpy) for _, _, xyz, rpy, _ in CHAIN]
 _AXES = [np.asarray(ax, float) / np.linalg.norm(ax) for *_, ax in CHAIN]
 
 
-def frames(q) -> dict[str, np.ndarray]:
-    """4x4 pose of every link (and ``gripper_tip``) in the base frame."""
+# --- kinematic corrections (added 2026-10-29, experiments/2026-10-29-kin-calib) -------------
+# A ``KinCorrection`` is a small, measured deviation of the real arm from yam.urdf, fitted from
+# wrist-camera views of a fixed board (``experiments/2026-10-29-kin-calib/kincal.py``). Joint
+# angles are ALWAYS DimOS's (encoder) joint space: the correction lives inside the FK function,
+#     fk(q, corr) = FK_urdf(q + joint_offsets + compliance * tau_grav(q); origins + origin_deltas),
+# so an IK solved against ``fk(., corr)`` returns DimOS joint targets directly. By default every
+# function here uses NO correction (corr=None): commanded motion, the envelope, table clearance
+# and choreography are unchanged. Vision / grasp planning opt in with ``corr=vision_correction()``
+# (or ``fk_vision``), which reads ``armctl/kin_corrections.json`` if it exists and is enabled.
+CORRECTIONS_PATH = __import__("pathlib").Path(__file__).with_name("kin_corrections.json")
+
+
+@dataclass(frozen=True)
+class KinCorrection:
+    joint_offsets: tuple = (0.0,) * 6                 # rad, added to the measured q
+    origin_deltas: tuple = ((0.0, 0.0, 0.0),) * 6     # m, added to joint1..6 origin xyz (parent frame)
+    tip_delta: tuple = (0.0, 0.0, 0.0)                # m, added to TIP_OFFSET (gripper frame)
+    compliance: tuple = (0.0,) * 6                    # rad per N*m of model gravity torque (joint sag
+    #                                                   not seen by the encoder); 0 = rigid
+    source: str = ""
+
+    @property
+    def is_zero(self) -> bool:
+        return not (np.any(self.joint_offsets) or np.any(self.origin_deltas) or np.any(self.tip_delta)
+                    or np.any(self.compliance))
+
+    def to_dict(self) -> dict:
+        return {"joint_offsets": [float(x) for x in self.joint_offsets],
+                "origin_deltas": [[float(v) for v in r] for r in self.origin_deltas],
+                "tip_delta": [float(x) for x in self.tip_delta], "compliance": [float(x) for x in self.compliance]}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "KinCorrection":
+        return cls(tuple(float(x) for x in d.get("joint_offsets", (0.0,) * 6)),
+                   tuple(tuple(float(v) for v in r) for r in d.get("origin_deltas", ((0.0,) * 3,) * 6)),
+                   tuple(float(x) for x in d.get("tip_delta", (0.0,) * 3)),
+                   tuple(float(x) for x in d.get("compliance", (0.0,) * 6)), str(d.get("source", "")))
+
+
+def load_correction(path=None) -> KinCorrection | None:
+    """The correction in ``path`` (default ``armctl/kin_corrections.json``), or None if the file is
+    missing or has ``"enabled": false``."""
+    import json
+    import os
+    if path is None and os.environ.get("ARMCTL_KIN_CORRECTIONS"):   # "off" / "none" disables
+        path = os.environ["ARMCTL_KIN_CORRECTIONS"]
+        if path.lower() in ("off", "none", "0"):
+            return None
+    p = __import__("pathlib").Path(path) if path else CORRECTIONS_PATH
+    if not p.exists():
+        return None
+    d = json.loads(p.read_text())
+    if not d.get("enabled", True):
+        return None
+    c = KinCorrection.from_dict(d.get("correction", d))
+    return None if c.is_zero else c
+
+
+_VISION_CORR: list = []
+
+
+def vision_correction() -> KinCorrection | None:
+    """The correction for vision / grasp planning (cached; ``reload_vision_correction`` re-reads)."""
+    if not _VISION_CORR:
+        _VISION_CORR.append(load_correction())
+    return _VISION_CORR[0]
+
+
+def reload_vision_correction() -> KinCorrection | None:
+    _VISION_CORR.clear()
+    return vision_correction()
+
+
+# Point masses (kg, position in the child link frame) for the gravity-torque proxy used by the
+# compliance term: forearm, wrist, gripper + camera. Only the SHAPE of tau(q) matters (the fitted
+# compliance absorbs the scale); masses roughly from i2rt yam.urdf inertials.
+_SAG_MASSES = (("link3", 0.55, (-0.03, -0.0688, -0.12)), ("link5", 0.45, (0.0, 0.0, -0.03)),
+               ("gripper", 0.75, (0.0, 0.0, -0.05)))
+
+
+def gravity_torque(q) -> np.ndarray:
+    """Approximate static gravity torque (N*m) about each joint axis for the point-mass model."""
     q = env.as_vector(q)
+    f = frames(q)
+    child_idx = {c: i for i, (_, c, *_r) in enumerate(CHAIN)}
+    pts = [(child_idx[lk], m, (f[lk] @ np.r_[p, 1.0])[:3]) for lk, m, p in _SAG_MASSES]
+    g = np.array([0.0, 0.0, -9.81])
+    tau = np.zeros(6)
+    T = np.eye(4)
+    for i in range(6):
+        T = T @ _ORIGINS[i]
+        o, ax = T[:3, 3], T[:3, :3] @ _AXES[i]
+        T = T @ _axis_angle(_AXES[i], q[i])
+        tau[i] = sum(m * ax @ np.cross(p - o, g) for k, m, p in pts if k >= i)   # masses distal to joint i
+    return tau
+
+
+def frames(q, corr: KinCorrection | None = None) -> dict[str, np.ndarray]:
+    """4x4 pose of every link (and ``gripper_tip``) in the base frame. ``corr``: optional
+    measured correction (see ``KinCorrection``); None = the nominal yam.urdf model."""
+    q = env.as_vector(q)
+    tip_off = TIP_OFFSET
+    origins = _ORIGINS
+    if corr is not None and not corr.is_zero:
+        q = q + np.asarray(corr.joint_offsets, float)
+        if np.any(corr.compliance):
+            q = q + np.asarray(corr.compliance, float) * gravity_torque(q)
+        origins = [o.copy() for o in _ORIGINS]
+        for i, d in enumerate(corr.origin_deltas):
+            origins[i][:3, 3] += np.asarray(d, float)
+        tip_off = TIP_OFFSET + np.asarray(corr.tip_delta, float)
     T = np.eye(4)
     out = {"base": T.copy()}
     for i, (_, child, *_r) in enumerate(CHAIN):
-        T = T @ _ORIGINS[i] @ _axis_angle(_AXES[i], q[i])
+        T = T @ origins[i] @ _axis_angle(_AXES[i], q[i])
         out[child] = T.copy()
     tip = np.eye(4)
-    tip[:3, 3] = TIP_OFFSET
+    tip[:3, 3] = tip_off
     out["gripper_tip"] = T @ tip
     return out
 
 
-def fk(q) -> np.ndarray:
-    """4x4 pose of ``gripper_tip``."""
-    return frames(q)["gripper_tip"]
+def fk(q, corr: KinCorrection | None = None) -> np.ndarray:
+    """4x4 pose of ``gripper_tip`` (nominal model unless ``corr`` is given)."""
+    return frames(q, corr)["gripper_tip"]
 
 
-def tip(q) -> np.ndarray:
-    return fk(q)[:3, 3].copy()
+def fk_vision(q) -> np.ndarray:
+    """FK for vision / grasp planning: nominal model + ``armctl/kin_corrections.json`` if present."""
+    return fk(q, vision_correction())
 
 
-def approach(q) -> np.ndarray:
+def tip(q, corr: KinCorrection | None = None) -> np.ndarray:
+    return fk(q, corr)[:3, 3].copy()
+
+
+def approach(q, corr: KinCorrection | None = None) -> np.ndarray:
     """Unit vector the fingers point along (base frame)."""
-    return fk(q)[:3, :3] @ APPROACH_AXIS
+    return fk(q, corr)[:3, :3] @ APPROACH_AXIS
 
 
-def clearance(q) -> tuple[float, float, str]:
+def clearance(q, corr: KinCorrection | None = None) -> tuple[float, float, str]:
     """(tip z, lowest link-origin z excluding base/link1, that link's name)."""
-    f = frames(q)
+    f = frames(q, corr)
     links = [(float(T[2, 3]), n) for n, T in f.items() if n not in ("base", "link1", "gripper_tip")]
     lz, ln = min(links)
     return float(f["gripper_tip"][2, 3]), lz, ln
@@ -114,16 +227,16 @@ def clear_of_table(q, min_tip_z: float = MIN_TIP_Z, min_link_z: float = MIN_LINK
     return tz >= min_tip_z and lz >= min_link_z
 
 
-def jacobian(q, eps: float = 1e-6) -> np.ndarray:
+def jacobian(q, eps: float = 1e-6, corr: KinCorrection | None = None) -> np.ndarray:
     """6x6 numeric Jacobian: rows 0-2 tip position, rows 3-5 approach direction (unit vector)."""
     q = env.as_vector(q)
     J = np.zeros((6, 6))
-    p0, a0 = tip(q), approach(q)
+    p0, a0 = tip(q, corr), approach(q, corr)
     for i in range(6):
         dq = q.copy()
         dq[i] += eps
-        J[:3, i] = (tip(dq) - p0) / eps
-        J[3:, i] = (approach(dq) - a0) / eps
+        J[:3, i] = (tip(dq, corr) - p0) / eps
+        J[3:, i] = (approach(dq, corr) - a0) / eps
     return J
 
 
@@ -144,7 +257,7 @@ class IKResult:
 
 def ik(xyz, q0=None, *, down: bool = False, approach_dir=None, envelope: env.Envelope = env.DEFAULT,
        pos_tol: float = 0.003, rot_tol: float = 0.05, max_iters: int = 300, restarts: int = 6,
-       check_table: bool = True) -> IKResult:
+       check_table: bool = True, corr: KinCorrection | None = None) -> IKResult:
     """Joint target that puts the tip at ``xyz`` (base frame).
 
     ``down=True`` also points the fingers straight down (top-down grasp); or give any unit
@@ -152,6 +265,10 @@ def ik(xyz, q0=None, *, down: bool = False, approach_dir=None, envelope: env.Env
     a few seeds if the first one gets stuck. ``ok`` means within tolerance AND inside the
     soft box AND clear of the table (unless ``check_table=False``). It never returns a
     target outside the soft box.
+
+    ``corr``: solve against the corrected model (vision / grasp planning, ``vision_correction()``);
+    the result is still a DimOS joint target. The table check then uses the LOWER of the nominal
+    and corrected clearances.
     """
     target = np.asarray(xyz, float)
     want = np.array([0.0, 0.0, -1.0]) if down else (None if approach_dir is None else
@@ -172,24 +289,27 @@ def ik(xyz, q0=None, *, down: bool = False, approach_dir=None, envelope: env.Env
         it = 0
         for it in range(1, max_iters + 1):
             e = np.zeros(6)
-            e[:3] = target - tip(q)
+            e[:3] = target - tip(q, corr)
             w = np.ones(6)
             if want is not None:
-                e[3:] = (want - approach(q)) * 0.3  # 1 rad of approach error ~ 0.3 m
+                e[3:] = (want - approach(q, corr)) * 0.3  # 1 rad of approach error ~ 0.3 m
                 w[3:] = 0.3
             else:
                 w[3:] = 0.0
             if np.linalg.norm(e[:3]) < pos_tol and (want is None or np.linalg.norm(e[3:]) / 0.3 < rot_tol):
                 break
-            J = jacobian(q) * w[:, None]
+            J = jacobian(q, corr=corr) * w[:, None]
             dq = J.T @ np.linalg.solve(J @ J.T + lam**2 * np.eye(6), e)
             step = np.max(np.abs(dq))
             if step > 0.2:
                 dq *= 0.2 / step
             q = np.clip(q + dq, lo, hi)
-        ep = float(np.linalg.norm(target - tip(q)))
-        er = float(np.arccos(np.clip(np.dot(want, approach(q)), -1, 1))) if want is not None else 0.0
+        ep = float(np.linalg.norm(target - tip(q, corr)))
+        er = float(np.arccos(np.clip(np.dot(want, approach(q, corr)), -1, 1))) if want is not None else 0.0
         tz, lz, ln = clearance(q)
+        if corr is not None:
+            tz2, lz2, ln2 = clearance(q, corr)
+            tz, lz, ln = min(tz, tz2), min(lz, lz2), (ln if lz <= lz2 else ln2)
         table_ok = (not check_table) or (tz >= MIN_TIP_Z and lz >= MIN_LINK_Z)
         ok = ep < pos_tol * 2 and er < rot_tol * 2 and table_ok
         reason = "" if ok else (

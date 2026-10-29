@@ -343,7 +343,7 @@ class SimArm:
         return float(self._grip)
 
     def _tip_table(self, q=None):
-        T = inv_T(self.world.T_base_table) @ kin.fk(self._q if q is None else q)
+        T = inv_T(self.world.T_base_table) @ kin.fk_vision(self._q if q is None else q)
         return T
 
     def move_joints(self, q, speed: float | None = None) -> None:
@@ -427,7 +427,7 @@ class SimArm:
 
     def frame(self) -> np.ndarray:
         self.n_frames += 1
-        return self.world.render(self.cam, kin.fk(self._q) @ self.T_tip_cam, seed=self.n_frames, ss=self.ss)
+        return self.world.render(self.cam, kin.fk_vision(self._q) @ self.T_tip_cam, seed=self.n_frames, ss=self.ss)
 
 
 def _box_local(box: Box, x: float, y: float) -> tuple[float, float]:
@@ -451,8 +451,8 @@ def main():
     world = demo_world()
     for name, xyz in (("board", (0.30, 0.0, 0.20)), ("cup", (0.29, -0.15, 0.17)), ("box", (0.32, 0.16, 0.17))):
         from .camera import finger_dir_for_cam_axis
-        r = kin.ik(xyz, approach_dir=finger_dir_for_cam_axis([0, 0, -1], xyz), check_table=False)
-        img = world.render(TRUE_CAMERA, kin.fk(r.q) @ TRUE_T_TIP_CAM)
+        r = kin.ik(xyz, approach_dir=finger_dir_for_cam_axis([0, 0, -1], xyz), check_table=False, corr=kin.vision_correction())
+        img = world.render(TRUE_CAMERA, kin.fk_vision(r.q) @ TRUE_T_TIP_CAM)
         cv2.imwrite(str(out / f"{name}.jpg"), img)
         print("wrote", out / f"{name}.jpg", "q", r.q.round(3).tolist())
 

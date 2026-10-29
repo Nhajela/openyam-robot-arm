@@ -167,9 +167,9 @@ class GraspEngine:
         camera sits ~60 deg off the finger axis (measured), so the fingers tilt outward."""
         if look:
             f = finger_dir_for_cam_axis([0.0, 0.0, -1.0], xyz_base, self.T_tip_cam)
-            r = kin.ik(xyz_base, seed, approach_dir=f, check_table=False, restarts=3, max_iters=200)
+            r = kin.ik(xyz_base, seed, approach_dir=f, check_table=False, restarts=3, max_iters=200, corr=kin.vision_correction())
         else:
-            r = kin.ik(xyz_base, seed, down=True, check_table=False, restarts=3, max_iters=200)
+            r = kin.ik(xyz_base, seed, down=True, check_table=False, restarts=3, max_iters=200, corr=kin.vision_correction())
         if r.err_pos > 0.004 or r.err_rot > 0.08:
             return None
         q = r.q.copy()
@@ -220,7 +220,7 @@ class GraspEngine:
         return float(z_base - np.asarray(self.wc.T_base_table, float)[2, 3])
 
     def _cam_above_tip(self, q) -> float:
-        T = kin.fk(q)
+        T = kin.fk_vision(q)
         return float((T[:3, :3] @ self.T_tip_cam[:3, 3])[2])
 
     def view(self, q) -> View:
@@ -233,7 +233,7 @@ class GraspEngine:
         return None if not np.isfinite(P).all() else P[:2]
 
     def tip_table(self, q=None) -> np.ndarray:
-        T = inv_T(self.wc.T_base_table) @ kin.fk(self.arm.q() if q is None else q)
+        T = inv_T(self.wc.T_base_table) @ kin.fk_vision(self.arm.q() if q is None else q)
         return T[:3, 3]
 
     # ------------------------------------------------------------------ motion
@@ -393,7 +393,7 @@ class GraspEngine:
             if q is None:
                 self.reason = f"descent pose at z {z:.3f} unreachable"
                 return "failed"
-            cam_z = float((inv_T(self.wc.T_base_table) @ kin.fk(q) @ self.T_tip_cam)[2, 3])
+            cam_z = float((inv_T(self.wc.T_base_table) @ kin.fk_vision(q) @ self.T_tip_cam)[2, 3])
             if cam_z < c.height + c.cam_rim_clearance:
                 self.reason = (f"camera would be {cam_z:.3f} m above the table, below the rim + clearance "
                                f"({c.height + c.cam_rim_clearance:.3f}): grasp lower is impossible with this mount")
@@ -550,7 +550,7 @@ class DaemonArm:
         q = [round(float(x), 4) for x in q]
         q0 = self.q()
         d = np.abs(np.array(q) - q0)
-        tip = kin.tip(q)
+        tip = kin.tip(q, kin.vision_correction())
         self._ok(f"MOVE {label}: joints by up to {d.max():.3f} rad (j{int(d.argmax()) + 1}); tip -> "
                  f"({tip[0]:.3f}, {tip[1]:.3f}, {tip[2]:.3f}) m; q={q}; speed {speed or self.speed:.2f} rad/s")
         self._run(self.client.do("move_joints", q=q, speed=min(speed or self.speed, 0.3), timeout=120))

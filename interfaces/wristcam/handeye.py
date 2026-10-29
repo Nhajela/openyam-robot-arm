@@ -77,7 +77,7 @@ def _in_jaws(uv, size) -> np.ndarray:
 
 def visible_fraction(q, pts_base, cam: CameraModel, T_tip_cam=T_TIP_CAM_NOMINAL, margin: float = 0.03) -> float:
     """Fraction of ``pts_base`` that land inside the image (with a margin) and outside the jaws."""
-    T_cb = inv_T(kin.fk(q) @ T_tip_cam)
+    T_cb = inv_T(kin.fk_vision(q) @ T_tip_cam)
     P = np.asarray(pts_base, float) @ T_cb[:3, :3].T + T_cb[:3, 3]
     uv = cam.project(P)
     w, h = cam.size
@@ -121,7 +121,7 @@ def rotation_diversity(qs, T_tip_cam=None) -> dict:
     the relative-rotation axes spread over 3D (singular values of the stacked unit axes, normalised
     so that 1.0 = evenly spread over all three axes, 0 = all motions about one axis: degenerate)."""
     T_tc = T_TIP_CAM_NOMINAL if T_tip_cam is None else np.asarray(T_tip_cam, float)
-    Rs = [(kin.fk(np.asarray(q, float)) @ T_tc)[:3, :3] for q in qs]
+    Rs = [(kin.fk_vision(np.asarray(q, float)) @ T_tc)[:3, :3] for q in qs]
     ang, axes = [], []
     for i in range(len(Rs)):
         for j in range(i + 1, len(Rs)):
@@ -204,10 +204,10 @@ def plan_views(center_xyz, n: int = 15, *, purpose: str = "handeye", cam: Camera
         s_q = seed_q
         for _it in range(n_it):   # put the CAMERA (not the tip) at cam_pos
             # aim the CAMERA along a: the fingers point ~60 deg away from it (measured mounting)
-            r = kin.ik(tip_pos, s_q, approach_dir=finger_dir_for_cam_axis(a, tip_pos, T_tip_cam), restarts=2, max_iters=60)
+            r = kin.ik(tip_pos, s_q, approach_dir=finger_dir_for_cam_axis(a, tip_pos, T_tip_cam), restarts=2, max_iters=60, corr=kin.vision_correction())
             if not r.ok:
                 break
-            T = kin.fk(r.q) @ T_tip_cam
+            T = kin.fk_vision(r.q) @ T_tip_cam
             tip_pos = tip_pos + (cam_pos - T[:3, 3])
             q = s_q = r.q
         if q is None or not r.ok:
@@ -223,7 +223,7 @@ def plan_views(center_xyz, n: int = 15, *, purpose: str = "handeye", cam: Camera
         if (frac_inner < 0.45) if intr else (frac_outer < 1.0):
             stats["view"] += 1
             continue
-        T = kin.fk(q) @ T_tip_cam
+        T = kin.fk_vision(q) @ T_tip_cam
         axis = T[:3, 2]
         tilt_now = float(np.degrees(np.arccos(np.clip(-axis[2], -1, 1))))
         if not intr and not (tilt_min <= tilt_now <= tilt_max):
@@ -233,7 +233,7 @@ def plan_views(center_xyz, n: int = 15, *, purpose: str = "handeye", cam: Camera
                and abs(q[5] - v["q"][5]) < 0.2 for v in views):
             stats["dup"] += 1
             continue
-        views.append({"q": [round(float(x), 4) for x in q], "tip": kin.tip(q).round(4).tolist(),
+        views.append({"q": [round(float(x), 4) for x in q], "tip": kin.tip(q, kin.vision_correction()).round(4).tolist(),
                       "cam_height": round(float(T[2, 3] - c[2]), 3),
                       "tilt_deg": round(tilt_now, 1), "roll_rad": round(float(roll), 3),
                       "visible": round(frac_inner, 2), "_axis": axis, "_pos": T[:3, 3]})
@@ -305,7 +305,7 @@ def make_samples(qs, frames, cam: CameraModel, spec: BoardSpec | None = None, mi
 
 
 def _consistency(samples, T_tip_cam):
-    Tb = [kin.fk(s.q) @ T_tip_cam @ s.T_cam_board for s in samples]
+    Tb = [kin.fk_vision(s.q) @ T_tip_cam @ s.T_cam_board for s in samples]
     M = mean_pose(Tb)
     dt_ = np.array([np.linalg.norm(T[:3, 3] - M[:3, 3]) for T in Tb])
     dr = np.array([rot_err_deg(T, M) for T in Tb])
@@ -358,7 +358,7 @@ def robot_world_hand_eye(samples: list[Sample], method: str = "RWHE-SHAH") -> tu
     for s in samples:
         Rw.append(s.T_cam_board[:3, :3])           # world (board) -> camera
         tw.append(s.T_cam_board[:3, 3].reshape(3, 1))
-        Ti = inv_T(kin.fk(s.q))                     # base -> gripper
+        Ti = inv_T(kin.fk_vision(s.q))                     # base -> gripper
         Rb.append(Ti[:3, :3])
         tb.append(Ti[:3, 3].reshape(3, 1))
     R_bw, t_bw, R_gc, t_gc = cv2.calibrateRobotWorldHandEye(Rw, tw, Rb, tb, method=RWHE_METHODS[method])
@@ -394,7 +394,7 @@ def solve_handeye(samples: list[Sample], cam: CameraModel, spec: BoardSpec | Non
     if len(samples) < 4:
         raise ValueError(f"need >= 4 usable views for hand-eye, have {len(samples)}")
     spec = spec or BoardSpec.load()
-    fks = [kin.fk(s.q) for s in samples]
+    fks = [kin.fk_vision(s.q) for s in samples]
     methods, best, best_any = {}, None, None
     for name, T in _candidates(samples, fks).items():
         if isinstance(T, str) or not np.all(np.isfinite(T)):
@@ -441,8 +441,10 @@ def solve_handeye(samples: list[Sample], cam: CameraModel, spec: BoardSpec | Non
         k += n
     rms = float(np.sqrt(np.mean(np.sum(res ** 2, axis=1))))
     T_bt = T_bb @ spec.T_board_table
+    kc = kin.vision_correction()   # FK used above (armctl/kin_corrections.json), for provenance
     return HandEyeResult(T_tc, T_bb, T_bt, name + ("+refined" if refine else ""), methods, rms, per_view,
-                         len(samples), smm, sdeg, extra={"prior": prior_note})
+                         len(samples), smm, sdeg, extra={"prior": prior_note,
+                                                         "kin_correction": None if kc is None else {**kc.to_dict(), "source": kc.source}})
 
 
 def estimate_board_scale(samples: list[Sample], cam: CameraModel, res: HandEyeResult) -> tuple[float, float]:
@@ -451,7 +453,7 @@ def estimate_board_scale(samples: list[Sample], cam: CameraModel, res: HandEyeRe
     The arm's FK carries metric scale, so a wrong ``square_mm`` shows up as a factor != 1.
     Returns (factor, its 1-sigma). Measure the printed square with a ruler before trusting it."""
     from scipy.optimize import least_squares
-    fks = [kin.fk(s.q) for s in samples]
+    fks = [kin.fk_vision(s.q) for s in samples]
 
     def f(x):
         out = []

@@ -58,7 +58,7 @@ class View:
     def from_q(cls, q, cam: CameraModel, T_tip_cam=None, T_base_table=None) -> "View":
         T_tc = T_TIP_CAM_NOMINAL if T_tip_cam is None else np.asarray(T_tip_cam, float)
         T_bt = np.eye(4) if T_base_table is None else np.asarray(T_base_table, float)
-        return cls(cam, kin.fk(q) @ T_tc, T_bt, [float(x) for x in q])
+        return cls(cam, kin.fk_vision(q) @ T_tc, T_bt, [float(x) for x in q])
 
     @property
     def T_table_cam(self) -> np.ndarray:

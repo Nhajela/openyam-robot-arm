@@ -1,0 +1,33 @@
+views: he1 12, he2 15; corners 835; PnP per view median 0.94 px
+pipeline he2 (nominal FK): PARK 12.16 px, spread 6.59 mm / 1.26 deg, t_tc [-74.5   0.9  41.3] mm
+
+== M0 hand-eye only: 19 params, rms 8.86 px (he1 7.43, he2 9.53); spread he1 7.1 mm/1.62 deg, he2 7.2 mm/1.93 deg; he1 scale x0.9095 (square 20.83 mm); cond 35
+   t_tc [-83.7   6.4  27.3] mm, axis-vs-fingers 47.0 deg
+   per-view px: [7.8, 1.6, 6.7, 8.7, 1.1, 5.8, 4.7, 5.6, 2.8, 4.6, 5.7, 18.1, 19.1, 12.5, 4.4, 2.3, 3.4, 4.5, 5.4, 14.9, 4.3, 2.7, 3.2, 4.9, 4.7, 6.9, 17.6]
+   leave-one-out: reprojection median 6.49 / rms 10.19 px; board origin err median 6.1 / rms 8.1 mm (he1 rms 8.1, he2 rms 8.1)
+   cross-dataset: {'he1->he2': {'rms_px': 17.63, 'spread_mm': 22.98, 'spread_deg': 1.539}, 'he2->he1': {'rms_px': 8.51, 'spread_mm': 8.07, 'spread_deg': 1.766}}
+
+== M1 + offsets j2-j5: 23 params, rms 3.39 px (he1 3.35, he2 3.41); spread he1 3.5 mm/0.93 deg, he2 3.0 mm/0.70 deg; he1 scale x0.8839 (square 20.24 mm); cond 101
+   t_tc [-79.6   2.7  38.2] mm, axis-vs-fingers 45.5 deg
+   d2=+41.19±5.80 mrad, d3=+0.88±2.48 mrad, d4=-40.95±1.53 mrad, d5=-24.17±1.59 mrad
+   |corr|>0.8: d2~d3 +0.85, d2~b1_z -0.95, d5~b1_y -0.87
+   per-view px: [2.5, 2.3, 4.5, 5.4, 2.2, 1.4, 2.8, 2.7, 3.6, 3.7, 3.5, 3.5, 6.3, 5.6, 1.5, 1.3, 1.4, 1.6, 3.7, 4.1, 3.5, 4.4, 2.0, 1.8, 3.9, 1.8, 1.7]
+   leave-one-out: reprojection median 4.16 / rms 4.45 px; board origin err median 3.6 / rms 3.9 mm (he1 rms 4.3, he2 rms 3.5)
+   cross-dataset: {'he1->he2': {'rms_px': 10.51, 'spread_mm': 8.07, 'spread_deg': 3.06}, 'he2->he1': {'rms_px': 5.68, 'spread_mm': 4.93, 'spread_deg': 1.078}}
+
+== M1a offsets j4 j5: 21 params, rms 3.76 px (he1 3.07, he2 4.08); spread he1 3.9 mm/1.12 deg, he2 3.8 mm/0.97 deg; he1 scale x0.8900 (square 20.38 mm); cond 40
+   t_tc [-78.6   2.2  38.7] mm, axis-vs-fingers 45.1 deg
+   d4=-53.95±1.06 mrad, d5=-26.57±1.81 mrad
+   |corr|>0.8: d5~b1_y -0.86
+   per-view px: [2.4, 2.3, 3.5, 5.3, 2.1, 1.4, 2.9, 2.8, 3.3, 3.7, 2.8, 2.7, 8.0, 6.7, 2.4, 1.5, 1.8, 3.2, 4.6, 5.0, 3.5, 4.1, 2.3, 3.3, 3.5, 2.3, 2.0]
+   leave-one-out: reprojection median 3.99 / rms 4.75 px; board origin err median 3.7 / rms 4.4 mm (he1 rms 4.5, he2 rms 4.3)
+   cross-dataset: {'he1->he2': {'rms_px': 10.48, 'spread_mm': 7.65, 'spread_deg': 3.73}, 'he2->he1': {'rms_px': 3.64, 'spread_mm': 4.19, 'spread_deg': 1.235}}
+
+== M1b offsets j3 j4 j5: 22 params, rms 3.57 px (he1 3.08, he2 3.81); spread he1 3.9 mm/1.11 deg, he2 3.7 mm/0.85 deg; he1 scale x0.8860 (square 20.29 mm); cond 47
+   t_tc [-79.6   3.4  37.8] mm, axis-vs-fingers 45.4 deg
+   d3=-13.76±1.39 mrad, d4=-41.02±1.61 mrad, d5=-23.94±1.61 mrad
+   |corr|>0.8: d5~b1_y -0.86
+   per-view px: [1.8, 2.5, 3.7, 5.7, 2.1, 1.5, 2.7, 3.0, 3.1, 3.6, 2.8, 2.1, 7.7, 5.9, 1.5, 1.4, 1.3, 2.3, 5.0, 4.0, 3.9, 4.5, 2.0, 1.7, 3.9, 2.0, 2.0]
+   leave-one-out: reprojection median 3.59 / rms 4.43 px; board origin err median 3.7 / rms 4.3 mm (he1 rms 4.6, he2 rms 4.1)
+   cross-dataset: {'he1->he2': {'rms_px': 10.51, 'spread_mm': 7.99, 'spread_deg': 3.019}, 'he2->he1': {'rms_px': 3.68, 'spread_mm': 4.3, 'spread_deg': 1.235}}
+wrote /home/naman/openyam-robot-arm/.claude/worktrees/agent-af11819fcfc571fd7/experiments/2026-10-29-kin-calib/logs/kincal_results_v2.json
