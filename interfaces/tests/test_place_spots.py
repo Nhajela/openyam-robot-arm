@@ -84,3 +84,14 @@ def test_teach_the_chess_board_from_a1_and_h8(tmp_path, monkeypatch):
     assert "check the square size" in res["note"]
     out = PS.check(path=path)
     assert out["board"]["reachable_squares"] == 64, out["board"]["unreachable"]
+
+
+def test_suggest_a_reachable_layout_and_write_it_as_provisional(tmp_path):
+    path = _wc(tmp_path)
+    before = json.loads(path.read_text())["spots"]["A"]["xyz"]
+    out = PS.suggest_spots("left", "block", apply=True, path=path)
+    assert all(v == "ok" for v in out["pairs"].values()), out["pairs"]
+    raw = json.loads(path.read_text())
+    assert set(raw["spots"]) == {"A", "B", "C"} and raw["spots"]["A"]["xyz"] != before
+    assert all(s["provisional"] and "provisional" in s["title"] for s in raw["spots"].values())
+    assert PS.check(path=path)["pairs"] == {k: "ok" for k in out["pairs"]}

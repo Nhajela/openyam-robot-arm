@@ -7,6 +7,8 @@ Nothing here guesses the table: you show the arm where things are, and this reco
 
     # what is reachable now (nothing moves; reads workcell.json only)
     .venv/bin/python -m interfaces.grasp.place_spots check
+    # a paper layout every pair can reach (left = the base's +y side); --apply writes it as provisional
+    .venv/bin/python -m interfaces.grasp.place_spots suggest --side left [--apply]
 
     # teach: park the fingertip over a taped mark (open play Joints mode, or the console), then
     .venv/bin/python -m interfaces.grasp.place_spots teach A --title "Spot A (left)"
@@ -95,6 +97,45 @@ def check(path: Path = WORKCELL, obj: str = "block") -> dict:
     return out
 
 
+def suggest_spots(side: str = "left", obj: str = "block", r: float = 0.30, apply: bool = False,
+                  path: Path = WORKCELL) -> dict:
+    """Three spots A/B/C that every pick-and-place pair can reach, on one side of the arm (base
+    frame: left = +y). A layout on paper: it knows the arm's reach, not what is on the table. With
+    ``apply`` they are written as PROVISIONAL (title says so) until ``teach`` replaces them."""
+    raw = json.loads(path.read_text())
+    wc = Workcell.load(path)
+    if not wc.calibrated:
+        raise SystemExit("the table frame isn't calibrated: spots would be made up twice over")
+    o = (raw.get("objects") or {}).get(obj, {"height": 0.04, "width": 0.04})
+    Ti = np.linalg.inv(np.array(wc.T_base_table, float))
+    z_tab = float(np.array(wc.T_base_table, float)[2, 3])
+    sign = 1.0 if side == "left" else -1.0
+    angles = {"A": 0.30, "B": 0.62, "C": 0.46}          # rad from straight ahead, toward `side`
+    radii = {"A": r, "B": r, "C": r - 0.08}
+    spots = {}
+    for name in ("A", "B", "C"):
+        th = sign * angles[name]
+        p = Ti @ np.r_[radii[name] * math.cos(th), radii[name] * math.sin(th), z_tab, 1.0]
+        spots[name] = {"title": f"Spot {name} ({side}, provisional)", "xyz": [round(float(p[0]), 4), round(float(p[1]), 4), 0.0],
+                       "provisional": True, "base_r": radii[name], "base_j1_rad": round(th, 3)}
+    pairs = {}
+    for a in spots:
+        for c in spots:
+            if a != c:
+                try:
+                    pick_place(wc, spots[a]["xyz"], spots[c]["xyz"], height=float(o["height"]), width=float(o["width"]))
+                    pairs[f"{a}->{c}"] = "ok"
+                except Unreachable as e:
+                    pairs[f"{a}->{c}"] = str(e)
+    out = {"spots": spots, "pairs": pairs}
+    if apply:
+        if not all(v == "ok" for v in pairs.values()):
+            raise SystemExit("not every pair is reachable: not writing them\n" + json.dumps(pairs, indent=1))
+        raw["spots"] = {k: {kk: vv for kk, vv in v.items() if kk not in ("base_r", "base_j1_rad")} for k, v in spots.items()}
+        out["backup"] = str(_save(raw, path))
+    return out
+
+
 def teach_spot(name: str, title: str | None, url: str | None = None, path: Path = WORKCELL) -> dict:
     raw = json.loads(path.read_text())
     wc = Workcell.load(path)
@@ -147,6 +188,10 @@ def main(argv=None) -> int:
     t = sub.add_parser("teach", help="spot NAME = where the fingertip is now (reads q; nothing moves)")
     t.add_argument("name")
     t.add_argument("--title", default=None)
+    g = sub.add_parser("suggest", help="three spots every pair can reach, on one side (paper layout; --apply writes them as provisional)")
+    g.add_argument("--side", choices=("left", "right"), default="left")
+    g.add_argument("--object", default="block")
+    g.add_argument("--apply", action="store_true")
     b = sub.add_parser("board", help="chess board from the fingertip over a1, then over h8")
     b.add_argument("corner", choices=("a1", "h8"))
     for p in (t, b):
@@ -154,6 +199,8 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     if a.cmd == "check":
         res = check(obj=a.object)
+    elif a.cmd == "suggest":
+        res = suggest_spots(a.side, a.object, apply=a.apply)
     elif a.cmd == "teach":
         res = teach_spot(a.name, a.title, a.url)
     else:
