@@ -1,0 +1,239 @@
+{
+ "T_tip_cam": [
+  [
+   -0.014,
+   0.707949,
+   0.706125,
+   -0.074464
+  ],
+  [
+   0.999711,
+   -0.003901,
+   0.023732,
+   0.000937
+  ],
+  [
+   0.019556,
+   0.706253,
+   -0.707689,
+   0.041296
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "T_base_board": [
+  [
+   0.107764,
+   -0.988775,
+   0.103491,
+   0.468304
+  ],
+  [
+   -0.993923,
+   -0.1095,
+   -0.011226,
+   0.061995
+  ],
+  [
+   0.022432,
+   -0.101652,
+   -0.994567,
+   -0.015987
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "T_base_table": [
+  [
+   0.107764,
+   0.988775,
+   -0.103491,
+   0.42486
+  ],
+  [
+   -0.993923,
+   0.1095,
+   0.011226,
+   -0.020035
+  ],
+  [
+   0.022432,
+   0.101652,
+   0.994567,
+   -0.019581
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "method": "PARK",
+ "methods": {
+  "TSAI": {
+   "spread_mm": 6.69,
+   "spread_deg": 1.299,
+   "t_mm": [
+    -74.3,
+    0.4,
+    42.0
+   ],
+   "axis_vs_nominal_deg": 15.4,
+   "prior": "ok"
+  },
+  "PARK": {
+   "spread_mm": 6.59,
+   "spread_deg": 1.264,
+   "t_mm": [
+    -74.5,
+    0.9,
+    41.3
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  },
+  "HORAUD": {
+   "spread_mm": 6.59,
+   "spread_deg": 1.264,
+   "t_mm": [
+    -74.4,
+    0.9,
+    41.3
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  },
+  "ANDREFF": {
+   "spread_mm": 23.95,
+   "spread_deg": 1.265,
+   "t_mm": [
+    -42.3,
+    -5.4,
+    -4.4
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  },
+  "DANIILIDIS": {
+   "spread_mm": 6.96,
+   "spread_deg": 1.307,
+   "t_mm": [
+    -72.8,
+    -1.1,
+    44.0
+   ],
+   "axis_vs_nominal_deg": 15.5,
+   "prior": "ok"
+  },
+  "RWHE-SHAH": {
+   "spread_mm": 6.66,
+   "spread_deg": 1.264,
+   "t_mm": [
+    -77.3,
+    0.5,
+    39.7
+   ],
+   "axis_vs_nominal_deg": 15.1,
+   "prior": "ok"
+  },
+  "RWHE-LI": {
+   "spread_mm": 16.97,
+   "spread_deg": 1.266,
+   "t_mm": [
+    -88.9,
+    7.6,
+    76.2
+   ],
+   "axis_vs_nominal_deg": 15.2,
+   "prior": "ok"
+  }
+ },
+ "rms_px": 12.164,
+ "per_view_px": [
+  14.589,
+  8.56,
+  9.347,
+  1.981,
+  7.106,
+  6.59,
+  11.863,
+  22.238,
+  7.549,
+  7.272,
+  2.195,
+  6.932,
+  9.708,
+  10.566,
+  25.116
+ ],
+ "n_views": 15,
+ "spread_mm": 6.59,
+ "spread_deg": 1.264,
+ "solved_at": "2026-10-29T09:28:12",
+ "prior": "ok",
+ "board_scale_fit": {
+  "factor": 1.0823,
+  "sigma": 0.0097,
+  "square_mm": 25.95
+ },
+ "gates": [
+  {
+   "name": "reprojection",
+   "ok": false,
+   "value": 12.1639,
+   "limit": 3.0,
+   "text": "reprojection 12.16 px (< 3)"
+  },
+  {
+   "name": "spread_mm",
+   "ok": false,
+   "value": 6.5907,
+   "limit": 6.0,
+   "text": "board-pose spread 6.59 mm (< 6)"
+  },
+  {
+   "name": "spread_deg",
+   "ok": false,
+   "value": 1.2644,
+   "limit": 1.0,
+   "text": "board-pose spread 1.26 deg (< 1)"
+  },
+  {
+   "name": "table_z",
+   "ok": true,
+   "value": 0.0004,
+   "limit": 0.02,
+   "text": "table origin z -0.020 m vs expected -0.020 (|diff| < 0.02)"
+  },
+  {
+   "name": "optical_axis",
+   "ok": true,
+   "value": 15.1232,
+   "limit": 25.0,
+   "text": "optical axis 15.1 deg from the nominal 60 deg mounting (< 25)"
+  },
+  {
+   "name": "camera_distance",
+   "ok": true,
+   "value": 0.0852,
+   "limit": 0.15,
+   "text": "camera 8.5 cm from the tip (< 15)"
+  },
+  {
+   "name": "board_scale",
+   "ok": false,
+   "value": 0.0823,
+   "limit": 0.05,
+   "text": "board scale vs arm kinematics x1.082 (|x-1| < 0.05; PnP distances disagree with FK if not)"
+  }
+ ]
+}

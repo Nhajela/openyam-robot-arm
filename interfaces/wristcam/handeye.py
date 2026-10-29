@@ -590,9 +590,20 @@ def cmd_collect(a):
     from .engine import DaemonArm
     out.mkdir(parents=True, exist_ok=True)
     samples = []
+    if a.start and (out / "samples.json").exists():   # resume: keep the views already saved
+        samples = [x for x in json.loads((out / "samples.json").read_text())["samples"]
+                   if int(x["frame"].split("_")[1].split(".")[0]) < a.start]
     with DaemonArm(source=a.source, program="wristcam-handeye", speed=a.speed, confirm=not a.yes) as arm:
         for i, v in enumerate(views):
-            arm.move_joints(v["q"], label=f"hand-eye view {i + 1}/{len(views)}")
+            if i < a.start:
+                continue
+            try:
+                arm.move_joints(v["q"], label=f"hand-eye view {i + 1}/{len(views)}")
+            except Exception as e:  # the daemon's arrival check (e.g. j2 sag 0.055 > 0.05 at full
+                # reach, 29 Oct): the arm holds where it got to; the sample uses the MEASURED q
+                if "did not reach target" not in str(e):
+                    raise
+                print(f"  view {i + 1}: arrived short ({e}); using the measured pose")
             time.sleep(a.settle)
             f = arm.frame()
             name = f"view_{i:02d}.png"
@@ -664,6 +675,7 @@ def main(argv=None):
     sub.choices["plan"].add_argument("--out", default=None, help="write the views as JSON")
     c = sub.choices["collect"]
     c.add_argument("--out", required=True)
+    c.add_argument("--start", type=int, default=0, help="resume: skip views before this index, keep their saved samples")
     c.add_argument("--source", default="dashboard")
     c.add_argument("--execute", action="store_true", help="really move the arm (default: print the plan)")
     c.add_argument("--yes", action="store_true", help="don't ask before each motion (NOT for the real arm)")
