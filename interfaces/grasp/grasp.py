@@ -81,6 +81,16 @@ class Workcell:
         T = np.array(self.T_base_table, float)
         return yaw_table + math.atan2(T[1, 0], T[0, 0])
 
+    def floor_base(self) -> float:
+        """``min_tip_z`` as a base-frame height, for the clearance checks (kin.clearance is in the
+        base frame). It is meant above the TABLE: with a calibrated table frame that is
+        min_tip_z above the table (29 Oct: the table is 3.1 cm below the base, which sits on a
+        plate, so a base-frame 0.01 kept the fingertip 4 cm up and nothing under ~5 cm could be
+        grasped). Uncalibrated: the table is assumed at the base, as before."""
+        if not self.calibrated:
+            return float(self.min_tip_z)
+        return float(self.to_base([0.0, 0.0, self.min_tip_z])[2])
+
     def grip_for(self, width: float) -> float:
         return float(np.clip(width / self.max_width, 0.0, 1.0))
 
@@ -170,11 +180,11 @@ def pick_place(wc: Workcell, pick, place, height: float, width: float, yaw: floa
 
     ready = np.array(envm.POSES["ready"], float)
     steps = []  # (label, q, grip, slow)
-    q_above_pick = _solve(b_pick[:2].tolist() + [wc.to_base([0, 0, z_above])[2]], ready, yaw_b, wc.min_tip_z, "above pick")
-    q_grasp = _solve(b_pick[:2].tolist() + [wc.to_base([0, 0, z_grasp])[2]], q_above_pick, yaw_b, wc.min_tip_z, "grasp")
+    q_above_pick = _solve(b_pick[:2].tolist() + [wc.to_base([0, 0, z_above])[2]], ready, yaw_b, wc.floor_base(), "above pick")
+    q_grasp = _solve(b_pick[:2].tolist() + [wc.to_base([0, 0, z_grasp])[2]], q_above_pick, yaw_b, wc.floor_base(), "grasp")
     q_grasp[5] = q_above_pick[5]
-    q_above_place = _solve(b_place[:2].tolist() + [wc.to_base([0, 0, z_above])[2]], q_above_pick, place_yaw_b, wc.min_tip_z, "above place")
-    q_release = _solve(b_place[:2].tolist() + [wc.to_base([0, 0, z_release])[2]], q_above_place, place_yaw_b, wc.min_tip_z, "release")
+    q_above_place = _solve(b_place[:2].tolist() + [wc.to_base([0, 0, z_above])[2]], q_above_pick, place_yaw_b, wc.floor_base(), "above place")
+    q_release = _solve(b_place[:2].tolist() + [wc.to_base([0, 0, z_release])[2]], q_above_place, place_yaw_b, wc.floor_base(), "release")
     q_release[5] = q_above_place[5]
     steps += [("start", ready, 0.0, 1.0),
               ("above pick, open", q_above_pick, g_open, 1.0),
@@ -189,7 +199,7 @@ def pick_place(wc: Workcell, pick, place, height: float, width: float, yaw: floa
 
     p = {"format": pl.FORMAT, "version": "1.0", "name": pl.slugify(name), "author": "planner:interfaces.grasp",
          "created": pl.now_iso(), "space": "joint", "start": "ready", "caps": caps,
-         "min_tip_z": wc.min_tip_z, "keyframes": []}
+         "min_tip_z": round(wc.floor_base(), 4), "keyframes": []}
     vcap, acap, gcap, _ = coach.caps_for(p)
     t = 0.0
     labels = []

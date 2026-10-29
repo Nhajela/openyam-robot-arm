@@ -384,7 +384,7 @@ class GraspEngine:
                     self.log("decision", decision="abort_descent", offset_mm=d * 1000)
                     self.est = np.array(det.xyz_table[:2])
                     q_up = self.tip_over(self.est, z_above)
-                    self.move(q_up, "back up to re-centre", floor=self.wc.min_tip_z, slow=True)
+                    self.move(q_up, "back up to re-centre", floor=self.wc.floor_base(), slow=True)
                     self.level = len(c.look_heights) - 1
                     self.iters = 0
                     return "center"
@@ -399,7 +399,7 @@ class GraspEngine:
                 self.reason = (f"camera would be {cam_z:.3f} m above the table, below the rim + clearance "
                                f"({c.height + c.cam_rim_clearance:.3f}): grasp lower is impossible with this mount")
                 return "failed"
-            self.move(q, f"descend: tip {z:.3f} m (table)", floor=self.wc.min_tip_z, slow=True)
+            self.move(q, f"descend: tip {z:.3f} m (table)", floor=self.wc.floor_base(), slow=True)
         return "close"
 
     def st_close(self):
@@ -415,7 +415,7 @@ class GraspEngine:
         z_grasp, *_ = self._grasp_geometry()
         tip = self.tip_table()
         q = self.tip_over(tip[:2], tip[2] + self.cfg.lift)
-        self.move(q, f"lift {self.cfg.lift:.2f} m", floor=self.wc.min_tip_z, slow=True)
+        self.move(q, f"lift {self.cfg.lift:.2f} m", floor=self.wc.floor_base(), slow=True)
         return "verify"
 
     def st_verify(self):
@@ -437,7 +437,7 @@ class GraspEngine:
         self.grip_to(g_open, "open after a miss")
         tip = self.tip_table()
         q = self.tip_over(tip[:2], max(tip[2], z_above) + 0.02)
-        self.move(q, "back off above the object", floor=self.wc.min_tip_z, slow=True)
+        self.move(q, "back off above the object", floor=self.wc.floor_base(), slow=True)
         self.level = len(self.cfg.look_heights) - 1
         self.iters = 0
         self.lost = 0
@@ -453,7 +453,7 @@ class GraspEngine:
         z_travel = max(wc.travel_z, c.height + c.approach_clear + 0.03)
         xy = np.array(c.place_table[:2], float)
         q_up = self.tip_over(tip[:2], max(tip[2], z_travel))
-        self.move(q_up, "up to travel height", floor=wc.min_tip_z)
+        self.move(q_up, "up to travel height", floor=wc.floor_base())
         q_over = self.tip_over(xy, max(tip[2], z_travel))
         if q_over is None:
             self.reason = f"place {xy.tolist()} unreachable"
@@ -461,10 +461,10 @@ class GraspEngine:
         self.move(q_over, f"over the place target table {xy.round(3).tolist()}")
         z_rel = max(wc.min_tip_z, c.height * 0.6 - wc.tip_to_pad + 0.003)
         q_down = self.tip_over(xy, z_rel)
-        self.move(q_down, "down to release", floor=wc.min_tip_z, slow=True)
+        self.move(q_down, "down to release", floor=wc.floor_base(), slow=True)
         self.grip_to(g_open, "release")
         q_lift = self.tip_over(xy, self._grasp_geometry()[1])   # clear of the object and of the table guard
-        self.move(q_lift, "lift clear of the object", floor=wc.min_tip_z, slow=True)
+        self.move(q_lift, "lift clear of the object", floor=wc.floor_base(), slow=True)
         self.log("decision", decision="placed", grasp_offset_z=grasp_off)
         return "ready"
 

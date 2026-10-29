@@ -104,7 +104,7 @@ def test_dry_run_cli_end_to_end(tmp_path):
     assert plan["validation"]["ok"] and plan["validation"]["coach_ok"]
     assert all(lp["q"] is not None and lp["check"] == "ok" for lp in plan["look_poses"])
     p = json.loads(next(out.glob("*.playable.json")).read_text())
-    assert pl.validate(p)["ok"] and p["min_tip_z"] == wc.min_tip_z
+    assert pl.validate(p)["ok"] and p["min_tip_z"] == round(wc.floor_base(), 4)   # base frame: min_tip_z above the table
     assert (out / "look.jpg").exists()
 
 
