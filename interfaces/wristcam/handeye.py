@@ -648,12 +648,30 @@ def cmd_solve(a):
     print("sanity gates:")
     for g in gates:
         print(f"   {'PASS' if g['ok'] else 'FAIL'}  {g['text']}")
-    if failed:
+    # --accept-provisional REASON: a documented operator decision to use a result that misses only the
+    # precision gates (reprojection, rotation spread). Position-critical gates (position spread, table
+    # height, mounting prior, camera distance, board scale) must still pass; never silently.
+    hard_failed = [g for g in failed if g["name"] not in ("reprojection", "spread_deg")]
+    provisional = bool(failed) and bool(getattr(a, "accept_provisional", None)) and not hard_failed
+    if failed and getattr(a, "accept_provisional", None) and hard_failed:
+        print("--accept-provisional REFUSED: position-critical gate(s) failed: " + "; ".join(g["text"] for g in hard_failed))
+    if provisional:
+        res.extra["provisional"] = {"reason": a.accept_provisional, "failed_gates": [g["text"] for g in failed],
+                                    "accepted_at": f"{dt.datetime.now():%Y-%m-%d %H:%M}"}
+        print("wrote", write_handeye(res, a.out), "(PROVISIONAL: " + a.accept_provisional + ")")
+    elif failed:
         out = Path(a.out).with_name(Path(a.out).stem + f".rejected-{dt.datetime.now():%H%M%S}.json")
         print("wrote", write_handeye(res, out), "(REJECTED: not used by the grasp code)")
     else:
         print("wrote", write_handeye(res, a.out))
     if a.write_workcell:
+        if provisional:
+            note = (f"PROVISIONAL wristcam hand-eye ({dt.datetime.now():%Y-%m-%d %H:%M}): {a.accept_provisional}. "
+                    f"Failed precision gates: " + "; ".join(g["text"] for g in failed))
+            p, b = write_workcell(res.T_base_table, Path(a.workcell), note=note)
+            raw = json.loads(Path(p).read_text()); raw["provisional"] = True; Path(p).write_text(json.dumps(raw, indent=2) + "\n")
+            print(f"wrote {p} (calibrated: true, PROVISIONAL); backup {b}")
+            return 0
         if failed:
             print(f"REFUSED to write {a.workcell}: {len(failed)} sanity gate(s) failed: "
                   + "; ".join(g["text"] for g in failed) + ". The workcell is unchanged.")
@@ -688,6 +706,9 @@ def main(argv=None):
     s.add_argument("--calib", default=str(DEFAULT_INTRINSICS))
     s.add_argument("--square-mm", type=float, default=None)
     s.add_argument("--out", default=str(DEFAULT_HANDEYE))
+    s.add_argument("--accept-provisional", default=None, metavar="REASON",
+                   help="operator decision: accept a result that fails ONLY the precision gates (reprojection, "
+                        "rotation spread); recorded as provisional with the reason")
     s.add_argument("--write-workcell", action="store_true",
                    help="set T_base_table + calibrated:true, ONLY if every sanity gate passes")
     s.add_argument("--workcell", default=str(WORKCELL))
