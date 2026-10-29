@@ -108,3 +108,54 @@ def test_real_library_match_if_present(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     r = run(say.author("say hi to everyone"))
     assert r["source"] == "library" and r["playable"].get("keyframes")
+
+
+# --- visual mode (OPENPLAY_SAY_VISUAL=1): Claude Fable + render-sheet review passes, mocked ----
+
+def test_visual_mode_library_first_for_short_named_moves(monkeypatch, fake_moves):
+    monkeypatch.setenv("OPENPLAY_SAY_VISUAL", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-not-a-real-key")
+    monkeypatch.setattr(say, "_claude_visual", lambda *a: pytest.fail("a library match plays directly"))
+    r = run(say.author("wave"))
+    assert r["source"] == "library" and r["playable"]["name"] == "wave"
+
+
+def test_visual_mode_uses_visual_author_with_progress_and_deadline(monkeypatch, fake_moves):
+    monkeypatch.setenv("OPENPLAY_SAY_VISUAL", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-not-a-real-key")
+    pl = {**PLAYABLE, "name": "sad-dance"}
+    seen = {}
+
+    def fake(text, progress, deadline_s):
+        seen["deadline"] = deadline_s
+        for st in ("drafting", "reviewing pass 1/2", "final"):
+            progress(st)
+        return {"ok": True, "playable": pl, "retimed": False}
+
+    monkeypatch.setattr(say, "_claude", lambda text: pytest.fail("text path must not run in visual mode"))
+    monkeypatch.setattr(say, "_claude_visual", fake)
+    stages = []
+
+    async def go():
+        r = await say.author("do a sad dance then cheer up", timeout_s=say.timeout_for(60),
+                             progress=stages.append)
+        await asyncio.sleep(0)  # let call_soon_threadsafe callbacks run
+        return r
+
+    r = run(go())
+    assert r["source"] == "claude" and r["playable"]["name"] == "sad-dance"
+    assert stages == ["drafting", "reviewing pass 1/2", "final"]
+    assert say.timeout_for(60) == 240 and seen["deadline"] == 225
+
+
+def test_visual_mode_invalid_falls_back_to_library(monkeypatch, fake_moves):
+    monkeypatch.setenv("OPENPLAY_SAY_VISUAL", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-not-a-real-key")
+    monkeypatch.setattr(say, "_claude_visual", lambda *a: {"ok": False, "playable": None})
+    r = run(say.author("please wave at the kids over there"))
+    assert r["source"] == "library" and "safety check" in r["note"]
+
+
+def test_text_mode_is_default(monkeypatch):
+    monkeypatch.delenv("OPENPLAY_SAY_VISUAL", raising=False)
+    assert not say.visual_enabled() and say.timeout_for(60) == 60

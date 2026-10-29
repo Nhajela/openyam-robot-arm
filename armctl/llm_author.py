@@ -13,6 +13,9 @@ Backends (picked automatically):
 Usage:
   .venv/bin/python -m armctl.llm_author "do a happy little dance" [--save] [--retime]
        [--model claude-sonnet-5-5] [--backend sdk|cli] [--rounds 3] [--json]
+  .venv/bin/python -m armctl.llm_author "a happy wave" --visual --passes 3 --model claude-fable-5-1 \
+       --out playables/happy-wave.json --sheets-dir experiments/<exp>/sheets/happy-wave [--camera auto]
+       (visual: armctl.visual_author; render sheets of each candidate go back to the model for review)
 
 Prompts and responses are appended to
 experiments/2026-10-16-linux-real-arm/logs/llm-author.log (no secrets are logged).
@@ -96,8 +99,19 @@ def _min_T_examples(env) -> str:
     return "; ".join(out)
 
 
-def system_prompt() -> str:
+def system_prompt(*, modest: bool = True, examples: tuple[str, ...] = ("wave", "nod"),
+                  flow: bool = False) -> str:
+    """The envelope + schema prompt. ``modest`` keeps the original "stay small" advice (the text
+    path); the visual author turns it off and adds armctl/choreo_guidelines.md instead."""
     env = P.envelope()
+    ease_kinds = '"cubic"|"linear"|"hold"' + ('|"flow"' if flow else '')
+    flow_rule = ('\n  - "flow" passes smoothly THROUGH its keyframe (non-zero velocity there) and only stops where a '
+                 'joint reverses or at a cubic/hold neighbour: use it for arcs and continuous phrases.' if flow else '')
+    style = ("  - Keep motions modest: stay at least 0.2 rad inside every soft limit; j2 in [0.4, 1.2] and\n"
+             "    j3 in [0.6, 1.6] are comfortable. Expressive motion comes from j1, j4, j5, j6 and the gripper."
+             if modest else
+             "  - Stay at least 0.2 rad inside every soft limit; otherwise use the range (see the guidelines).")
+    ex = "\n".join(f"{n}: {_example(n)}" for n in examples if _example(n))
     lims = "\n".join(
         f"  {n}: soft limits [{lo:.3f}, {hi:.3f}] rad; {desc}"
         for (n, desc), (lo, hi) in zip(JOINT_DESCRIPTIONS, env.soft))
@@ -121,21 +135,19 @@ Named poses:
 
 Schema:
   {{"name": slug, "space": "joint", "start": "ready",
-    "keyframes": [{{"t": seconds, "q": [6 rad], "grip": 0..1, "ease": "cubic"|"linear"|"hold"}}, ...],
+    "keyframes": [{{"t": seconds, "q": [6 rad], "grip": 0..1, "ease": {ease_kinds}}}, ...],
     "loop": 1..10, "speed": 0.1..2 (playback time = t / speed), "notes": one sentence}}
 Rules:
   - First keyframe at t=0 and equal to the ready pose {[round(x, 3) for x in env.poses['ready']]}; end back at ready.
   - t strictly increasing. Total playback (t_last / speed * loop) <= 60 s; aim for 5-15 s.
   - ease applies to the segment ending at that keyframe. Prefer "cubic" (smooth stop at each keyframe).
     "linear" starts/stops with a velocity jump and will fail the acceleration cap. "hold" = pause; its q
-    must equal the previous keyframe's q.
+    must equal the previous keyframe's q.{flow_rule}
   - If loop > 1 the last keyframe must equal the first.
-  - Keep motions modest: stay at least 0.2 rad inside every soft limit; j2 in [0.4, 1.2] and
-    j3 in [0.6, 1.6] are comfortable. Expressive motion comes from j1, j4, j5, j6 and the gripper.
+{style}
 
 Example playables (valid):
-wave: {_example('wave')}
-nod: {_example('nod')}
+{ex}
 """
 
 
@@ -338,12 +350,26 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("request", help='English, e.g. "do a happy little dance"')
     ap.add_argument("--save", action="store_true", help="save to playables/<name>.json if valid")
     ap.add_argument("--retime", action="store_true", help="apply retime() if only speed violations remain")
-    ap.add_argument("--model", default=DEFAULT_MODEL)
+    ap.add_argument("--model", default=None,
+                    help=f"default {DEFAULT_MODEL} (text) / $ARMCTL_VISUAL_MODEL or claude-fable-5-1 (--visual)")
     ap.add_argument("--backend", choices=["sdk", "cli"])
     ap.add_argument("--rounds", type=int, default=3, help="repair rounds after the first attempt")
     ap.add_argument("--json", action="store_true", help="print the playable JSON")
+    v = ap.add_argument_group("visual (armctl.visual_author: render sheets + review passes, SDK only)")
+    v.add_argument("--visual", action="store_true", help="draft, then review render sheets of the motion")
+    v.add_argument("--passes", type=int, default=2, help="visual review passes after the draft (0-3)")
+    v.add_argument("--camera", choices=["auto", "always", "never"], default="auto",
+                   help="also send a live wrist-camera snapshot (auto: only if the request refers to the scene)")
+    v.add_argument("--sheets-dir", help="save sheets, per-pass JSON and CHANGELOG.md here")
+    v.add_argument("--out", help="write the final playable JSON to this path (only if valid)")
+    v.add_argument("--audience", help="audience camera preset (armctl/audience.json) or 'x,y,z' eye in m")
+    v.add_argument("--effort", default=None, help="output_config.effort for the visual model (default high)")
+    v.add_argument("--caps", choices=sorted(P.CAP_PRESETS), help="validator cap preset written into the playable")
     a = ap.parse_args(argv)
 
+    if a.visual:
+        return _main_visual(a)
+    a.model = a.model or DEFAULT_MODEL
     res = author(a.request, model=a.model, backend=a.backend, rounds=a.rounds, allow_retime=a.retime)
     print(f"\nbackend={res['backend']} model={res['model']} total LLM latency {res['latency_s']}s "
           f"rounds={len(res['attempts'])}")
@@ -366,6 +392,42 @@ def main(argv: list[str] | None = None) -> int:
     elif a.save:
         print("not saved (not valid)")
     return 0 if res["ok"] else 1
+
+
+def _main_visual(a) -> int:
+    from armctl import visual_author as V
+
+    if a.backend == "cli":
+        print("--visual needs the SDK backend (images): set ANTHROPIC_API_KEY")
+        return 2
+    res = V.author_visual(a.request, model=a.model or V.DEFAULT_MODEL, passes=a.passes, camera=a.camera,
+                          sheets_dir=a.sheets_dir, audience=a.audience, effort=a.effort or V.DEFAULT_EFFORT,
+                          caps=a.caps, progress=lambda s: print(f"... {s}"))
+    print(f"\nmodel={res['model']} {len(res['passes'])} call(s) {res['latency_s']} s  stop: {res['stop_reason']}")
+    if res["report"]:
+        print(P.report(res["report"]))
+    if not res["ok"]:
+        print("no valid playable:", res.get("error"))
+        return 1
+    pl = res["playable"]
+    if a.json:
+        print(json.dumps(pl, indent=2))
+    if a.out:
+        out = Path(a.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        if out.parent.resolve() == P.PLAYABLES_DIR.resolve():
+            pl["name"] = P.slugify(out.stem)
+        out.write_text(json.dumps(pl, indent=2) + "\n")
+        print(f"wrote {out}")
+    if a.save:
+        base, i = pl["name"], 2
+        while (P.PLAYABLES_DIR / f"{pl['name']}.json").exists():  # never overwrite
+            pl["name"] = f"{base}-{i}"
+            i += 1
+        print(f"saved {P.save(pl).relative_to(P.REPO)}")
+    if a.sheets_dir:
+        print(f"sheets + CHANGELOG.md in {a.sheets_dir}")
+    return 0
 
 
 if __name__ == "__main__":
