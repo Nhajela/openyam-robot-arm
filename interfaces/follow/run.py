@@ -113,6 +113,7 @@ class SynthFrames:
 
         self.synth = synth
         self.cup = synth.Cup(tuple(start))
+        self.cup.label = "red cup"
         self.world = synth.World(cups=[self.cup], board=False)
         self.cam = synth.TRUE_CAMERA.scaled(size)
         self.path = cup_path(path, start, speed)
@@ -208,7 +209,14 @@ async def run(a: argparse.Namespace) -> int:
     obj = (wc.objects or {}).get(a.object, {}) if not synthetic else {"width": 0.06, "height": 0.08}
     height = a.height if a.height is not None else float(obj.get("height", 0.08))
     size = a.size if a.size is not None else float(obj.get("width", 0.07))
-    if a.finder == "cup":
+    prompt_detector = None
+    if a.prompt:                     # follow whatever is named: the open-vocabulary detector anchors the track
+        from interfaces.wristcam import detect as D
+        if a.detector == "synth" and not synthetic:
+            raise SystemExit("--detector synth reads the synthetic world: use it with --source synthetic")
+        prompt_detector = None if a.detector == "synth" else D.make_detector(a.detector)
+        finder = None                # built at the seed, from the named object's footprint
+    elif a.finder == "cup":
         from interfaces.wristcam.locate import CupFinder
         finder = CupFinder(diameter=size, height=height)
     else:
@@ -278,6 +286,21 @@ async def run(a: argparse.Namespace) -> int:
             view0 = View.from_q(q0, cam.for_image(f), T_tc, wc.T_base_table)
             # near --expect if given (another identical object elsewhere must not be taken for it)
             hint = Hint(tuple(a.expect), a.seed_radius) if a.expect is not None else None
+            if a.prompt:
+                from interfaces.wristcam import target as TG
+                if prompt_detector is None:      # --detector synth: ground truth from the synthetic world
+                    from interfaces.wristcam import detect as D
+                    prompt_detector = D.SynthDetector(frames.world)
+                try:
+                    tgt, cands = await asyncio.to_thread(TG.resolve_prompt, f, view0, a.prompt, prompt_detector, wc)
+                except TG.TargetRefused as e:
+                    print(f"can't follow {a.prompt!r}: {e}", flush=True)
+                    log("end", reason=str(e))
+                    return 2
+                height, size = float(tgt.height), float(max(tgt.size))
+                tcfg.height, tcfg.size = height, size
+                finder = TG.DetectorFinder(tgt, prompt_detector, a.prompt, fallback=False, gate=0.06)
+                log("prompt", target=tgt.to_dict(), candidates=cands)
             det = await asyncio.to_thread(finder.find, f, view0, hint)
             if det is None:
                 cv2.imwrite(str(run_dir / "seed.jpg"), annotate(f, view0, None, "seed: not found"))
@@ -435,6 +458,9 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--url", default=DEFAULT_URL)
     ap.add_argument("--source", default="dashboard", help="vision/sources.py spec (dashboard, /dev/video0, URL) or 'synthetic'")
     ap.add_argument("--finder", default="cup", choices=("cup", "tags", "blob"), help="the slow finder that anchors the track")
+    ap.add_argument("--prompt", default="", help="follow whatever this names (open-vocabulary detector; overrides --finder)")
+    ap.add_argument("--detector", default="yoloe", choices=("yoloe", "claude", "synth"),
+                    help="with --prompt (synth: the synthetic world's ground truth, --source synthetic only)")
     ap.add_argument("--object", default="cup", help="workcell object (height, width)")
     ap.add_argument("--height", type=float, default=None, help="object top above the table, m (default: workcell)")
     ap.add_argument("--size", type=float, default=None, help="object width across its top, m (default: workcell)")
