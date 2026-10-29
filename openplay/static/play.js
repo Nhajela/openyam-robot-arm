@@ -103,16 +103,55 @@ function wsUrl() {
   const k = new URLSearchParams(location.search).get('k');
   return `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws` + (k ? `?k=${encodeURIComponent(k)}` : '');
 }
-function send(m) { if (ws && ws.readyState === 1) { ws.send(JSON.stringify(m)); return true; } return false; }
-function hello() { helloName = myName; send({ op: 'hello', pid, name: myName }); }
+// Every message carries the phone's send time `t` (ms, Date.now) and `seq` (counts every
+// attempt, sent or not, so the server sees messages lost while the socket was down). The
+// server's event log (openplay/eventlog.py) puts them on its own clock via ping/pong/sync.
+let txSeq = 0;
+function send(m) {
+  m.seq = ++txSeq; m.t = Date.now();
+  if (ws && ws.readyState === 1) {
+    if (m.op === 'stream' && ws.bufferedAmount) m.buf = ws.bufferedAmount; // bytes stuck on the phone
+    ws.send(JSON.stringify(m)); return true;
+  }
+  return false;
+}
+function hello() {
+  helloName = myName;
+  send({ op: 'hello', pid, name: myName, rate_ms: RATE_MS, ua: (navigator.userAgent || '').slice(0, 120) });
+}
+// clock sync (NTP style): ping {t} -> pong {t0, t1, t2} -> sync {s: [t0, t1, t2, t3]}; the
+// server keeps the min-RTT estimate. A short burst after (re)connecting, then every 5 s.
+let syncOffset = null, syncRtt = null;
+function ping() { send({ op: 'ping' }); }
+function onPong(m) {
+  if (m.t0 == null || m.t1 == null || m.t2 == null) return;
+  const t3 = Date.now(), rtt = (t3 - m.t0) - (m.t2 - m.t1);
+  if (syncRtt === null || rtt <= syncRtt) { syncRtt = rtt; syncOffset = ((m.t0 - m.t1) + (t3 - m.t2)) / 2; }
+  send({ op: 'sync', s: [m.t0, m.t1, m.t2, t3], offset_ms: syncOffset });
+}
+// phone-side events the server can't see (page hidden, pointer cancelled, socket closed, the
+// send timer running late): buffered here, sent after hello and on every ping.
+const diagBuf = [];
+function diag(ev, extra) {
+  diagBuf.push(Object.assign({ t: Date.now(), ev, hidden: document.hidden }, extra || {}));
+  if (diagBuf.length > 60) diagBuf.shift();
+}
+function flushDiag() {
+  if (!diagBuf.length || !ws || ws.readyState !== 1) return; // hello goes first on every open
+  if (send({ op: 'diag', events: diagBuf.slice() })) diagBuf.length = 0;
+}
 function connect() {
   clearTimeout(reconnectTimer);
   setConn('Connecting…');
-  try { ws = new WebSocket(wsUrl()); } catch (e) { scheduleReconnect(); return; }
-  const me = ws;
+  try { ws = new WebSocket(wsUrl()); } catch (e) { diag('ws_error', { where: 'new' }); scheduleReconnect(); return; }
+  const me = ws, opened = Date.now();
   me.onopen = () => {
     if (me !== ws) return;
     backoff = 500; lastRx = Date.now(); setConn(null); hello();
+    diag('ws_open', { connect_ms: Date.now() - opened });
+    flushDiag();
+    syncRtt = null;
+    for (let i = 0; i < 5; i++) setTimeout(() => { if (me === ws) ping(); }, 150 * i);
     if (S.wantJoin) { send({ op: 'join' }); S.wantJoin = false; }
   };
   me.onmessage = (ev) => {
@@ -121,9 +160,11 @@ function connect() {
     let m; try { m = JSON.parse(ev.data); } catch (_) { return; }
     handle(m);
   };
-  me.onclose = () => {
+  me.onclose = (ev) => {
     if (me !== ws) return;
-    releaseAll(); ws = null; S.arm = null; renderArm(); scheduleReconnect();
+    diag('ws_close', { code: ev.code, reason: (ev.reason || '').slice(0, 80), clean: ev.wasClean,
+      open_s: Math.round((Date.now() - opened) / 100) / 10, streaming: !!streamTimer });
+    releaseAll('close'); ws = null; S.arm = null; renderArm(); scheduleReconnect();
   };
   me.onerror = () => { try { me.close(); } catch (_) {} };
 }
@@ -138,14 +179,16 @@ function setConn(text) { const c = $('conn'); c.hidden = !text; if (text) c.text
 // liveness: the server sends arm state at >= 2 Hz; ping so a silent socket is noticed
 setInterval(() => {
   if (!ws || ws.readyState !== 1) return;
-  send({ op: 'ping' });
-  if (Date.now() - lastRx > 12000) { try { ws.close(); } catch (_) {} }
+  ping(); flushDiag();
+  if (Date.now() - lastRx > 12000) { diag('rx_silent', { silent_ms: Date.now() - lastRx }); try { ws.close(); } catch (_) {} }
 }, 5000);
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) releaseAll();
+  diag(document.hidden ? 'hidden' : 'visible', { streaming: !!streamTimer });
+  if (document.hidden) releaseAll('hidden');
   else if (!ws) { backoff = 500; connect(); }
+  else flushDiag();
 });
-window.addEventListener('pagehide', releaseAll);
+window.addEventListener('pagehide', () => { diag('pagehide', { streaming: !!streamTimer }); releaseAll('pagehide'); });
 
 // ------------------------------------------------------------------ messages
 function handle(m) {
@@ -176,7 +219,7 @@ function handle(m) {
       const r = m.reason || 'Not now';
       // Cartesian steering is refused once the shoulder sinks too low: say so and offer Ready
       if (/needs the arm unfolded/.test(r)) {
-        if ($('lowBar').hidden) { releaseAll(); buzz([30, 40, 30]); }
+        if ($('lowBar').hidden) { releaseAll('refused'); buzz([30, 40, 30]); }
         $('lowBar').hidden = false; break;
       }
       toast(/^busy/i.test(r) && S.screen === 'turn' ? `${r}. Tap STOP first.` : r, 'error', '✋'); break;
@@ -189,7 +232,7 @@ function handle(m) {
       renderSeq(m); break;
     case 'chess':
       chessMessage(m); $('chessLobbyCard').hidden = !chessInvolves(); break;
-    case 'pong': break;
+    case 'pong': onPong(m); break;
   }
 }
 
@@ -449,44 +492,57 @@ function checkTiltGate() {
   $('padGateSub').textContent = ori.beta === null ? 'Waiting for the motion sensors…'
     : `${Math.round(off)}° off. The arm waits until you're there.`;
 }
+// Diagnostics on every stream message (openplay/eventlog.py): `ep` (this hold's number),
+// `skip` (ticks not sent since the last one: the Tilt start-pose gate) and on the release
+// `why` (up | hidden | pagehide | close | refused | ui).
+let holdEp = 0, skipped = 0, lastTick = 0;
 function tick() {
-  if (!driving()) { stopStream(); return; }
+  const now = Date.now();
+  if (lastTick && now - lastTick > Math.max(250, 3 * RATE_MS)) diag('late_tick', { dt_ms: now - lastTick, ep: holdEp });
+  lastTick = now;
+  if (!driving()) { stopStream('up'); return; }
   const k = S.speed;
   if (S.mode === 'joints' && ctl.jogOn.size) {
-    send({ op: 'stream', qd: ctl.jog.map((v) => r3(clamp(v) * k)) });
+    send({ op: 'stream', qd: ctl.jog.map((v) => r3(clamp(v) * k)), ep: holdEp, skip: skipped || undefined });
   } else {
     let v = { x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0 };
     if (S.mode === 'tilt') {
       checkTiltGate();
-      if (!ctl.tiltArmed && ctl.z === 0) { drawDot(); return; } // nothing to send until back at the start pose
+      if (!ctl.tiltArmed && ctl.z === 0) { skipped++; drawDot(); return; } // nothing to send until back at the start pose
       const c = tiltCmd(); v.x = c.x; v.y = c.y; v.z = ctl.z;
     } else if (S.mode === 'sticks') {
       const L = ctl.sticks.L, R = ctl.sticks.R; // same mapping as joystick.html
       v.x = -dz(L.y); v.y = -dz(L.x); v.z = -dz(R.y); v.yaw = -dz(R.x);
     }
     for (const key in v) v[key] = r3(clamp(v[key]) * k);
-    send({ op: 'stream', v });
+    send({ op: 'stream', v, ep: holdEp, skip: skipped || undefined });
   }
+  skipped = 0;
   drawDot();
 }
-function startStream() { if (!streamTimer) { tick(); streamTimer = setInterval(tick, RATE_MS); renderArm(); } }
-function stopStream() {
+function startStream() {
+  if (!streamTimer) { holdEp++; skipped = 0; lastTick = 0; tick(); streamTimer = setInterval(tick, RATE_MS); renderArm(); }
+}
+function stopStream(why) {
   if (streamTimer) {
-    clearInterval(streamTimer); streamTimer = null;
+    clearInterval(streamTimer); streamTimer = null; lastTick = 0;
     // one explicit zero so the arm stops now rather than at the server's 300 ms deadman
-    if (S.mode === 'joints') send({ op: 'stream', qd: [0, 0, 0, 0, 0, 0] });
-    else send({ op: 'stream', v: { x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0 } });
+    const w = why || 'ui';
+    if (S.mode === 'joints') send({ op: 'stream', qd: [0, 0, 0, 0, 0, 0], ep: holdEp, why: w });
+    else send({ op: 'stream', v: { x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0 }, ep: holdEp, why: w });
     renderArm();
   }
 }
-function maybeStop() { if (!driving()) stopStream(); }
-function releaseAll() {
+let endWhy = null; // why the pointer let go: up | cancel | lostcapture
+function maybeStop() { if (!driving()) stopStream(endWhy || 'up'); }
+function releaseAll(why) {
+  why = typeof why === 'string' ? why : 'ui';
   ctl.tilt = false; ctl.tiltArmed = false; ctl.z = 0; ctl.jogOn.clear(); ctl.jog.fill(0);
   for (const s of Object.values(ctl.sticks)) { s.on = false; s.x = s.y = 0; s.reset && s.reset(); }
   for (const j of jogEls) j.reset();
   for (const id of ['tiltPad', 'tiltHold', 'zUp', 'zDown']) $(id).classList.remove('on');
   $('padGate').hidden = true;
-  stopStream(); drawDot();
+  stopStream(why); drawDot();
 }
 function holdable(node, down, up) {
   let pidHeld = null;
@@ -497,7 +553,13 @@ function holdable(node, down, up) {
     node.classList.add('on'); down(e);
   });
   node.addEventListener('pointermove', (e) => { if (e.pointerId === pidHeld && node._move) node._move(e); });
-  const end = (e) => { if (e.pointerId !== pidHeld) return; pidHeld = null; node.classList.remove('on'); up(e); };
+  const end = (e) => {
+    if (e.pointerId !== pidHeld) return;
+    pidHeld = null; node.classList.remove('on');
+    endWhy = e.type === 'pointerup' ? 'up' : e.type === 'pointercancel' ? 'cancel' : 'lostcapture';
+    if (endWhy !== 'up') diag(e.type, { id: node.id, streaming: !!streamTimer });
+    try { up(e); } finally { endWhy = null; }
+  };
   for (const t of ['pointerup', 'pointercancel', 'lostpointercapture']) node.addEventListener(t, end);
   node.addEventListener('contextmenu', (e) => e.preventDefault());
   return () => { pidHeld = null; node.classList.remove('on'); };

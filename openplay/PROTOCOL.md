@@ -26,6 +26,8 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 
 ### Phone → server
 
+Every phone message may carry two optional fields for the event log (see "Event log" below): `t` (the phone's send time, ms, `Date.now()`) and `seq` (a per-page counter that counts every send *attempt*, so messages the phone tried to send while the socket was down show up as a `seq` gap). `stream` may also carry `ep` (the hold number), `skip` (send ticks held back since the last one), `why` (on the release zero) and `buf` (`WebSocket.bufferedAmount` when > 0). The server never requires any of them: an old page still works, its gaps are just attributed `unknown`.
+
 | op | fields | meaning |
 |---|---|---|
 | `hello` | `pid` (client-made id kept in localStorage), `name` (≤ 24 chars) | first message; reconnecting with the same `pid` keeps your place and turn |
@@ -43,7 +45,9 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 | `pose.goto` | `i` | move to saved pose `i` |
 | `seq.play` | `style`: `gentle` \| `lively` \| `flow` | play your saved poses in order as one smooth timeline that respects the arm's speed limits (`flow`: passes through the poses without stopping) |
 | `grab` | `from`, `to` (spot names from `welcome.spots`) | pick an object at one spot and put it at another |
-| `ping` | | → `pong` |
+| `ping` | (`t`) | → `pong`. With `t`, the pong carries clock-sync stamps (below) |
+| `sync` | `s: [t0, t1, t2, t3]`, optional `offset_ms` (the phone's own estimate, logged only) | a finished ping/pong: `t0` = the ping's `t`, `t1`/`t2` from the pong, `t3` = phone time the pong arrived. No reply |
+| `diag` | `events: [{t, ev, …}]` (≤ 60) | phone-side events the server can't see, buffered and sent after `hello` and with every ping: `hidden` / `visible` (visibilitychange), `pagehide`, `pointercancel` / `lostpointercapture` (a hold ended by the browser, not the finger), `ws_close` (`code, reason, clean, open_s, streaming`), `ws_open` (`connect_ms`), `late_tick` (`dt_ms`: the send timer fired late), `rx_silent`. Each has `hidden` (document.hidden). Logged only. No reply |
 
 ### Server → phone
 
@@ -59,7 +63,7 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 | `poses` | `list: [{i, q, grip}]` |
 | `seq` | `stage`: `playing` \| `done` \| `error`, `duration_s`, `notes: [str]` (e.g. "pose 2 → 3 takes at least 1.6 s: j3 moves 1.2 rad") |
 | `refused` | `reason` ("not your turn", "busy: playing wave", "E-STOP is on", …) |
-| `pong` | |
+| `pong` | when the ping had `t`: `t0` (that `t`), `t1` (server unix ms when the ping arrived), `t2` (server unix ms when the pong left, stamped at the socket) |
 
 ## Display ⇄ server (`ws://127.0.0.1:8451/display/ws`)
 
@@ -89,7 +93,7 @@ JSON objects, one per WebSocket message. Unknown ops get `refused`.
 | `turn_s` | `s` |
 | `estop` / `estop_reset` | forwarded to the daemon's operator API |
 
-HTTP on the display listener: `GET /` (display page), `GET /qr.png` (QR of the join URL), `GET /api/join` (`{url}`), `GET /urdf/...` (yam_description if found), `GET /chess/frame/<name>` (latest board-camera JPEG), `GET /static/...`.
+HTTP on the display listener: `GET /` (display page), `GET /qr.png` (QR of the join URL), `GET /api/join` (`{url}`), `GET /urdf/...` (yam_description if found), `GET /chess/frame/<name>` (latest board-camera JPEG), `GET /events` (live event-log viewer), `GET /api/events?since=<n>&pid=&op=&limit=` (`{n, ttl_ms, now, events}` from the in-memory ring), `GET /api/streamstats` (per-hold stream stats, totals, clock offsets), `GET /static/...`. All loopback-only; the phone listener serves none of them.
 
 ## Chess (a real board, the chess clock, the cameras)
 
@@ -136,7 +140,32 @@ The game's moves are accepted only while the active player is one of its players
 - A turn ends at time-out, on `leave`, after 60 s with no command, after 20 s disconnected, or by the operator. At turn end the arm stops and returns to `ready`, then the next player starts.
 - `auto_play` on: playables are sent with the daemon's Play pressed by openplay (POST `/playable/confirm` on the daemon's loopback operator API). This is an explicit operator choice, shown on the display. It defaults to on for the mock backend and off otherwise. When off, each playable is shown as `pending` until the operator approves it on the laptop. That Approve is the operator pressing Play: openplay then confirms on the daemon itself (the display is loopback-only, like the console), so there is one approval, not two.
 - `say` is limited to one at a time per player, 6 per turn, 60 s timeout. Without `ANTHROPIC_API_KEY` (or if Claude fails), it plays the closest library move by keyword and says so.
-- Streams: `v` is scaled to `lin_mps` (default 0.08 m/s) and `ang_rps` (default 0.6 rad/s); `qd` to `joint_rps` (default 0.5 rad/s). ttl 300 ms.
+- Streams: `v` is scaled to `lin_mps` (default 0.08 m/s) and `ang_rps` (default 0.6 rad/s); `qd` to `joint_rps` (default 0.5 rad/s). ttl 300 ms (`--stream-ttl-ms`, 50–500; the daemon caps at 500).
+- A daemon refusal of a stream setpoint that has no request id (e.g. "Cartesian streaming needs the arm unfolded") is relayed to the driver as `refused` at most once a second, so the phone shows its "too low: tap Ready" bar and stops streaming.
+
+## Event log (time-synced trace)
+
+`openplay/eventlog.py`. One JSON-lines file per server start (`--trace-log`, default `experiments/<today>-*/logs/openplay-events-<YYYYMMDD-HHMMSS>.jsonl`, preferring a folder with "openplay" in its name; `''` keeps only the in-memory ring of 20 000 records). Every record has `n` (sequence), `t` (server unix s), `lane` and `kind`:
+
+| lane / kind | fields |
+|---|---|
+| `phone/rx` | one per phone message, written after the server handled it: `cid, pid, op, seq, seq_gap, t_ph` (phone ms), `t_ph_srv` (that time on the server clock, s), `owd_ms` (one-way delay, ± `unc_ms`), `gap_ms` (since this socket's previous message), `act` (`forward` \| `refuse` (told the phone) \| `drop` (refused, not told: rate limit) \| `ignore` \| `start` \| `ok`), `reason, handle_ms, sum` (payload summary). Streams add `zero, ep, skip, why, buf` |
+| `phone/diag` | a phone `diag` event: `ev, t_ph, t_ph_srv`, its fields |
+| `conn/open`, `conn/close` | `cid, ckind` (phone \| display), `remote, ua`; close adds `code` (WebSocket close code), `by` (client \| server \| error), `reason, dur_s, n_rx` |
+| `conn/hello` | `pid, name, reconnect, since_close_s, rate_ms` (the page's send interval), `ua` |
+| `conn/sync` | `offset_ms` (phone − server), `rtt_ms, unc_ms` (= rtt/2), `n` (samples in the window), `sample_rtt_ms` |
+| `server/event` | every display caption (`ev, who, text`): joins, turns, approvals, refusals, E-STOP |
+| `server/operator`, `server/relay`, `server/loop_lag`, `server/config` | operator commands; relayed daemon refusals; the server's event loop running > 100 ms late (`lag_ms`); start/stop with `ttl_ms` |
+| `server/episode` | one streaming hold (below) |
+| `arm/tx`, `arm/rx` | every armctl message sent/received except `state`: `op, id, cmd`; replies add `req, ack_ms` or `done_ms` (latency from the request); refusals add `reason, stream, edge, joint` |
+| `arm/state` | 2 Hz sample: `q, mode, streaming, busy, estop, fault, t_daemon` |
+| `arm/stream_stop` | the daemon's `streaming` flag dropped: `cause` (`expired`: the ttl ran out, a deadman; `refused`; `do`), `why, after_zero` (the last setpoint was the release zero: harmless), `since_last_ms` |
+
+**Clock sync.** NTP style: the phone pings with `t` = t0; the pong has t1 (arrival) and t2 (departure, stamped at the socket); the phone adds t3 and sends `sync`. offset = ((t0 − t1) + (t3 − t2)) / 2, rtt = (t3 − t0) − (t2 − t1); the server keeps the min-RTT sample of the last 16 (error ≤ rtt/2, reported as `unc_ms`). A burst of 5 pings 150 ms apart after each (re)connect, then one every 5 s. Kept per player across reconnects (same phone clock).
+
+**Episodes (holds).** The phone numbers each hold of a live control (`ep`, pointer down → up) and ends it with the all-zero stream carrying `why` (`up` \| `cancel` \| `lostcapture` \| `hidden` \| `pagehide` \| `close` \| `refused` \| `ui`). Per hold: message rate, arrival-gap and phone-send-gap p50/p95/max and histogram, the gaps > ttl with their cause, refusals, end reason. Cause of a gap > ttl: `phone-gate` (the Tilt start-pose gate held ticks back: `skip`), `phone` (the phone's own send times are ≥ 0.8 × ttl apart: timer throttled, page hidden or busy), `network` (sent on time, arrived late), `unknown` (no `t`). A `stream_stop` with cause `expired` while a hold is open marks the gap in progress as a **deadman stop**; after a release it is the harmless expiry the daemon also logs as "deadman". Each finished hold is printed in the server log (`stream hold #…`) and kept for `/api/streamstats`.
+
+Offline: `.venv/bin/python -m openplay.eventlog summarize <file> [--ttl-ms N] [--json]` replays the raw records (holds recomputed, not read back) and prints the per-hold table, the worst gaps, closes, phone events and a verdict.
 
 ## Module contracts (Python)
 

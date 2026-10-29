@@ -246,6 +246,7 @@ class Daemon:
         self.streaming = False
         self.stream_deadline = 0.0
         self.stream_kind = ""
+        self.stream_ttl_ms = float(TTL_DEFAULT_MS)  # the last stream's ttl (for the deadman log line)
         self.pending_play: dict | None = None
         self.refusals: collections.deque[dict] = collections.deque(maxlen=40)
         self.recent: collections.deque[str] = collections.deque(maxlen=60)
@@ -316,7 +317,7 @@ class Daemon:
                 if self.streaming and now > self.stream_deadline:
                     self.streaming = False
                     self.log(f"[{self.holder.tag if self.holder else '?'}] deadman: no setpoint for "
-                             f"{TTL_DEFAULT_MS}+ ms, decelerating to a stop")
+                             f"{self.stream_ttl_ms:.0f}+ ms, decelerating to a stop")
                 if self.busy and now > self.busy["deadline"]:
                     b = self.busy
                     self.busy = None
@@ -829,6 +830,7 @@ class Daemon:
             self.log(f"[{client.tag}] stream start ({kind}, ttl {ttl * 1000:.0f} ms)")
         self.streaming = True
         self.stream_kind = kind
+        self.stream_ttl_ms = ttl * 1000.0
         self.stream_deadline = time.monotonic() + ttl
 
     async def _validate(self, client: Client, msg: dict, mid: Any) -> None:

@@ -17,7 +17,7 @@ Contract: [PROTOCOL.md](PROTOCOL.md). Handover and status: [../HANDOVER.md](../H
 
 ## Safety model
 
-Phones never talk to the arm. `openplay.server` is the only armctl program, and it holds the daemon lease. So the armctl envelope (soft joint limits, speed and acceleration caps), the 300 ms deadman on live control, and the daemon's E-STOP apply to everything.
+Phones never talk to the arm. `openplay.server` is the only armctl program, and it holds the daemon lease. So the armctl envelope (soft joint limits, speed and acceleration caps), the 300 ms deadman on live control (`--stream-ttl-ms`, see "Stream gaps" below), and the daemon's E-STOP apply to everything.
 
 - A turn's motion comes only from the active player; everyone else is refused.
 - Playables (moves, Claude's choreography, pose sequences, grabs) are validated by the daemon. The operator presses Play for each one, unless they turn **auto-play** on in the operator drawer (it defaults to on only for the mock backend).
@@ -38,6 +38,35 @@ For "Say it" with Claude, set `ANTHROPIC_API_KEY` in the server's environment. W
 On the real arm, run the daemon on `DimosBackend` instead of the mock: see [HANDOVER.md](../HANDOVER.md) §4–5. Auto-play then starts **off**, so you approve each move on the laptop (Enter / Esc).
 
 The phone listener binds `0.0.0.0` so phones on the LAN can reach it. That's right on the laptop. **Never run it that way on a server with a public IP:** use `--phone-host 127.0.0.1`.
+
+## Logs: what the phone sent and what we did with it
+
+Every server start writes a time-synced trace, one JSON line per step: each phone message (its send time on the phone, converted to the server clock, when it arrived, the gap since the previous one, what the server did with it), each armctl message (with ack/done latency), daemon refusals, the arm's state at 2 Hz, connection opens and closes (with WebSocket close codes), and phone-side events the server can't see (page hidden, pointer cancelled, socket closed, send timer late). Format: [PROTOCOL.md § Event log](PROTOCOL.md#event-log-time-synced-trace).
+
+- **File:** `experiments/<today>-*/logs/openplay-events-<YYYYMMDD-HHMMSS>.jsonl` (a folder with "openplay" in its name if there is one today). `--trace-log PATH` to choose, `--trace-log ''` for memory only. The path is printed at start-up.
+- **Live:** open `http://127.0.0.1:8451/events` on the laptop: phone → server → arm lanes on the server clock, red bands where a stream gap is longer than the ttl, DEADMAN markers, a per-hold table, filters by player and op. `GET /api/streamstats` gives the same per-hold stats as JSON. Loopback only.
+- **Server log:** one line per hold: `stream hold #12 Ana (v): 85 msgs in 5.6 s (15.0 Hz), arrival gaps p50/p95/max 66/90/410 ms, phone send p95 70 ms, 1 > ttl 300 ms (1 deadman stops; causes network), release (up)`.
+- **Afterwards:** `.venv/bin/python -m openplay.eventlog summarize <file>` prints the per-hold table, the worst gaps with their cause (`phone`: the phone sent late; `network`: sent on time, arrived late; `phone-gate`: the Tilt start-pose gate), connection closes, phone events and a verdict.
+
+Reading the daemon log: it prints "deadman: no setpoint for 300+ ms" after **every** hold, because the release zero is itself a setpoint whose ttl then runs out. Those are harmless. The trace separates them (`deadman_after_release`) from deadman stops in the middle of a hold (`deadman_in_gaps`).
+
+## Stream gaps: if Tilt and Sticks keep stopping
+
+First look at the trace (`summarize`). What each finding means:
+
+1. **Refusals, not gaps.** On 28 Oct the real arm refused 580 Tilt/Sticks setpoints in one session ("Cartesian streaming needs the arm unfolded (j2 < 0.3)"), in runs of 3–6 s at the full 15 Hz. The daemon sends that refusal without a request id, and until 29 Oct open play didn't pass it on, so the phone kept steering an arm that wasn't moving. That looks like a disconnect. **Fixed:** the server relays it to the driver (at most once a second), and the phone shows its "too low: tap Ready" bar and stops streaming. In the trace: `server/relay` and `act: refuse` with that reason.
+2. **Gaps with cause `phone`** (the phone's own send times are far apart): the page's 66 ms timer was throttled (screen dimming, low power mode, the page hidden, a busy main thread). Look for `phone/diag` `late_tick`, `hidden` and `pointercancel` around them. Network settings won't help; keep the screen awake (the page asks for a wake lock), and close other tabs.
+3. **Gaps with cause `network`** (sent on time, arrived late, often several messages together: TCP head-of-line blocking on Wi-Fi). Mitigations below.
+
+Mitigations, none on by default. The deadman exists to stop the arm when the phone vanishes (dropped, walked out of Wi-Fi, a browser crash), so each one trades some of that:
+
+| Option | What it does | Safety cost |
+|---|---|---|
+| `--stream-ttl-ms 450` (built; daemon caps at 500) | each setpoint lives 450 ms instead of 300, so a 300–450 ms gap no longer stops the arm | when the phone really vanishes, the arm keeps going 150 ms longer at the last speed before braking: at the defaults +1.2 cm (0.08 m/s) or +0.075 rad (0.5 rad/s). A normal lift still stops at once (the release zero). Envelope gate, edge watchdog and E-STOP are unchanged. Use it only if the trace shows gaps mostly in 300–500 ms |
+| Hold-last-setpoint bridging in the server (not built) | for a gap of ≤ N ms the server re-sends the phone's last setpoint, decaying (e.g. halving every 100 ms) | the server, not the daemon, decides that the phone is still there; a server bug could keep the arm moving (the daemon's deadman still covers the server dying). Safer than a long ttl because the speed decays |
+| WebRTC data channel, unordered and unreliable (not built) | a lost packet no longer holds up the ones behind it, so `network` bursts disappear | aiortc + ICE on the LAN; more to break at an event. Only helps cause `network` |
+
+Recommendation: run a session with the relay fix and the trace on. If gaps > ttl are rare after that, do nothing more. If they are mostly `network` and under 500 ms, try `--stream-ttl-ms 450` in `--simulation` first, then on the arm with someone at the E-STOP.
 
 ## Network: how phones reach the laptop
 

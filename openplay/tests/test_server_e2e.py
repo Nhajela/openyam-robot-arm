@@ -73,7 +73,7 @@ def stack(tmp_path_factory):
             [py, "-m", "openplay.server", "--daemon", f"ws://127.0.0.1:{DAEMON_PORT}/armctl",
              "--phone-host", "127.0.0.1", "--phone-port", str(PHONE_PORT), "--local-port", str(LOCAL_PORT),
              "--key", KEY, "--turn", str(TURN_S), "--auto-play", "on", "--host-ip", "127.0.0.1",
-             "--events-log", str(events)],
+             "--events-log", str(events), "--trace-log", str(tmp / "trace.jsonl")],
             cwd=REPO, env=env, stdout=olog, stderr=subprocess.STDOUT))
         _wait_http(f"http://127.0.0.1:{LOCAL_PORT}/api/join", 20)
         _wait_http(f"https://127.0.0.1:{PHONE_PORT}/?k={KEY}", 20, SSL_CTX)
