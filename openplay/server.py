@@ -917,9 +917,11 @@ class OpenPlay:
             self.event("say", f'{who} asked: "{text}"', who)
             self._say_msg(pid, "thinking", text, title)
             claude = bool(os.environ.get("ANTHROPIC_API_KEY"))
-            self.event("say", "Claude is choreographing…" if claude else "Picking a move from the library…", who)
+            self.event("say", ("Claude is choreographing (drafting, then reviewing renders)…" if SAY.visual_enabled()
+                               else "Claude is choreographing…") if claude else "Picking a move from the library…", who)
             try:
-                res = await SAY.author(text, timeout_s=SAY_TIMEOUT_S)
+                res = await SAY.author(text, timeout_s=SAY.timeout_for(SAY_TIMEOUT_S),
+                                       progress=lambda st: self._say_msg(pid, "thinking", text, title, note=st))
             except SAY.SayError as e:
                 self._say_msg(pid, "error", text, title, note=str(e))
                 self.status(pid, str(e), "error")

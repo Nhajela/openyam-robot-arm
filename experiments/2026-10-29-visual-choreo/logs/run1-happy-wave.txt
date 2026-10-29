@@ -1,0 +1,15 @@
+... routing
+[route] camera=no (override): --camera never
+... drafting
+[drafting] 30.51s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 3, 'timing': 4, 'safety_margin': 4}
+... rendering pass 1
+... reviewing pass 1/1
+[reviewing pass 1/1] 31.52s  VALID  scores {'readability': 3, 'silhouette': 3, 'energy_contrast': 3, 'timing': 4, 'safety_margin': 3}
+... final
+
+model=claude-fable-5-1 2 call(s) 71.36 s  stop: passes exhausted
+OK  duration 20.2 s  (envelope: armctl.envelope)
+  max |vel| rad/s: j1=0.27 j2=0.12 j3=0.26 j4=0.19 j5=0.16 j6=0.24
+  max |acc| rad/s2: j1=0.4 j2=0.4 j3=0.6 j4=0.6 j5=0.2 j6=0.3
+wrote experiments/2026-10-29-visual-choreo/run1-happy-wave.json
+sheets + CHANGELOG.md in experiments/2026-10-29-visual-choreo/sheets/run1-happy-wave

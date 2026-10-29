@@ -35,6 +35,8 @@ Phones never talk to the arm. `openplay.server` is the only armctl program, and 
 
 For "Say it" with Claude, set `ANTHROPIC_API_KEY` in the server's environment. Without it, Say it plays the closest library move and says so.
 
+**Visual choreography (opt-in):** `OPENPLAY_SAY_VISUAL=1` switches Say it to `armctl.visual_author`: Claude Fable drafts the move, sees render sheets of it from the audience's position and revises it over `OPENPLAY_SAY_PASSES` (default 2) review passes; a live wrist-camera snapshot is added only when the request refers to the real scene ("point at the cup"). Expect 1–4 minutes and roughly $1–3 per request (see [the experiment](../experiments/2026-10-29-visual-choreo/LOG.md)); the phone shows "drafting / reviewing pass 1/2 / final". Timeout `OPENPLAY_SAY_VISUAL_TIMEOUT` (240 s) and the library fallback still apply; short requests that name a library move ("wave", "nod") play the stored move directly.
+
 On the real arm, run the daemon on `DimosBackend` instead of the mock: see [HANDOVER.md](../HANDOVER.md) §4–5. Auto-play then starts **off**, so you approve each move on the laptop (Enter / Esc).
 
 The phone listener binds `0.0.0.0` so phones on the LAN can reach it. That's right on the laptop. **Never run it that way on a server with a public IP:** use `--phone-host 127.0.0.1`.

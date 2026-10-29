@@ -1,0 +1,9 @@
+{
+  "why": "Where the people watching the arm stand, in the arm's base frame (x forward = down the table, y left, z up, metres, origin at the base on the table top). Lab laptop table, 29 Oct 2026: the arm faces down the table; people stand at the table's front edge on the arm's LEFT side (+y), about 1-1.5 m away. Eye heights are above the table top (table ~0.75 m: standing eye ~1.6 m -> 0.85, seated ~1.2 m -> 0.45). Measure and edit this per site (or ARMCTL_AUDIENCE=path, or --audience x,y,z on the CLI). Used by armctl.choreo_render for the primary 'audience' view of every choreography sheet.",
+  "default": "standing",
+  "presets": {
+    "standing": {"eye": [0.45, 1.10, 0.85], "target": [0.15, 0.0, 0.30], "fov_deg": 38, "label": "standing at the table's front edge, arm's left, ~1.2 m"},
+    "seated": {"eye": [0.45, 1.10, 0.45], "target": [0.15, 0.0, 0.28], "fov_deg": 38, "label": "seated at the table's front edge, arm's left, ~1.2 m"},
+    "down-table": {"eye": [1.40, 0.0, 0.70], "target": [0.15, 0.0, 0.30], "fov_deg": 34, "label": "standing at the far end of the table, facing the arm"}
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "name": "happy-wave",
+  "author": "llm:claude-fable-5-1",
+  "created": "2026-10-29T08:43:10+05:30",
+  "prompt": "a happy wave",
+  "notes": "The arm dips, rises tall and turns to face the audience with the hand open, then waves side to side three times with grip accents before settling back to ready.",
+  "space": "joint",
+  "start": "ready",
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 1.2,
+      "q": [
+        0.0,
+        0.6,
+        0.65,
+        -0.15,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 5.4,
+      "q": [
+        0.7,
+        0.45,
+        1.4,
+        0.4,
+        -0.5,
+        0.3
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 6.0,
+      "q": [
+        0.7,
+        0.45,
+        1.4,
+        0.4,
+        -0.5,
+        0.3
+      ],
+      "grip": 1.0,
+      "ease": "hold"
+    },
+    {
+      "t": 8.575,
+      "q": [
+        0.85,
+        0.45,
+        1.4,
+        0.4,
+        -0.15,
+        -0.2
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 10.575,
+      "q": [
+        0.7,
+        0.45,
+        1.4,
+        0.4,
+        -0.5,
+        0.2
+      ],
+      "grip": 0.6,
+      "ease": "cubic"
+    },
+    {
+      "t": 12.575,
+      "q": [
+        0.85,
+        0.45,
+        1.45,
+        0.45,
+        -0.15,
+        -0.2
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 13.175,
+      "q": [
+        0.85,
+        0.45,
+        1.45,
+        0.45,
+        -0.15,
+        -0.2
+      ],
+      "grip": 1.0,
+      "ease": "hold"
+    },
+    {
+      "t": 17.975,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    }
+  ],
+  "loop": 1,
+  "speed": 1.0
+}

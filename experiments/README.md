@@ -22,11 +22,15 @@ Safety rules carry across all experiments: start folded on the stops, probe befo
 | [2026-10-28-laptop-systems-check](2026-10-28-laptop-systems-check/LOG.md) | Naman (+ Claude) | Pull fork `main` onto the lab laptop; check CAN, motors (read-only), deps, tests, DimOS-sim e2e before the first hardware session | active: all green, real-arm steps next |
 | [2026-10-28-prior-art](2026-10-28-prior-art/REPORT.md) | Naman (+ Claude research agent) | Find repos, models, datasets and people on the same infra (i2rt YAM, Damiao, DimOS) to reuse: j4 gravity, wrist-camera calibration, cup grasp, chess, phone teleop, LLM control | done (desk research) |
 | [2026-10-28-j4-gravity-scale](2026-10-28-j4-gravity-scale/LOG.md) | Naman (+ Claude agent) | Why j4 holds off target: DimOS's gravity URDF gives the gripper 1.19 kg vs i2rt's 0.60–0.69 kg (~1 N·m extra on j4); `--gravity-scale j4=…` override | built + unit-tested; real-arm test next |
+| [2026-10-29-visual-choreo](2026-10-29-visual-choreo/LOG.md) | Naman (+ Claude agent) | Better choreography: Claude Fable drafts a playable, sees render sheets of it from the audience's position, and revises it in 2–3 passes; camera snapshot only for prompts about the real scene | built + mocked tests; one real API run; real-arm playback next |
 | [2026-10-28-wristcam](2026-10-28-wristcam/LOG.md) | Naman (+ Claude) | Wrist camera: calibrate (lens, hand-eye, table) from one taped sheet; find a cup and grasp it in a closed loop | active: synthetic tests green; real-arm calibration next |
 
 ## Ideas backlog
 
 Interfaces and interactions worth trying. Add yours, and say who to talk to.
+
+- **Re-choreograph the library with the visual author** (`armctl.visual_author`): wave, nod, happy-dance read as 1–3 cm hand moves from the audience today. Run each through 2–3 visual passes, compare sheets side by side, keep the winners. (Naman, 29 Oct)
+- **"Dance" caps for authored moves** after a hardware test at 0.6 rad/s: at the default 0.3 rad/s a 15 s piece only has room for a few big moves. Human decision, per move (`--caps dance`).
 
 - **Arm scans the board itself (chess, after grasping works):** a small wrist camera; the arm roams to 3–4 top-down poses over the board, takes a picture at each, and a Claude vision model reads the position (constrained to legal moves) alongside the per-square occupancy diff. No separate overhead camera, and the same camera helps with grasp precision. Costs: about 10–15 s per scan, the arm moves over the human's side of the board, plus wrist-camera cabling and hand-eye calibration. See `interfaces/grasp/CHESS.md` § Camera placement. (Naman, 28 Oct)
 - **armctl wrapper on top of DimOS**: home(), ready(), named poses, slow joint moves, limit-aware jogging. Never leaves a soft-limit box inside the URDF limits. (Naman)

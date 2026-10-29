@@ -1,0 +1,249 @@
+{
+  "ok": true,
+  "playable": {
+    "name": "happy-wave",
+    "author": "llm:claude-fable-5-1",
+    "created": "2026-10-29T08:43:50+05:30",
+    "prompt": "a happy wave",
+    "notes": "The arm dips, swings up and out toward the audience with the hand open, then waves the whole arm left-right across their view three times with grip and head accents before settling back to ready.",
+    "space": "joint",
+    "start": "ready",
+    "keyframes": [
+      {
+        "t": 0.0,
+        "q": [
+          0.0,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 1.2,
+        "q": [
+          0.0,
+          0.6,
+          0.65,
+          -0.15,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 5.0,
+        "q": [
+          0.5,
+          0.8,
+          1.3,
+          0.3,
+          -0.4,
+          0.2
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 5.6,
+        "q": [
+          0.5,
+          0.8,
+          1.3,
+          0.3,
+          -0.4,
+          0.2
+        ],
+        "grip": 1.0,
+        "ease": "hold"
+      },
+      {
+        "t": 8.4,
+        "q": [
+          1.0,
+          0.8,
+          1.3,
+          0.4,
+          -0.1,
+          -0.2
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 11.2,
+        "q": [
+          0.5,
+          0.8,
+          1.3,
+          0.3,
+          -0.4,
+          0.2
+        ],
+        "grip": 0.5,
+        "ease": "cubic"
+      },
+      {
+        "t": 14.0,
+        "q": [
+          1.0,
+          0.75,
+          1.35,
+          0.45,
+          -0.1,
+          -0.25
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 14.6,
+        "q": [
+          1.0,
+          0.75,
+          1.35,
+          0.45,
+          -0.1,
+          -0.25
+        ],
+        "grip": 1.0,
+        "ease": "hold"
+      },
+      {
+        "t": 20.2,
+        "q": [
+          0.0,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      }
+    ],
+    "loop": 1,
+    "speed": 1.0
+  },
+  "passes": [
+    {
+      "pass": 0,
+      "stage": "drafting",
+      "latency_s": 30.51,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 7429
+        },
+        "cache_creation_input_tokens": 7429,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 7429
+            },
+            "cache_creation_input_tokens": 7429,
+            "cache_read_input_tokens": 0,
+            "input_tokens": 4,
+            "output_tokens": 2319,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 2319,
+        "output_tokens_details": {
+          "thinking_tokens": 1583
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": true,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 3,
+        "timing": 4,
+        "safety_margin": 4
+      },
+      "satisfied": false,
+      "critique": "",
+      "changelog": [
+        "Draft: small dip anticipation, big rise and turn toward the audience with head turning to them and grip snapping open, hold, three varied wave beats on j5/j6/j1 with grip accents, hold, slow resolve to ready."
+      ]
+    },
+    {
+      "pass": 1,
+      "stage": "reviewing pass 1/1",
+      "latency_s": 31.52,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 16318
+        },
+        "cache_creation_input_tokens": 16318,
+        "cache_read_input_tokens": 7429,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 16318
+            },
+            "cache_creation_input_tokens": 16318,
+            "cache_read_input_tokens": 7429,
+            "input_tokens": 4,
+            "output_tokens": 2303,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 2303,
+        "output_tokens_details": {
+          "thinking_tokens": 1324
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 3,
+        "silhouette": 3,
+        "energy_contrast": 3,
+        "timing": 4,
+        "safety_margin": 3
+      },
+      "satisfied": false,
+      "critique": "The rise to a tall pose facing the audience reads well (52 cm of travel, hold, open grip), but the actual wave is invisible: each wave segment moves the hand only 6 cm because the arm is stacked vertically over the base and j5/j6 only twiddle the fingers. The ending is a nice long resolve. Retimer pushed velocity to 100 % of cap, so no headroom.",
+      "changelog": [
+        "Peak pose now reaches outward (j2 0.8, j3 1.3) so the hand has a long lever from the base",
+        "Wave is carried by big j1 base-yaw swings 0.5<->1.0 rad (left-right across the audience's view), with j5/j6/j4 as follow-through accents",
+        "Third swing slightly bigger with a head lift; grip half-closes on the middle beat",
+        "Segment durations lengthened to keep ~10 % velocity headroom instead of relying on retime",
+        "Return to ready lengthened to 5.6 s for a soft ending"
+      ]
+    }
+  ],
+  "route": {
+    "use_camera": false,
+    "method": "override",
+    "reason": "--camera never"
+  },
+  "stop_reason": "passes exhausted",
+  "latency_s": 71.36,
+  "model": "claude-fable-5-1",
+  "sheets_dir": "experiments/2026-10-29-visual-choreo/sheets/run1-happy-wave",
+  "retimed": false
+}
