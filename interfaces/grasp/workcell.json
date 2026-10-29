@@ -36,35 +36,39 @@
   "notes": "PROVISIONAL wristcam hand-eye (2026-10-29 10:26): Naman 29 Oct (operator decision): position spread ~4 mm is enough for cup grasps with visual re-centring; precision gates (3 px, 1 deg) not met with a taped paper board; improve later with a rigid flat board. Failed precision gates: reprojection 4.84 px (< 3); board-pose spread 1.39 deg (< 1)",
   "chess": {
     "center": [
-      0.0,
-      0.0
+      -0.0716,
+      -0.1364
     ],
-    "square": 0.035
+    "square": 0.035,
+    "rank_dir": 4.7411
   },
   "spots": {
     "A": {
-      "title": "Spot A (left)",
+      "title": "Spot A (left, provisional)",
       "xyz": [
-        0.0,
-        0.12,
+        -0.1172,
+        -0.111,
         0.0
-      ]
+      ],
+      "provisional": true
     },
     "B": {
-      "title": "Spot B (right)",
+      "title": "Spot B (left, provisional)",
       "xyz": [
-        0.0,
-        -0.12,
+        -0.2073,
+        -0.1428,
         0.0
-      ]
+      ],
+      "provisional": true
     },
     "C": {
-      "title": "Spot C (centre)",
+      "title": "Spot C (left, provisional)",
       "xyz": [
-        0.08,
-        0.0,
+        -0.1369,
+        -0.1987,
         0.0
-      ]
+      ],
+      "provisional": true
     }
   },
   "objects": {
@@ -80,5 +84,10 @@
     }
   },
   "provisional": true,
-  "max_width_note": "29 Oct (Naman, ruler): pads 7-8 cm apart fully open, fingertips ~10 cm, claw ends ~13 cm coming straight down on a cup. 0.11 = conservative fingertip opening (below the 13 cm claw ends); cups gripped with the fingertips just below the rim (grasp_frac 0.85)."
+  "max_width_note": "29 Oct (Naman, ruler): pads 7-8 cm apart fully open, fingertips ~10 cm, claw ends ~13 cm coming straight down on a cup. 0.11 = conservative fingertip opening (below the 13 cm claw ends); cups gripped with the fingertips just below the rim (grasp_frac 0.85).",
+  "layout_provisional": {
+    "spots": true,
+    "chess": true,
+    "note": "29 Oct, computed on serenity from reach only (place_spots suggest + a board search): every spot pair and all 64 squares plan with today's calibrated table. Not checked against what is on the table. Replace with place_spots teach A|B|C and board a1/h8."
+  }
 }

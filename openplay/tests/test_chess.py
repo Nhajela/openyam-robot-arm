@@ -265,7 +265,8 @@ def test_server_clock_press_sees_the_move_and_the_arm_replies():
         assert g["you"] == "white" and g["your_move"] and "e2e4" in g["legal"]
         assert g["clock"]["running"] == "white" and op.chess_ref is not None
         d = disp.last("chess")
-        assert d["calibrated"] is False and d["arm_ok"] is True and d["sensor"] == "fake"
+        # "calibrated" reports the workcell file (calibrated since 29 Oct); the mock arm may play either way
+        assert d["calibrated"] is Workcell.load(WORKCELL).calibrated and d["arm_ok"] is True and d["sensor"] == "fake"
         # not in the game
         await op.phone_msg(b, {"op": "chess.clock"})
         assert b.refusals()[-1] == "you're not playing in this game"
@@ -441,13 +442,18 @@ def test_server_refuses_chess_on_an_uncalibrated_real_arm(tmp_path):
         await op.phone_msg(a, {"op": "chess.new", "opponent": "engine", "color": "white"})
         return op, disp, a
 
+    # an uncalibrated copy of the workcell (the real file is calibrated since 29 Oct)
+    raw = json.loads(WORKCELL.read_text())
+    raw["calibrated"] = False
+    unc = tmp_path / "uncalibrated.json"
+    unc.write_text(json.dumps(raw))
     for adapter in ("real", None):  # an unknown adapter on a non-mock backend counts as real
-        op, disp, a = asyncio.run(main(None, adapter))
+        op, disp, a = asyncio.run(main(unc, adapter))
         assert op.chess is None and "calibrated" in a.refusals()[-1]
         assert a.last("chess")["arm_ok"] is False and "calibrated" in a.last("chess")["refusal"]
 
     async def engine_on_real():  # a game that exists anyway: the arm still won't move
-        op, disp, (a, _b) = await station(adapter="real", auto_play="on")
+        op, disp, (a, _b) = await station(adapter="real", auto_play="on", workcell=unc)
         op.chess = CP.Game.new("p-asha", "Asha", opponent="engine")
         op._chess_sync()
         await op.phone_msg(a, {"op": "chess.move", "uci": "e2e4"})
@@ -456,7 +462,7 @@ def test_server_refuses_chess_on_an_uncalibrated_real_arm(tmp_path):
     asyncio.run(engine_on_real())
 
     # the sim may play on the placeholder board; a calibrated workcell lets the real arm play
-    op, _d, a = asyncio.run(main(None, "sim"))
+    op, _d, a = asyncio.run(main(unc, "sim"))
     assert op.chess is not None and not a.refusals()
     raw = json.loads(WORKCELL.read_text())
     raw["calibrated"] = True

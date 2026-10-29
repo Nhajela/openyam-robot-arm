@@ -20,6 +20,7 @@ The starting point for a local session on the lab laptop with the real arm. It s
   3. `--execute` on a foam block or a marker. Every motion asks y/N.
   4. Phone: `openplay.server ... --pick-detector yoloe` (the default). After Look, "Pick it up" lists what it sees; taps and names use the detector.
 - **Grasp floor is now table-relative** (`Workcell.floor_base()`): the fingertip may go to 1 cm above the calibrated table, which is 3.1 cm lower than before. Try the first low grasp on foam.
+- **Provisional layout (branch `provisional-table-layout`, PR):** Grab spots A/B/C on the arm's left and a 3.5 cm chess board with all 64 squares reachable, computed from reach only. Check them against the real table, then keep, move or `teach` over them.
 - **Grab spots + chess board:** `.venv/bin/python -m interfaces.grasp.place_spots check`, then `teach A` / `teach B` / `teach C` with the fingertip over taped marks (Joints mode). For the board: `board a1`, then `board h8`. Nothing moves; `workcell.json` is backed up first.
 
 ## 0b. Follow: track an object and keep the camera over it (built 29 Oct, sim only)

@@ -107,7 +107,9 @@ def test_list_spots():
     assert [x["name"] for x in s] == ["A", "B", "C"]
     for x in s:
         assert x["title"] and len(x["xyz_table"]) == 3 and x["xyz_table"][2] == 0.0
-        assert np.hypot(*x["xyz_table"][:2]) <= 0.125
+    # wherever the spots are on today's table, every pair must plan (the file holds real positions now)
+    from interfaces.grasp import place_spots
+    assert set(place_spots.check()["pairs"].values()) == {"ok"}
     objs = {o["name"]: o for o in spots.list_objects()}
     assert objs["block"]["height"] == 0.04 and objs["block"]["width"] == 0.04
     for o in objs.values():
@@ -136,7 +138,7 @@ def test_grab_refusals():
 def test_spots_from_another_workcell_file(tmp_path):
     raw = json.loads(spots.WORKCELL.read_text())
     raw["spots"] = {"far": {"title": "too far", "xyz": [0.5, 0.0, 0.0]}, "A": raw["spots"]["A"]}
-    raw["objects"]["wide"] = {"height": 0.04, "width": 0.09}
+    raw["objects"]["wide"] = {"height": 0.04, "width": float(raw.get("max_width", 0.094))}   # no room to spare
     f = tmp_path / "wc.json"
     f.write_text(json.dumps(raw))
     with pytest.raises(spots.Unreachable):
