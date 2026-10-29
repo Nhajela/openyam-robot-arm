@@ -75,7 +75,7 @@ def plan_from_frame(frame, q, wc: Workcell, cam, T_tip_cam, finder, cfg: GraspCo
     pick = (det.xyz_table[0], det.xyz_table[1], 0.0)
     place = tuple(cfg.place_table) + (0.0,) if cfg.place_table is not None else pick
     try:
-        p, info = pick_place(wc, pick, place, height=cfg.height, width=width, name=name)
+        p, info = pick_place(wc, pick, place, height=cfg.height, width=width, name=name, grasp_frac=cfg.grasp_frac)
     except Unreachable as e:
         out["notes"].append(f"pick_place: {e}")
         return out, view, det
@@ -182,6 +182,7 @@ def main(argv=None):
     ap.add_argument("--q", default=None, help="joint angles of that frame (default: read from the daemon)")
     ap.add_argument("--expect", default="0.0,-0.15", help="table x,y where the object roughly is")
     ap.add_argument("--place", default="0.08,-0.05", help="table x,y to put it down")
+    ap.add_argument("--grasp-frac", type=float, default=0.6, help="grip height / object height (cups with flared fingertips: 0.85)")
     ap.add_argument("--calib", default=str(DEFAULT_INTRINSICS))
     ap.add_argument("--handeye", default=str(DEFAULT_HANDEYE))
     ap.add_argument("--out", default=None)
@@ -199,7 +200,7 @@ def main(argv=None):
     wc = Workcell.load()
     raw = json.loads((Path(__file__).resolve().parents[1] / "grasp" / "workcell.json").read_text())
     width, height = object_dims(raw, a.object)
-    cfg = GraspConfig(obj=a.object, width=width, height=height, expected_table=tuple(_floats(a.expect, 2)),
+    cfg = GraspConfig(obj=a.object, width=width, height=height, grasp_frac=a.grasp_frac, expected_table=tuple(_floats(a.expect, 2)),
                       place_table=tuple(_floats(a.place, 2)), settle_s=a.settle if a.execute else 0.0)
     cam, T_tc, notes = load_view_inputs(a.calib, a.handeye)
     for n in notes:

@@ -26,7 +26,7 @@
     ]
   ],
   "calibrated": true,
-  "max_width": 0.094,
+  "max_width": 0.11,
   "tip_to_pad": 0.0,
   "travel_z": 0.14,
   "approach_z": 0.08,
@@ -74,10 +74,11 @@
       "width": 0.04
     },
     "cup": {
-      "title": "paper cup (6 cm across, 8 cm tall)",
+      "title": "white paper cup (76.5 mm rim from the wrist camera, ~74 mm just below the rim, 8 cm tall)",
       "height": 0.08,
-      "width": 0.06
+      "width": 0.074
     }
   },
-  "provisional": true
+  "provisional": true,
+  "max_width_note": "29 Oct (Naman, ruler): pads 7-8 cm apart fully open, fingertips ~10 cm, claw ends ~13 cm coming straight down on a cup. 0.11 = conservative fingertip opening (below the 13 cm claw ends); cups gripped with the fingertips just below the rim (grasp_frac 0.85)."
 }

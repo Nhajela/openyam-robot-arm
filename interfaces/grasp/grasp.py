@@ -27,6 +27,7 @@ What we don't know yet (needs the real arm, see LOG.md):
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import math
 from dataclasses import asdict, dataclass, field
@@ -64,7 +65,9 @@ class Workcell:
     @classmethod
     def load(cls, path: Path = WORKCELL) -> "Workcell":
         if path.exists():
-            return cls(**json.loads(path.read_text()))
+            # keep only known fields: notes/provenance keys in the JSON must never break loading
+            names = {f.name for f in dataclasses.fields(cls)}
+            return cls(**{k: v for k, v in json.loads(path.read_text()).items() if k in names})
         return cls()
 
     def save(self, path: Path = WORKCELL) -> None:

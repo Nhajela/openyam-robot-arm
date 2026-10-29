@@ -79,6 +79,7 @@ class GraspConfig:
     realign_min: float = 0.0015
     realign_max: float = 0.008
     lift: float = 0.08
+    grasp_frac: float = 0.6           # grip height as a fraction of the object height (cup with flared fingertips: ~0.85, just below the rim)
     retries: int = 1
     speed: float = 0.25               # rad/s for move_joints (daemon caps at 0.3)
     slow_speed: float = 0.12          # descending / near the object
@@ -335,7 +336,7 @@ class GraspEngine:
 
     def _grasp_geometry(self):
         c, wc = self.cfg, self.wc
-        z_grasp = max(wc.min_tip_z, c.height * 0.6 - wc.tip_to_pad)
+        z_grasp = max(wc.min_tip_z, c.height * c.grasp_frac - wc.tip_to_pad)
         # never approach below the general table guard (short objects: descend from there)
         z_above = max(c.height + c.approach_clear, self._table_z(kin.MIN_TIP_Z + 0.008))
         width = self.measured_width if (self.measured_width and abs(self.measured_width - c.width) < 0.25 * c.width) else c.width

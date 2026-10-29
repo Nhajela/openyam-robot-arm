@@ -1,0 +1,116 @@
+{
+ "q_frame": [
+  0.3645,
+  1.4807,
+  1.2678,
+  -0.5842,
+  -0.012,
+  -0.0139
+ ],
+ "detection": {
+  "kind": "cup",
+  "xyz_base": [
+   0.40005,
+   0.1438,
+   0.04891
+  ],
+  "xyz_table": [
+   -0.15813,
+   0.01137,
+   0.08
+  ],
+  "yaw_table": 0.0,
+  "diameter": 0.08216614525295939,
+  "height": 0.08,
+  "sigma_xy": 0.00102,
+  "pixel": [
+   702.18909,
+   315.73284
+  ],
+  "score": 1.1725422601078428,
+  "id": null,
+  "extra": {
+   "coverage": 0.896,
+   "inliers": 361,
+   "fit_rms_mm": 0.421,
+   "ortho_res_mm": 0.838,
+   "oblique": 0.041
+  }
+ },
+ "validation": {
+  "ok": true,
+  "duration": 37.34,
+  "violations": [],
+  "coach_ok": true
+ },
+ "look_poses": [
+  {
+   "height": 0.18,
+   "q": [
+    0.3614,
+    1.5349,
+    0.9781,
+    -0.1795,
+    0.0276,
+    0.0
+   ],
+   "tip": [
+    0.3701,
+    0.1399,
+    0.1444
+   ],
+   "check": "ok"
+  },
+  {
+   "height": 0.12,
+   "q": [
+    0.3569,
+    1.6539,
+    0.8326,
+    0.0852,
+    0.0276,
+    0.0
+   ],
+   "tip": [
+    0.3719,
+    0.1387,
+    0.0844
+   ],
+   "check": "ok"
+  },
+  {
+   "height": 0.08,
+   "q": null,
+   "why": "unreachable"
+  }
+ ],
+ "notes": [],
+ "plan_info": {
+  "steps": [
+   " 0.00s start",
+   "10.58s above pick, open",
+   "14.41s down to grasp",
+   "15.01s close",
+   "18.84s lift",
+   "19.44s above place",
+   "23.30s down to release",
+   "23.90s open",
+   "26.80s lift",
+   "37.34s ready"
+  ],
+  "grip_open": 1.0,
+  "grip_closed": 0.7216614525295939,
+  "z_grasp": 0.068,
+  "z_above": 0.16,
+  "base_pick": [
+   0.403,
+   0.144,
+   -0.031
+  ],
+  "base_place": [
+   0.399,
+   0.145,
+   -0.031
+  ]
+ }
+}
