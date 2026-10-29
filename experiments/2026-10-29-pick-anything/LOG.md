@@ -88,3 +88,11 @@ Annotated look ([sim-look-blue-box.jpg](sim-look-blue-box.jpg)): the white outli
   - Chess failures went from 9 to 7 with the floor fix.
   - The rest were failing before this work: the 3 spot tests (placeholder spots) and the 7 calibration tests (OpenCV 5.0 API).
 
+## 14:10–14:40 IST: provisional spots and board, on a branch (PR) while Naman starts the PC session
+- **Decision (Naman):** "do that in a PR while I start our session on the PC". `main` stays at `05f021b` for the laptop. This work is on `provisional-table-layout`.
+- **Spots:** `place_spots suggest --side left --apply`. A and B are at r 0.30 m, j1 +0.30 / +0.62 rad; C is at r 0.22, j1 +0.46. All 6 pick-and-place pairs plan for the 4 cm block. They are on the arm's left (+y), where the cup stood on bare wood on 29 Oct.
+- **Board:** a search over centre (j1 0.15–0.75 rad, r 0.27–0.33 m) and direction, with 8 probe squares and then all 64. A 3.5 cm board centred at r 0.27, j1 +0.15 rad, rank 1 → 8 pointing toward the base, gets **64/64**. Rank 1 (the human playing white) is at 0.41 m, rank 8 at 0.15–0.19 m. 3.0 cm squares give the same.
+  - **Problem:** the first, exhaustive search took over 15 min (every placement × 64 squares × IK). **Fix:** screen 8 probe squares first.
+- `workcell.json` `layout_provisional` says both are reach-only. **Not checked against what is on the table:** the board overlaps the tag sheet's near edge, and spots A/B sit inside the board's area. Spots are for Grab, the board for chess; clear one before using the other.
+- **Fix (tests):** the spot and chess tests asserted the placeholder workcell (spots within 12.5 cm, uncalibrated). They now check invariants (every real pair plans) or use an explicit uncalibrated copy. Spots + chess + place_spots: 45 passed; before, 12 of them failed on serenity.
+
