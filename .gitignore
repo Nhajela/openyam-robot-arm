@@ -28,3 +28,6 @@ experiments/*/scan-*-local/
 interfaces/wristcam/data/
 experiments/*/*-local/
 experiments/2026-10-29-visual-choreo/runs/*/camera.jpg
+
+# follow: per-run logs and frames stay local (copy a run into its experiment folder to keep it)
+interfaces/follow/runs/
