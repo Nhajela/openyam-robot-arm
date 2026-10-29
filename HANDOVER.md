@@ -4,6 +4,14 @@ The starting point for a local session on the lab laptop with the real arm. It s
 
 > **Status at a glance:** everything runs in armctl's **mock** sim, and the full stack (DimOS coordinator → armctl daemon on `DimosBackend` → open play → phone) also runs in DimOS **`--simulation`**. **On 28 Oct the laptop ran §5 steps 1–3 on the real arm (ready, home, gripper); nothing beyond that has moved it.** The code lives on Naman's fork, **`Nhajela/openyam-robot-arm` `main`**. Our GitHub account can't push to `Edge-City/openyam-robot-arm` (pull-only), so work goes to the fork; a PR to Edge-City is optional.
 
+## 0a. Where we stopped (29 Oct, 10:47)
+- **Arm:** motors disabled (folded home) to let **j4 cool** (rotor 58–60 °C after holding look poses). Probe before re-enabling; keep look/hold time short.
+- **Calibration:** wrist-camera hand-eye **accepted as PROVISIONAL** by Naman (35 views of the 25 mm tag sheet; position spread 4.2 mm, board scale ×1.001; reprojection 4.8 px / rotation 1.4° miss the strict gates). Joint zero corrections in `armctl/kin_corrections.json` (vision/grasp only). To clear "provisional": a rigid flat board + redo.
+- **Cup:** the dry run on bare wood finds it to ±1 mm (`experiments/2026-10-29-first-pick/cup-dryrun3/look.jpg`), and the pick plan validates (fingertip grasp just below the rim, `--grasp-frac 0.85`; workcell gripper opening 0.11 m from Naman's measurements). **The real closed-loop pick has not been run yet.** The cup has since been moved: re-look first.
+  - Real pick command (after a probe + real stack): `.venv/bin/python -m interfaces.wristcam.look_and_grasp --execute --object cup --finder cup --grasp-frac 0.85 --expect <table x,y> --place <same x,y> --settle 1.0` (each motion asks y/N).
+- **Known issues:** the tap path (`target.resolve`) refuses taps on the cup ("bare_table"); a white cup on white paper isn't segmented; `look_and_grasp --expect` doesn't narrow the dry-run search (it found the tape roll).
+- **Next idea (Naman):** continuous object tracking + visual-servo following (experiments/README backlog), to be built in the cloud.
+
 ## 0. Start here (next session, after 28 Oct)
 
 1. The arm's power supply was switched OFF overnight because **j4 overheated and stopped answering on CAN** (all LEDs red). Power on, then `.venv/bin/python -I tools/probe_motors.py can0`: all 7 must answer with no faults. If j4 is still silent, inspect its connector/cable before anything else.

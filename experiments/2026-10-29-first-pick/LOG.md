@@ -87,3 +87,9 @@ Built "pick up THAT": tap the thing (or say "the cup on the table", Claude finds
 - **Result:** `look_and_grasp --dry-run --finder cup --image cup-look2-local.jpg --q …` → **cup at base (0.397, +0.145, 0.049) m, σ 1.0 mm, rim diameter 76.5 mm**; the rim circle overlays the cup exactly ([cup-dryrun3/look.jpg](cup-dryrun3/look.jpg)). The pick-place playable validates (55 s, no violations, coach ok); closed-loop centring poses at h 0.18 and 0.12 reachable, 0.08 not.
 - **Problem 3 (open):** the tap path still refuses on dark wood ("bare_table" at the cup centre): the table-colour check treats the cup's light colour as table. Fix later; the cup finder works.
 - **Open question before a real grasp:** the real gripper opening (model 94 mm, i2rt stroke ~71 mm) vs the cup (76.5 mm rim, ~65–70 mm mid-height). Naman to measure the open pad-to-pad gap with the ruler.
+
+### 10:40–10:47 Gripper opening, fingertip grasp plan, pause
+- Naman (ruler): **pads 7–8 cm apart fully open, fingertips ~10 cm, claw ends ~13 cm** coming straight down on a cup. → `workcell.json` `max_width` 0.11 (conservative fingertip opening); cup object 74 mm × 8 cm; new `GraspConfig.grasp_frac` / `--grasp-frac` (0.85 = fingertips just below the rim, pads above it). `Workcell.load` now ignores unknown keys (notes/provenance broke loading twice).
+- Dry run (cup-dryrun4): cup at base (0.400, +0.144) ±1 mm, rim 82.2 mm, pick-place back to the same spot, valid (37.3 s, coach ok); grip open 0.93 / closed 0.66.
+- **j4 reached 60 °C** (after-heat of the look poses) → motors disabled 10:46 (j4 rotor 58 °C), arm folded. Naman moved the cup.
+- **Idea (Naman):** "plan for an object tracking and following feedback based system". Added to the backlog; to be built in the cloud and tested on the arm later. Session paused.

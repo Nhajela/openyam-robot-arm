@@ -31,6 +31,7 @@ Safety rules carry across all experiments: start folded on the stops, probe befo
 
 Interfaces and interactions worth trying. Add yours, and say who to talk to.
 
+- **Continuous object tracking + visual-servo following (Naman, 29 Oct):** instead of look, then plan, then move, a feedback loop that keeps tracking the target in the wrist camera (and any extra cameras) at frame rate and steers the arm toward it continuously (image-based visual servoing through armctl's Cartesian/joint streaming with the deadman), so it follows an object that moves and corrects grasps on the way in. Builds on `interfaces/wristcam` (calibrated, provisional), `target.py` (tap/prompt seeds) and the event log for timing. Plan: build in the cloud, then test on the arm.
 - **Re-choreograph the library with the visual author** (`armctl.visual_author`): wave, nod, happy-dance read as 1–3 cm hand moves from the audience today. Run each through 2–3 visual passes, compare sheets side by side, keep the winners. (Naman, 29 Oct)
 - **"Dance" caps for authored moves** after a hardware test at 0.6 rad/s: at the default 0.3 rad/s a 15 s piece only has room for a few big moves. Human decision, per move (`--caps dance`).
 
