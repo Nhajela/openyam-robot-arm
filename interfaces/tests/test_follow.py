@@ -234,6 +234,32 @@ async def mock_daemon():
         sock.close()
 
 
+def test_follow_what_you_name_end_to_end(tmp_path):
+    """--prompt: the named object (open-vocabulary detector; ground truth here) seeds and anchors the track."""
+    from interfaces.follow import run as R
+
+    log = tmp_path / "run.jsonl"
+
+    async def go():
+        async with mock_daemon() as url:
+            a = R.build_parser().parse_args([
+                "--url", url, "--source", "synthetic", "--prompt", "cup", "--detector", "synth", "--sim-path", "circle",
+                "--sim-speed", "0.02", "--expect", "0.0,-0.12", "--duration", "6", "--v-max", "0.06", "--log", str(log),
+                "--settle", "0.5"])
+            return await R.run(a)
+
+    assert asyncio.run(go()) == 0
+    ev = [json.loads(l) for l in log.read_text().splitlines()]
+    pr = next(e for e in ev if e["event"] == "prompt")
+    assert pr["target"]["label"] == "red cup"
+    anchors = [e for e in ev if e["event"] == "anchor"]
+    assert anchors and sum(e["result"] == "refreshed" for e in anchors) >= 2
+    frames = [e for e in ev if e["event"] == "frame" and e["match"] is not None and e["true"]]
+    err = [np.hypot(e["match"][0] - e["true"][0], e["match"][1] - e["true"][1]) for e in frames[5:]]
+    print(f"\nfollow 'cup': {len(frames)} matched frames, error median {np.median(err) * 1000:.1f} mm")
+    assert len(frames) > 15 and np.median(err) < 0.01
+
+
 def test_follow_program_end_to_end_on_the_mock_daemon(tmp_path):
     from interfaces.follow import run as R
 
