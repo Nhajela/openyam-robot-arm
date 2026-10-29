@@ -1,0 +1,19 @@
+... routing
+[route] camera=yes (rules): rules: refers to a person
+... looking (camera)
+... drafting
+[drafting] 43.84s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 4, 'timing': 4, 'safety_margin': 5}
+... rendering pass 1
+... reviewing pass 1/3
+[reviewing pass 1/3] 28.11s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 4, 'timing': 4, 'safety_margin': 3}
+... rendering pass 2
+... reviewing pass 2/3
+[reviewing pass 2/3] 19.1s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 4, 'timing': 4, 'safety_margin': 4}  satisfied
+... final
+
+model=claude-fable-5-1 3 call(s) 103.29 s  stop: satisfied
+OK  duration 18.8 s  (envelope: armctl.envelope)
+  max |vel| rad/s: j1=0.23 j2=0.16 j3=0.27 j4=0.27 j5=0.21 j6=0.20
+  max |acc| rad/s2: j1=0.4 j2=0.2 j3=0.4 j4=0.8 j5=0.6 j6=0.5
+wrote playables/fable-happy-wave-hello.json
+sheets + CHANGELOG.md in experiments/2026-10-29-visual-choreo/runs/happy-wave-hello

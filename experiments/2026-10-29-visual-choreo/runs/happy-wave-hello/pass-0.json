@@ -1,0 +1,157 @@
+{
+  "name": "happy-wave-hello",
+  "author": "llm:claude-fable-5-1",
+  "created": "2026-10-29T09:51:09+05:30",
+  "prompt": "a happy wave hello to the people at the table",
+  "notes": "Turns and rises toward the audience with an open grip, waves the hand up and down three times with decreasing size and a grip snap, then settles softly back to ready.",
+  "space": "joint",
+  "start": "ready",
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 1.3,
+      "q": [
+        -0.12,
+        0.45,
+        0.7,
+        -0.15,
+        0.1,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 3.875,
+      "q": [
+        0.3,
+        0.75,
+        1.2,
+        0.1,
+        -0.15,
+        0.0
+      ],
+      "grip": 0.3,
+      "ease": "flow"
+    },
+    {
+      "t": 6.175,
+      "q": [
+        0.65,
+        0.9,
+        1.5,
+        0.35,
+        -0.4,
+        0.0
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 6.775,
+      "q": [
+        0.65,
+        0.9,
+        1.5,
+        0.35,
+        -0.4,
+        0.0
+      ],
+      "grip": 1.0,
+      "ease": "hold"
+    },
+    {
+      "t": 9.075,
+      "q": [
+        0.65,
+        0.9,
+        1.5,
+        -0.05,
+        -0.4,
+        0.3
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 11.575,
+      "q": [
+        0.65,
+        0.9,
+        1.5,
+        0.4,
+        -0.4,
+        0.0
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 12.975,
+      "q": [
+        0.65,
+        0.9,
+        1.5,
+        0.15,
+        -0.4,
+        0.15
+      ],
+      "grip": 0.4,
+      "ease": "cubic"
+    },
+    {
+      "t": 13.275,
+      "q": [
+        0.65,
+        0.9,
+        1.5,
+        0.15,
+        -0.4,
+        0.15
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 13.875,
+      "q": [
+        0.65,
+        0.9,
+        1.5,
+        0.15,
+        -0.4,
+        0.15
+      ],
+      "grip": 1.0,
+      "ease": "hold"
+    },
+    {
+      "t": 18.875,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    }
+  ],
+  "loop": 1,
+  "speed": 1.0,
+  "caps": "default"
+}

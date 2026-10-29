@@ -1,0 +1,326 @@
+{
+  "ok": true,
+  "playable": {
+    "name": "happy-wave-hello",
+    "author": "llm:claude-fable-5-1",
+    "created": "2026-10-29T09:52:07+05:30",
+    "prompt": "a happy wave hello to the people at the table",
+    "notes": "Turns and rises tall toward the audience with the grip opening, waves the hand three times up-down and side-to-side with decreasing size and a grip snap, then settles softly back to ready.",
+    "space": "joint",
+    "start": "ready",
+    "keyframes": [
+      {
+        "t": 0.0,
+        "q": [
+          0.0,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 1.3,
+        "q": [
+          -0.12,
+          0.45,
+          0.7,
+          -0.15,
+          0.1,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 4.1,
+        "q": [
+          0.3,
+          0.75,
+          1.2,
+          0.1,
+          -0.15,
+          0.0
+        ],
+        "grip": 0.3,
+        "ease": "flow"
+      },
+      {
+        "t": 6.6,
+        "q": [
+          0.65,
+          0.9,
+          1.5,
+          0.35,
+          -0.4,
+          0.0
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 7.2,
+        "q": [
+          0.65,
+          0.9,
+          1.5,
+          0.35,
+          -0.4,
+          0.0
+        ],
+        "grip": 1.0,
+        "ease": "hold"
+      },
+      {
+        "t": 9.5,
+        "q": [
+          0.65,
+          0.9,
+          1.5,
+          -0.05,
+          -0.2,
+          0.3
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 12.0,
+        "q": [
+          0.65,
+          0.9,
+          1.5,
+          0.4,
+          -0.55,
+          0.0
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 13.4,
+        "q": [
+          0.65,
+          0.9,
+          1.5,
+          0.15,
+          -0.35,
+          0.15
+        ],
+        "grip": 0.4,
+        "ease": "cubic"
+      },
+      {
+        "t": 13.7,
+        "q": [
+          0.65,
+          0.9,
+          1.5,
+          0.15,
+          -0.35,
+          0.15
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 14.3,
+        "q": [
+          0.65,
+          0.9,
+          1.5,
+          0.15,
+          -0.35,
+          0.15
+        ],
+        "grip": 1.0,
+        "ease": "hold"
+      },
+      {
+        "t": 18.8,
+        "q": [
+          0.0,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      }
+    ],
+    "loop": 1,
+    "speed": 1.0,
+    "caps": "default"
+  },
+  "passes": [
+    {
+      "pass": 0,
+      "stage": "drafting",
+      "latency_s": 43.84,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 9620
+        },
+        "cache_creation_input_tokens": 9620,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 9620
+            },
+            "cache_creation_input_tokens": 9620,
+            "cache_read_input_tokens": 0,
+            "input_tokens": 4,
+            "output_tokens": 3616,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 3616,
+        "output_tokens_details": {
+          "thinking_tokens": 2651
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": true,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 4,
+        "timing": 4,
+        "safety_margin": 5
+      },
+      "satisfied": false,
+      "critique": "",
+      "changelog": [
+        "Draft: small anticipation turn away, then big arc turning body (j1 +0.65) and rising tall (j3 1.5) toward the audience with head turning to them (j5 -0.4) and grip opening at the peak.",
+        "Peak held 0.6 s, then three wrist-pitch wave swings of decreasing size and varied tempo with j6 tilt accents and a grip snap on the last beat.",
+        "Slow soft resolve back to ready over 5 s; all cubic segments sized with >10% margin on the 0.3 rad/s / 1 rad/s^2 caps."
+      ]
+    },
+    {
+      "pass": 1,
+      "stage": "reviewing pass 1/3",
+      "latency_s": 28.11,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 20977
+        },
+        "cache_creation_input_tokens": 20977,
+        "cache_read_input_tokens": 9620,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 20977
+            },
+            "cache_creation_input_tokens": 20977,
+            "cache_read_input_tokens": 9620,
+            "input_tokens": 4,
+            "output_tokens": 2090,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 2090,
+        "output_tokens_details": {
+          "thinking_tokens": 957
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 4,
+        "timing": 4,
+        "safety_margin": 3
+      },
+      "satisfied": false,
+      "critique": "From the audience the rise to the tall peak reads well: body turns toward them, hand climbs to 67 cm with the grip opening, and the hold registers. The anticipation dip is small (5 cm) but visible. The three wrist nods move the hand 9, 10 and 6 cm on the audience's view — legible but a bit timid for a wave; they are pure up-down with no side-to-side component. The grip snap before the final hold is a good 'word'. Peak velocity is 97% of cap because the retimer had to slow the flow phrase; the ending resolve is long (5 s) and the whole piece is 18.9 s, a little over target.",
+      "changelog": [
+        "Lengthened the flow rise (K1->K3) by ~0.4 s to pull peak velocity from 97% to ~80% of cap.",
+        "Added a j5 side-to-side component (-0.2 / -0.55 / -0.35) to the three wave swings so the hand also sweeps across the audience's view, making each wave travel further.",
+        "Shortened the final resolve to 4.5 s (still >10% margin) to tighten the ending."
+      ]
+    },
+    {
+      "pass": 2,
+      "stage": "reviewing pass 2/3",
+      "latency_s": 19.1,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 19416
+        },
+        "cache_creation_input_tokens": 19416,
+        "cache_read_input_tokens": 30597,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 19416
+            },
+            "cache_creation_input_tokens": 19416,
+            "cache_read_input_tokens": 30597,
+            "input_tokens": 4,
+            "output_tokens": 1357,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 1357,
+        "output_tokens_details": {
+          "thinking_tokens": 274
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 4,
+        "timing": 4,
+        "safety_margin": 4
+      },
+      "satisfied": true,
+      "critique": "Valid without retiming. From the audience the gesture reads as intended: a small dip away, then a long arc up and toward them into a tall, open-handed peak at 67 cm that is held; the three waves now sweep both up-down and across the view (10, 12, 7 cm), shrinking in size with a quicker last beat and a grip snap, followed by a short freeze and a slow, soft settle. Tempo is varied (CV 0.65), there are two holds and four grip values, the body leads and the head/grip arrive late on the rise. All joints sit mid-range, the hand stays high above the table, and peak velocity is at 90% of cap with 25% acceleration headroom. The only remaining softness is that the second and third waves move the hand modestly rather than dramatically, but that is dictated by the speed caps and still reads clearly.",
+      "changelog": [
+        "No changes: candidate is valid, reads clearly from the audience, and has adequate headroom."
+      ]
+    }
+  ],
+  "route": {
+    "use_camera": true,
+    "method": "rules",
+    "reason": "rules: refers to a person"
+  },
+  "stop_reason": "satisfied",
+  "latency_s": 103.29,
+  "model": "claude-fable-5-1",
+  "sheets_dir": "experiments/2026-10-29-visual-choreo/runs/happy-wave-hello",
+  "retimed": false
+}

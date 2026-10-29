@@ -27,3 +27,4 @@ music/clips/*
 experiments/*/scan-*-local/
 interfaces/wristcam/data/
 experiments/*/*-local/
+experiments/2026-10-29-visual-choreo/runs/*/camera.jpg
