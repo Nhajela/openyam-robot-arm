@@ -1,31 +1,31 @@
 {
   "T_base_table": [
     [
-      1,
-      0,
-      0,
-      0.3
+      0.120982,
+      0.99185,
+      -0.039962,
+      0.411093
     ],
     [
-      0,
-      1,
-      0,
-      0.0
+      -0.992655,
+      0.120905,
+      -0.004343,
+      -0.01419
     ],
     [
-      0,
-      0,
-      1,
-      0.0
+      0.000524,
+      0.040194,
+      0.999192,
+      -0.031403
     ],
     [
-      0,
-      0,
-      0,
-      1
+      0.0,
+      0.0,
+      0.0,
+      1.0
     ]
   ],
-  "calibrated": false,
+  "calibrated": true,
   "max_width": 0.094,
   "tip_to_pad": 0.0,
   "travel_z": 0.14,
@@ -33,7 +33,7 @@
   "min_tip_z": 0.01,
   "open_margin": 0.02,
   "squeeze": 0.01,
-  "notes": "placeholder: T_base_table not calibrated",
+  "notes": "PROVISIONAL wristcam hand-eye (2026-10-29 10:26): Naman 29 Oct (operator decision): position spread ~4 mm is enough for cup grasps with visual re-centring; precision gates (3 px, 1 deg) not met with a taped paper board; improve later with a rigid flat board. Failed precision gates: reprojection 4.84 px (< 3); board-pose spread 1.39 deg (< 1)",
   "chess": {
     "center": [
       0.0,
@@ -78,5 +78,6 @@
       "height": 0.08,
       "width": 0.06
     }
-  }
+  },
+  "provisional": true
 }
