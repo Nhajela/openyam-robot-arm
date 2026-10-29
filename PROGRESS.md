@@ -18,8 +18,14 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 - 🧪 **Open play:** a second, quieter QR on the display ("How does it work?") → the public explainer at `nhajela.github.io/openyam-playground/learn/` (`--learn-url`).
 - **Fix:** GrabCut is now seeded (`cv2.setRNGSeed(0)`), so tap segmentation is reproducible. A tap-to-pick test had been failing depending on test order.
 
+- 🧪 **Phone "Pick it up" uses the detector:** lists what it sees, detector outlines for taps, names without Claude, re-detection while picking (`--pick-detector`).
+- ❗ **Grasp floor fixed and made table-relative:** the table is 3.1 cm below the base, and a base-frame floor had made every object under ~5 cm (all chess pieces) "too low". The fingertip may now go 3.1 cm lower, to 1 cm above the calibrated table. Foam first.
+- 🧪 **`place_spots`** check/teach for the Grab spots and the chess board (the old spots were out of reach in today's table frame).
+- Laptop GPU: Lenovo Legion, RTX 3060 6 GB.
+
 ### Next
 1. ⏳ Laptop: `pick_anything --bench` on the GPU, detect-only on the live camera, then `--execute` on a foam block (HANDOVER §0c).
+2. ⏳ Teach spots A/B/C and the chess board (`place_spots`), then Grab on the real arm.
 
 ---
 

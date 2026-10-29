@@ -56,3 +56,35 @@ Annotated look ([sim-look-blue-box.jpg](sim-look-blue-box.jpg)): the white outli
 2. Detect only on the live camera with a few everyday objects: check the masks (overlay), the refusals, and the footprint errors against a ruler.
 3. `--execute` on a foam block or a marker, then a cup. Keep looks short (j4 heat).
 4. Then chess pieces: a named piece on a known square is the same pipeline with a much smaller object. The grasp height and tolerances will need tuning.
+
+## 13:40–14:40 IST: the phone's "Pick it up" uses the detector; Grab spots and the chess board on the real table
+
+**Environment:** the laptop is a Lenovo Legion with an **RTX 3060 (6 GB)** (Naman). That is enough for YOLO-E and EdgeTAM in real time and for training small policies (ACT; SmolVLA is likely tight), but not for MolmoAct2 (~16 GB).
+
+**Phone ("Pick it up", `openplay/pick_play.py`):**
+- After Look, the station runs the detector on the still and shows what it sees as tappable labels ("I can see: cup, marker, tape. Tap one, or say what it is").
+- A **tap** takes the detector's mask under the finger (the smallest one containing it, else the nearest centre within 30 px). Jaws, reach and table checks are unchanged. With no detection there, it falls back to the old GrabCut.
+- A **typed name** goes to the detector first (fast, no API call), then to Claude.
+- While picking, `DetectorFinder` re-detects the object by the name it was found by.
+- `openplay.server --pick-detector yoloe|claude|none` (default yoloe). The class default is off, so tests never load or download a model. A missing or failing detector logs once and falls back.
+- Test: `openplay/tests/test_pick.py::test_detector_lists_what_it_sees_and_picks_a_named_box`. The look lists "green box, red cup"; "green box" is found without Claude; a tap on the cup takes the detector's outline; then the box is picked, lifted and put back.
+
+**Problem → Fix: the grasp floor was in the wrong frame.**
+- `workcell.min_tip_z` (0.01) set the grasp height in the **table** frame, but the clearance checks (`grasp._solve`, the engine's move floors, the playable's `min_tip_z`) compared it with the **base-frame** tip z.
+- Since the 29 Oct calibration the table is **3.1 cm below the base** (the base sits on a plate). So the fingertip was kept 4.1 cm above the table, and nothing under ~5 cm could be grasped: every chess piece failed with "grasp: too low (tip −0.013 m)".
+- **Fix:** `Workcell.floor_base()` = min_tip_z above the calibrated table (base z −0.0214 today). It is used by the grasp planner, the engine floors and the playable. An uncalibrated workcell keeps the old behaviour. Link clearance (≥ 3 cm, base frame) is unchanged and stays conservative.
+- ❗ **For Naman:** the fingertip may now go 3.1 cm lower than yesterday. It is still 1 cm above the table *as calibrated*, but the calibration is provisional, so try the first low grasp on foam.
+
+**Grab spots and the chess board:**
+- **Observation (`place_spots check`):** spot A (table (0, 0.12)) is 0.53 m from the base, out of reach. The table frame's x axis points ~97° from the base's, so "left/right of the sheet" is not where the old spots assumed.
+- **Observation:** the board (centre (0, 0), on the tag sheet, 3.5 cm squares) has 53/64 squares reachable after the floor fix. Before it, none were: all failed "too low".
+- **Decision:** don't guess the table. `interfaces/grasp/place_spots.py`:
+  - `check`: every spot pair and every square through the real planner;
+  - `teach NAME`: the spot is where the fingertip is now (q read from the daemon, nothing moves);
+  - `board a1` / `board h8`: centre, square size and rank direction from two corners;
+  - every write backs up `workcell.json` first.
+  - Tests: `interfaces/tests/test_place_spots.py` (3).
+- Test suites (interfaces + openplay, serenity): 274 passed, 13 failed, 6 errors.
+  - Chess failures went from 9 to 7 with the floor fix.
+  - The rest were failing before this work: the 3 spot tests (placeholder spots) and the 7 calibration tests (OpenCV 5.0 API).
+

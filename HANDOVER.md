@@ -18,6 +18,9 @@ The starting point for a local session on the lab laptop with the real arm. It s
   1. `.venv/bin/python -m interfaces.wristcam.pick_anything --bench 30 --prompt "cup,marker,tape,box"`. Nothing moves. The YOLO-E weights download on first use. Check that the GPU is used (`"device": "cuda"`).
   2. Detect only on the live camera (`--source dashboard --prompt "marker"`): check `look.jpg` (masks, footprint, closing line) against reality.
   3. `--execute` on a foam block or a marker. Every motion asks y/N.
+  4. Phone: `openplay.server ... --pick-detector yoloe` (the default). After Look, "Pick it up" lists what it sees; taps and names use the detector.
+- **Grasp floor is now table-relative** (`Workcell.floor_base()`): the fingertip may go to 1 cm above the calibrated table, which is 3.1 cm lower than before. Try the first low grasp on foam.
+- **Grab spots + chess board:** `.venv/bin/python -m interfaces.grasp.place_spots check`, then `teach A` / `teach B` / `teach C` with the fingertip over taped marks (Joints mode). For the board: `board a1`, then `board h8`. Nothing moves; `workcell.json` is backed up first.
 
 ## 0b. Follow: track an object and keep the camera over it (built 29 Oct, sim only)
 - **Code:** [`interfaces/follow/`](interfaces/follow/README.md). Notebook: [`experiments/2026-10-29-follow/LOG.md`](experiments/2026-10-29-follow/LOG.md).
