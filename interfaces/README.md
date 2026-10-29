@@ -24,6 +24,7 @@ You can turn a live session into a timeline: record it, then edit and replay it.
 | Pose recorder → playable | `timeline/poses.py` | mock (used by open play's Poses tab) |
 | Grab between named spots | `grasp/spots.py` | mock (spots are placeholders) |
 | **Wrist camera: find and grasp a cup** (closed loop), lens + hand-eye + table calibration from one taped sheet | [`wristcam/`](wristcam/README.md) | new: synthetic renders + fake arm only; real-arm procedure in its README |
+| **Follow: track an object at frame rate and keep the wrist camera over it** (visual servoing through the daemon's deadman) | [`follow/`](follow/README.md) | new (29 Oct): synthetic camera on a virtual clock + mock daemon end to end; not yet on the real arm |
 
 ## Setup
 
