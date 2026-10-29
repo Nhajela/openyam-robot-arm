@@ -3,6 +3,7 @@
     .venv/bin/python -m openplay.server [--daemon ws://127.0.0.1:8091/armctl] [--phone-port 8450]
         [--local-port 8451] [--key KEY] [--turn 600] [--auto-play on|off|auto] [--host-ip IP]
         [--phone-host 0.0.0.0] [--urdf-dir DIR] [--events-log PATH] [--chess-sensor fake|camera]
+        [--trace-log auto|PATH|''] [--stream-ttl-ms 300]
 
 Two listeners in one asyncio process:
   * https://<phone-host>:8450  phones. Self-signed cert from dashboard/certs/ (phonecam's),
@@ -14,7 +15,10 @@ Two listeners in one asyncio process:
 The server is the only armctl program (``openplay``): it holds the daemon lease and decides
 which player's commands reach the arm (openplay/arm.py). The daemon's envelope gate, deadman
 and E-STOP still apply to everything. Contract: openplay/PROTOCOL.md. Queue and turn rules:
-openplay/lobby.py. Events (no room keys) go to openplay/logs/events.jsonl.
+openplay/lobby.py. Events (no room keys) go to openplay/logs/events.jsonl. The time-synced
+trace of every phone message, server decision and armctl message (openplay/eventlog.py) goes
+to experiments/<today>-*/logs/openplay-events-<ts>.jsonl; view it live at /events on the
+display listener, stream stats at /api/streamstats, offline: python -m openplay.eventlog summarize.
 
 Modules owned elsewhere (openplay.moves, interfaces.timeline.poses, interfaces.grasp.spots)
 are imported lazily, so the server starts without them and reports the feature as off in
@@ -44,7 +48,8 @@ from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconn
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from openplay.arm import ANG_RPS, DEFAULT_URL, JOINT_RPS, LIN_MPS, ArmBridge, Refused
+from openplay import eventlog as EL
+from openplay.arm import ANG_RPS, DEFAULT_URL, JOINT_RPS, LIN_MPS, STREAM_TTL_MS, ArmBridge, Refused
 from openplay.lobby import Lobby
 
 log = logging.getLogger("openplay")
@@ -68,6 +73,8 @@ CHESS_OPS = {"chess.new", "chess.accept", "chess.clock", "chess.pick", "chess.mo
 CHESS_SENSORS = ("fake", "camera")
 EVENT_KINDS = ("move", "say", "seq", "grab", "chess")
 LOOPBACK = {"127.0.0.1", "::1", "localhost", "testclient"}
+DAEMON_TTL_MAX_MS = 500   # armctl.daemon.TTL_MAX_MS: the daemon clips longer ttls
+LOOP_LAG_MS = 100.0       # a ticker sleep this much late is logged (server event loop stalled)
 
 PLACEHOLDER = """<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>open play</title><body style="font:18px system-ui;padding:2em">
@@ -97,12 +104,24 @@ class ActionError(RuntimeError):
 # Connections: an outbound queue per socket, so a slow phone never blocks a broadcast
 # --------------------------------------------------------------------------
 class Conn:
+    _ids = 0
+
     def __init__(self, ws, kind: str):
         self.ws, self.kind = ws, kind
         self.q: asyncio.Queue = asyncio.Queue(maxsize=300)
         self.pid: str | None = None
         self.alive = True
         self.last_stream_refusal = 0.0
+        Conn._ids += 1
+        self.cid = f"{kind[0]}{Conn._ids}"
+        self.opened = time.time()
+        self.t_rx = self.opened
+        self.n_rx = 0
+        self.last_rx: float | None = None
+        self.last_seq: int | None = None
+        self.sync = EL.ClockSync()
+        self.decision: tuple[str, str | None] | None = None   # what the server did with the message
+        self.server_close: str | None = None                   # why the server closed it, if it did
 
     def send(self, msg: dict) -> None:
         if not self.alive:
@@ -111,13 +130,25 @@ class Conn:
             self.q.put_nowait(msg)
         except asyncio.QueueFull:
             if msg.get("op") != "arm":  # arm updates are droppable; anything else: the socket is stuck
+                self.server_close = self.server_close or "outbound queue full (the phone is not reading)"
                 self.alive = False  # the writer closes the socket
 
+    @staticmethod
+    def wire(m: dict) -> dict:
+        """Last touch before the socket: a clock-sync pong gets its send time t2 here."""
+        if m.get("op") == "pong" and "t1" in m:
+            return {**m, "t2": round(time.time() * 1000.0, 1)}
+        return m
+
     async def writer(self) -> None:
-        with contextlib.suppress(Exception):
+        try:
             while self.alive:
-                m = await self.q.get()
+                m = self.wire(await self.q.get())
                 await asyncio.wait_for(self.ws.send_text(json.dumps(m)), 5.0)
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            self.server_close = self.server_close or f"send failed ({type(e).__name__})"
         self.alive = False
         with contextlib.suppress(Exception):
             await self.ws.close()
@@ -184,10 +215,19 @@ class OpenPlay:
                  join_url: str = "", urdf_dir: Path = DEFAULT_URDF_DIR, events_log: Path | None = EVENTS_LOG,
                  lin_mps: float = LIN_MPS, ang_rps: float = ANG_RPS, joint_rps: float = JOINT_RPS,
                  workcell: Path | None = None, chess_sensor: Any = "fake", chess_clock_s: float = 600.0,
-                 chess_cameras: list[str] | None = None, chess_calib: str | None = None):
+                 chess_cameras: list[str] | None = None, chess_calib: str | None = None,
+                 trace_log: Path | None = None, stream_ttl_ms: float = STREAM_TTL_MS):
         self.lobby = Lobby(turn_s=turn_s)
+        self.stream_ttl_ms = float(min(max(stream_ttl_ms, 50.0), DAEMON_TTL_MAX_MS))
+        # the time-synced trace (openplay/eventlog.py): phone -> server -> arm, one clock
+        self.trace = EL.EventLog(trace_log, ttl_ms=self.stream_ttl_ms, on_episode=self._episode_done)
         self.arm = ArmBridge(daemon_url, on_event=self._arm_event, lin_mps=lin_mps, ang_rps=ang_rps,
-                             joint_rps=joint_rps)
+                             joint_rps=joint_rps, stream_ttl_ms=self.stream_ttl_ms,
+                             trace=EL.ArmTracer(self.trace.emit))
+        self.syncs: dict[str, EL.ClockSync] = {}      # pid -> clock sync (survives a reconnect)
+        self.pid_seq: dict[str, int] = {}             # pid -> last phone seq seen
+        self.pid_closed: dict[str, float] = {}        # pid -> when its last socket closed
+        self._relay_t: dict[str, float] = {}          # pid -> last relayed daemon stream refusal
         self.auto_play_mode = auto_play            # on | off | auto (on for mock, off otherwise)
         self.join_url = join_url
         self.urdf_dir = Path(urdf_dir)
@@ -226,6 +266,12 @@ class OpenPlay:
                        asyncio.create_task(self._arm_loop(), name="arm-loop")]
         self._log({"kind": "server", "text": f"open play up (turn {self.lobby.turn_s:.0f} s, "
                    f"auto_play {self.auto_play_mode})"})
+        self.trace.emit("server", "config", ttl_ms=self.stream_ttl_ms, daemon=self.arm.url,
+                        speeds=self.arm.speeds(), turn_s=self.lobby.turn_s, auto_play=self.auto_play_mode,
+                        file=str(self.trace.path) if self.trace.path else None)
+        if self.stream_ttl_ms != STREAM_TTL_MS:
+            log.warning("stream ttl %.0f ms (default %d): the arm keeps moving this long after the phone's "
+                        "last setpoint", self.stream_ttl_ms, STREAM_TTL_MS)
 
     async def shutdown(self) -> None:
         for t in self._tasks:
@@ -235,6 +281,8 @@ class OpenPlay:
         with contextlib.suppress(Exception):
             await asyncio.wait_for(self.arm.close(), 3.0)
         self._log({"kind": "server", "text": "open play down"})
+        self.trace.emit("server", "config", text="open play down")
+        self.trace.close()
 
     @property
     def auto_play(self) -> bool:
@@ -270,13 +318,31 @@ class OpenPlay:
         self.recent.append(m)
         self.to_displays(m)
         self._log({"kind": kind, "who": who, "text": text})
+        self.trace.emit("server", "event", ev=kind, who=who, text=text)
         log.info("%s: %s", kind, text)
 
     def status(self, pid: str, text: str, kind: str = "info") -> None:
         self.to_pid(pid, {"op": "status", "text": text, "kind": kind})
 
     def refuse(self, c: Conn, reason: str) -> None:
+        c.decision = ("refuse", reason)
         c.send({"op": "refused", "reason": reason})
+
+    def _stream_refuse(self, c: Conn, reason: str) -> None:
+        """A refused stream: told to the phone at most once a second, recorded every time."""
+        if self._stream_refusal_ok(c):
+            self.refuse(c, reason)
+        else:
+            c.decision = ("drop", reason)
+
+    def _episode_done(self, s: dict) -> None:
+        a, big = s["arrival"], s["gaps_over_ttl"]
+        log.info("stream hold #%d %s (%s): %d msgs in %.1f s (%s Hz), arrival gaps p50/p95/max %s/%s/%s ms, "
+                 "phone send p95 %s ms, %d > ttl %d ms (%d deadman stops; causes %s), %s%s",
+                 s["episode"], self.name(s["pid"]), s["stream"], s["n"], s["dur_s"], s["rate_hz"],
+                 a["p50"], a["p95"], a["max"], s["sent"]["p95"], len(big), s["ttl_ms"], s["deadman_in_gaps"],
+                 ",".join(sorted({g["cause"] for g in big})) or "-", s["end"],
+                 f"; refused {s['refusals']}" if s["refusals"] else "")
 
     def push_lobby(self) -> None:
         for pid, cs in self.phones.items():
@@ -371,11 +437,16 @@ class OpenPlay:
                                             "warning": rem <= self.lobby.warn_s})
                     if a is not None or evs:
                         self.push_lobby()
+                self.trace.tick()
             except asyncio.CancelledError:
                 raise
             except Exception:
                 log.exception("ticker")
+            t_sleep = time.monotonic()
             await asyncio.sleep(0.25)
+            lag = (time.monotonic() - t_sleep - 0.25) * 1000.0
+            if lag > LOOP_LAG_MS:
+                self.trace.emit("server", "loop_lag", lag_ms=round(lag, 1))
 
     async def _arm_loop(self) -> None:
         n = 0
@@ -507,23 +578,39 @@ class OpenPlay:
                                 "support the arm, run tools/disable_all.py")
         elif kind == "refused":  # stream guard ("j3 at the soft limit"): tell the driver, quietly
             a = self.lobby.active
-            if a and data.get("edge"):  # edge-of-reach watchdog: steer the other way
+            reason = str(data.get("reason") or "")
+            if a and reason.startswith(("stream v:", "stream qd:")) and not data.get("stream"):
+                # the daemon refuses a bad setpoint (e.g. "Cartesian streaming needs the arm
+                # unfolded") with no id and no stream flag. Until 29 Oct nobody told the phone: it
+                # kept streaming into refusals (125 in the 28 Oct log) and Tilt/Sticks looked dead.
+                # Relay it as a refusal (the phone's "too low: tap Ready" bar), at most once a second.
+                now = time.monotonic()
+                if now - self._relay_t.get(a.pid, 0.0) >= STREAM_REFUSAL_EVERY_S:
+                    self._relay_t[a.pid] = now
+                    self.to_pid(a.pid, {"op": "refused", "reason": reason.split(": ", 1)[-1]})
+                    self.trace.emit("server", "relay", pid=a.pid, reason=reason[:200])
+            elif a and data.get("edge"):  # edge-of-reach watchdog: steer the other way
                 self.status(a.pid, f"Edge of reach: steer back ({data.get('reason', '')[:80]})", "info")
             elif a and data.get("stream"):
                 self.status(a.pid, f"The arm can't go further that way ({data.get('reason', '')[:80]})", "info")
 
     # ------------------------------------------------------------------ phone protocol
     async def phone_msg(self, c: Conn, m: Any) -> None:
+        _conn_defaults(c)
         if not isinstance(m, dict) or not isinstance(m.get("op"), str):
             return self.refuse(c, "messages are JSON objects with an 'op'")
         op = m["op"]
         if op == "ping":
-            return c.send({"op": "pong"})
+            return c.send(self._pong(c, m))
+        if op == "sync":
+            return self._sync(c, m)
         if op == "hello":
             return self._hello(c, m)
         pid = c.pid
         if pid is None:
             return self.refuse(c, "say hello first")
+        if op == "diag":
+            return self._diag(c, m)
         if op == "join":
             reason = self.lobby.join(pid)
             if reason:
@@ -546,15 +633,19 @@ class OpenPlay:
         if op == "stream" and _zero_stream(m):
             # the page sends one all-zero stream on release: forward it when it can stop live
             # control, otherwise ignore it quietly (never a refusal, never stops a playing move)
+            c.decision = ("ignore", "release while not driving")
             if (self.lobby.is_active(pid) and not self.handover and not self.busy and not self.pending
                     and self.arm.ready):
-                with contextlib.suppress(Refused, ValueError, TypeError):
+                try:
                     await self.arm.stream(qd=[0.0] * 6) if m.get("qd") is not None else await self.arm.stream(v={})
+                    c.decision = ("forward", None)
+                except (Refused, ValueError, TypeError) as e:
+                    c.decision = ("ignore", str(e))
             return
         if not self.lobby.is_active(pid):
-            if op != "stream" or self._stream_refusal_ok(c):
-                self.refuse(c, "not your turn")
-            return
+            if op == "stream":
+                return self._stream_refuse(c, "not your turn")
+            return self.refuse(c, "not your turn")
         self.lobby.touch(pid)
         if op == "stop":
             return await self._stop(pid)
@@ -562,9 +653,9 @@ class OpenPlay:
             return self.refuse(c, "your turn is ending")
         reason = self.arm.unavailable_reason()
         if reason:
-            if op != "stream" or self._stream_refusal_ok(c):
-                self.refuse(c, reason)
-            return
+            if op == "stream":
+                return self._stream_refuse(c, reason)
+            return self.refuse(c, reason)
         if op == "stream":
             # OPENPLAY_NO_CARTESIAN=1: Tilt/Sticks off (DimOS IK can drive a joint past the
             # adapter limit until the armctl watchdog lands, 28 Oct); Joints mode still works.
@@ -584,10 +675,13 @@ class OpenPlay:
                 return self.refuse(c, "grip needs value 0 (closed) .. 1 (open)")
             try:
                 await self.arm.do("gripper", width=v)
+                c.decision = ("forward", None)
             except Refused as e:
                 self.refuse(c, str(e))
             return
         self._start_discrete(c, pid, op, m)
+        if c.decision is None:
+            c.decision = ("start", self.busy["doing"] if self.busy else None)
 
     def _stream_refusal_ok(self, c: Conn) -> bool:
         now = time.monotonic()
@@ -614,6 +708,18 @@ class OpenPlay:
             self._n += 1
             name = f"Player {self._n}"
         c.pid = pid
+        prev = self.syncs.get(pid)
+        if prev is not None and not c.sync.samples:
+            c.sync = prev  # same phone clock: keep its samples across a reconnect
+        self.syncs[pid] = c.sync
+        if len(self.syncs) > 500:
+            self.syncs.pop(next(iter(self.syncs)))
+        closed = self.pid_closed.get(pid)
+        self.trace.emit("conn", "hello", cid=c.cid, pid=pid, name=name or self.lobby.name(pid),
+                        reconnect=pid in self.pid_seq or closed is not None,
+                        since_close_s=None if closed is None else round(time.time() - closed, 2),
+                        rate_ms=m.get("rate_ms") if isinstance(m.get("rate_ms"), (int, float)) else None,
+                        ua=str(m.get("ua") or "")[:120] or None)
         self.phones.setdefault(pid, set()).add(c)
         self.lobby.hello(pid, name)
         c.send(self.welcome(pid))
@@ -627,6 +733,83 @@ class OpenPlay:
         if self.features.get("chess"):
             c.send(self.chess_msg(pid))
         self.push_lobby()
+
+    # ---- clock sync and phone-side diagnostics (openplay/eventlog.py)
+    def _pong(self, c: Conn, m: dict) -> dict:
+        """pong carries the ping's t (t0), when it arrived (t1) and, stamped by the writer at
+        the wire, when the pong left (t2). The phone adds t3 and sends all four back as sync."""
+        out: dict[str, Any] = {"op": "pong"}
+        t0 = _num(m.get("t"))
+        if t0 is not None:
+            out.update(t0=t0, t1=round(c.t_rx * 1000.0, 1))
+        return out
+
+    def _sync(self, c: Conn, m: dict) -> None:
+        s = m.get("s")
+        c.decision = ("ok", None)
+        if not isinstance(s, (list, tuple)) or len(s) != 4:
+            return
+        est = c.sync.add(*s)
+        if est is not None:
+            self.trace.emit("conn", "sync", cid=c.cid, pid=c.pid, **est, sample_rtt_ms=round(
+                (float(s[3]) - float(s[0])) - (float(s[2]) - float(s[1])), 1),
+                phone_offset_ms=_num(m.get("offset_ms")))
+
+    def _diag(self, c: Conn, m: dict) -> None:
+        """Phone-side events (visibility, page hide, pointer cancel, socket close, late timer
+        ticks), buffered on the phone and sent when (re)connected."""
+        c.decision = ("ok", None)
+        evs = m.get("events")
+        if not isinstance(evs, list):
+            return
+        for e in evs[:60]:
+            if not isinstance(e, dict):
+                continue
+            t_ph = _num(e.get("t"))
+            fields = {str(k)[:24]: (v if isinstance(v, (int, float, bool)) or v is None else str(v)[:120])
+                      for k, v in list(e.items())[:12] if k not in ("t", "ev", "n", "lane", "kind")}
+            self.trace.emit("phone", "diag", cid=c.cid, pid=c.pid, ev=str(e.get("ev") or "?")[:32], t_ph=t_ph,
+                            t_ph_srv=_r(c.sync.to_server_s(t_ph), 4) if t_ph is not None else None, **fields)
+
+    def _trace_rx(self, c: Conn, m: Any, t_rx: float, handle_ms: float) -> None:
+        """One record per phone message: when it was sent (phone clock, and converted), when it
+        arrived, the gap since the previous one, and what the server did with it."""
+        if not isinstance(m, dict):
+            self.trace.emit("phone", "rx", t=t_rx, cid=c.cid, pid=c.pid, op="?", act="refuse",
+                            reason="not a JSON object")
+            return
+        op = str(m.get("op") or "?")[:24]
+        if op == "sync":
+            return  # recorded as conn/sync
+        seq = m.get("seq") if isinstance(m.get("seq"), int) else None
+        if c.last_seq is None and c.pid is not None:
+            c.last_seq = self.pid_seq.get(c.pid)
+        seq_gap = None
+        if seq is not None:
+            if c.last_seq is not None and seq > c.last_seq + 1:
+                seq_gap = seq - c.last_seq - 1
+            c.last_seq = seq
+            if c.pid is not None:
+                self.pid_seq[c.pid] = seq
+        t_ph = _num(m.get("t"))
+        t_srv = c.sync.to_server_s(t_ph) if t_ph is not None else None
+        est = c.sync.estimate() if t_srv is not None else None
+        gap = None if c.last_rx is None else round((t_rx - c.last_rx) * 1000.0, 1)
+        c.last_rx = t_rx
+        c.n_rx += 1
+        act, reason = c.decision or ("ok", None)
+        rec: dict[str, Any] = dict(
+            cid=c.cid, pid=c.pid, op=op, seq=seq, seq_gap=seq_gap, t_ph=t_ph, t_ph_srv=_r(t_srv, 4),
+            owd_ms=None if t_srv is None else round((t_rx - t_srv) * 1000.0, 1),
+            unc_ms=est["unc_ms"] if est else None, gap_ms=gap, act=act,
+            reason=None if reason is None else str(reason)[:200], handle_ms=round(handle_ms, 2),
+            sum=EL.payload_summary(m))
+        if op == "stream":
+            rec.update(zero=_zero_stream(m), ep=m.get("ep") if isinstance(m.get("ep"), int) else None,
+                       skip=m.get("skip") if isinstance(m.get("skip"), int) and m.get("skip") else None,
+                       why=str(m["why"])[:32] if m.get("why") else None,
+                       buf=m.get("buf") if isinstance(m.get("buf"), int) and m.get("buf") else None)
+        self.trace.emit("phone", "rx", t=t_rx, **rec)
 
     def _detach(self, c: Conn) -> None:
         pid = c.pid
@@ -650,9 +833,7 @@ class OpenPlay:
 
     async def _stream(self, c: Conn, m: dict) -> None:
         if self.busy or self.pending:
-            if self._stream_refusal_ok(c):
-                self.refuse(c, self.busy_reason() + " (send stop first)")
-            return
+            return self._stream_refuse(c, self.busy_reason() + " (send stop first)")
         try:
             grip = m.get("grip")
             grip = None if grip is None else float(grip)
@@ -660,12 +841,11 @@ class OpenPlay:
                 await self.arm.stream(qd=m["qd"], grip=grip)
             else:
                 await self.arm.stream(v=m.get("v") or {}, grip=grip)
+            c.decision = ("forward", None)
         except (ValueError, TypeError) as e:
-            if self._stream_refusal_ok(c):
-                self.refuse(c, f"stream: {e}")
+            self._stream_refuse(c, f"stream: {e}")
         except Refused as e:
-            if self._stream_refusal_ok(c):
-                self.refuse(c, str(e))
+            self._stream_refuse(c, str(e))
 
     async def _stop(self, pid: str) -> None:
         self._cancel_player_work(pid, "stopped")
@@ -1336,10 +1516,13 @@ class OpenPlay:
 
     # ------------------------------------------------------------------ display protocol
     async def display_msg(self, c: Conn, m: Any) -> None:
+        _conn_defaults(c)
         if not isinstance(m, dict) or not isinstance(m.get("op"), str):
             return c.send({"op": "refused", "reason": "messages are JSON objects with an 'op'"})
         op = m["op"]
-        self._log({"kind": "operator_cmd", "op": op, **{k: v for k, v in m.items() if k in ("id", "s", "on", "pid")}})
+        if op not in ("ping", "sync"):
+            self._log({"kind": "operator_cmd", "op": op, **{k: v for k, v in m.items() if k in ("id", "s", "on", "pid")}})
+            self.trace.emit("server", "operator", op=op, **{k: v for k, v in m.items() if k in ("id", "s", "on", "pid")})
         if op in ("approve", "deny"):
             p = self.pending
             if not p or p["id"] != m.get("id"):
@@ -1399,7 +1582,9 @@ class OpenPlay:
                 if self.lobby.active:
                     self._cancel_player_work(self.lobby.active.pid, "E-STOP")
         elif op == "ping":
-            c.send({"op": "pong"})
+            c.send(self._pong(c, m))
+        elif op == "sync":
+            self._sync(c, m)
         else:
             c.send({"op": "refused", "reason": f"unknown op {op!r}"})
 
@@ -1485,6 +1670,24 @@ class OpenPlay:
         def favicon():
             return Response(status_code=204)
 
+        @app.get("/events")
+        def events_page(request: Request):
+            loopback(request.client.host if request.client else None)
+            return HTMLResponse(_page("events.html", "The event viewer"), headers={"Cache-Control": "no-store"})
+
+        @app.get("/api/events")
+        def events_api(request: Request, since: int = 0, limit: int = 2000, pid: str = "", op: str = ""):
+            loopback(request.client.host if request.client else None)
+            recs = self.trace.since(since, max(1, min(limit, 5000)), pid or None, op or None)
+            return {"n": self.trace.n, "ttl_ms": self.stream_ttl_ms, "now": round(time.time(), 3), "events": recs}
+
+        @app.get("/api/streamstats")
+        def streamstats(request: Request):
+            loopback(request.client.host if request.client else None)
+            st = self.trace.stats()
+            st["sync"] = {pid: s.estimate() for pid, s in self.syncs.items() if s.samples}
+            return st
+
         @app.get("/chess/frame/{name}")
         def chess_frame(name: str, request: Request):
             loopback(request.client.host if request.client else None)
@@ -1510,34 +1713,65 @@ class OpenPlay:
         app.mount("/static", StaticFiles(directory=STATIC, check_dir=False), name="static")
         return app
 
+    async def on_text(self, c: Conn, text: str, handle: Callable, t_rx: float | None = None) -> None:
+        """One message from a socket: parse, handle, and (phones) trace it."""
+        t_rx = time.time() if t_rx is None else t_rx
+        c.t_rx = t_rx
+        c.decision = None
+        if len(text) > MAX_MSG:
+            c.send({"op": "refused", "reason": "message too large"})
+            self.trace.emit("phone" if c.kind == "phone" else "conn", "rx", t=t_rx, cid=c.cid, pid=c.pid,
+                            op="?", act="refuse", reason=f"too large ({len(text)} bytes)")
+            return
+        try:
+            m = json.loads(text)
+        except ValueError:
+            c.send({"op": "refused", "reason": "bad JSON"})
+            return
+        t0 = time.perf_counter()
+        try:
+            await handle(c, m)
+        except Exception as e:  # never drop a connection over one bad message
+            log.exception("%s message", c.kind)
+            c.decision = ("refuse", f"internal error ({type(e).__name__})")
+            c.send({"op": "refused", "reason": f"internal error ({type(e).__name__})"})
+        if c.kind == "phone":
+            try:
+                self._trace_rx(c, m, t_rx, (time.perf_counter() - t0) * 1000.0)
+            except Exception:
+                log.exception("trace")
+
     async def _serve_ws(self, ws, kind: str, handle: Callable, joined: Callable | None, gone: Callable,
                         disconnect_exc: type) -> None:
         c = Conn(ws, kind)
+        client = getattr(ws, "client", None)
+        headers = getattr(ws, "headers", None) or {}
+        self.trace.emit("conn", "open", cid=c.cid, ckind=kind, remote=getattr(client, "host", None),
+                        ua=str(headers.get("user-agent", ""))[:120] or None)
         writer = asyncio.create_task(c.writer())
         if joined:
             joined(c)
+        code, by, why = None, "client", None
         try:
             while c.alive:
                 text = await ws.receive_text()
-                if len(text) > MAX_MSG:
-                    c.send({"op": "refused", "reason": "message too large"})
-                    continue
-                try:
-                    m = json.loads(text)
-                except ValueError:
-                    c.send({"op": "refused", "reason": "bad JSON"})
-                    continue
-                try:
-                    await handle(c, m)
-                except Exception as e:  # never drop a connection over one bad message
-                    log.exception("%s message", kind)
-                    c.send({"op": "refused", "reason": f"internal error ({type(e).__name__})"})
-        except (disconnect_exc, RuntimeError):
-            pass
+                await self.on_text(c, text, handle)
+            by, why = "server", c.server_close
+        except disconnect_exc as e:
+            code, why = getattr(e, "code", None), getattr(e, "reason", None) or None
+            if c.server_close:
+                by, why = "server", c.server_close
+        except RuntimeError as e:
+            by, why = ("server", c.server_close) if c.server_close else ("error", str(e)[:120])
         finally:
             c.alive = False
             writer.cancel()
+            pid = c.pid
             gone(c)
+            if pid:
+                self.pid_closed[pid] = time.time()
+            self.trace.emit("conn", "close", cid=c.cid, ckind=kind, pid=pid, code=code, by=by, reason=why,
+                            dur_s=round(time.time() - c.opened, 2), n_rx=c.n_rx)
 
 
 def fit_to_caps(playable: dict, envelope: dict | None) -> tuple[dict, bool]:
@@ -1603,6 +1837,27 @@ def _zero_stream(m: dict) -> bool:
         return False
 
 
+def _conn_defaults(c: Any) -> None:
+    """Tracing fields on a connection-like object (tests drive the station with stand-ins)."""
+    if not hasattr(c, "sync"):
+        c.sync = EL.ClockSync()
+        c.cid = getattr(c, "cid", None) or f"x{id(c) % 100000}"
+        c.t_rx = time.time()
+        c.decision = None
+
+
+def _num(x: Any) -> float | None:
+    try:
+        f = float(x)
+    except (TypeError, ValueError):
+        return None
+    return f if f == f and abs(f) != float("inf") else None
+
+
+def _r(x: float | None, n: int) -> float | None:
+    return None if x is None else round(x, n)
+
+
 def _friendly(reason: str) -> str:
     if "interrupted" in reason or "stopped by" in reason:
         return "Stopped"
@@ -1643,15 +1898,20 @@ async def serve(args) -> None:
     key = args.key or secrets.token_urlsafe(6)
     join_url = f"https://{host_ip}:{args.phone_port}/?k={key}"
     events = Path(args.events_log) if args.events_log else None
+    trace = EL.default_path() if args.trace_log == "auto" else (Path(args.trace_log) if args.trace_log else None)
     op = OpenPlay(daemon_url=args.daemon, turn_s=args.turn, auto_play=args.auto_play, join_url=join_url,
                   urdf_dir=Path(args.urdf_dir), events_log=events, lin_mps=args.lin_mps,
                   ang_rps=args.ang_rps, joint_rps=args.joint_rps, chess_sensor=args.chess_sensor,
-                  chess_cameras=args.chess_camera, chess_calib=args.chess_calib)
+                  chess_cameras=args.chess_camera, chess_calib=args.chess_calib, trace_log=trace,
+                  stream_ttl_ms=args.stream_ttl_ms)
     # The room key is a secret: only on an interactive terminal (and on the loopback display).
     shown = join_url if os.isatty(1) else join_url.split("?k=")[0] + f"?k=<key: see http://127.0.0.1:{args.local_port}>"
     print(f"open play: phones join at {shown}", flush=True)
     print(f"open play: display at http://127.0.0.1:{args.local_port}  (daemon {args.daemon}, "
           f"turn {args.turn:.0f} s, auto-play {args.auto_play})", flush=True)
+    print(f"open play: event trace {trace or 'off (ring buffer only)'}; live at "
+          f"http://127.0.0.1:{args.local_port}/events, stats /api/streamstats; stream ttl {op.stream_ttl_ms:.0f} ms",
+          flush=True)
     if args.auto_play == "on":
         print("open play: auto-play is ON: playables play without the operator pressing Play", flush=True)
 
@@ -1698,6 +1958,13 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--lin-mps", type=float, default=LIN_MPS, help="stream v=1 linear speed, m/s")
     ap.add_argument("--ang-rps", type=float, default=ANG_RPS, help="stream v=1 angular speed, rad/s")
     ap.add_argument("--joint-rps", type=float, default=JOINT_RPS, help="stream qd=1 joint speed, rad/s")
+    ap.add_argument("--trace-log", default="auto",
+                    help="time-synced event trace, JSON lines (auto: experiments/<today>-*/logs/"
+                         "openplay-events-<ts>.jsonl; '' for the in-memory ring only)")
+    ap.add_argument("--stream-ttl-ms", type=float, default=STREAM_TTL_MS,
+                    help=f"deadman ttl sent with each stream setpoint (default {STREAM_TTL_MS}; the daemon caps it "
+                         f"at {DAEMON_TTL_MAX_MS}). Longer rides out Wi-Fi gaps but the arm coasts that long "
+                         "after the phone vanishes: see README 'Stream gaps'")
     ap.add_argument("--chess-camera", action="append", default=None, metavar="NAME=SOURCE",
                     help="camera for --chess-sensor camera, repeatable (vision/sources.py: top=phone:top, wrist=dashboard)")
     ap.add_argument("--chess-calib", default=None, help="board calibration folder (interfaces.chess_vision.calibrate --out)")

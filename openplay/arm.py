@@ -66,8 +66,12 @@ def scale_qd(qd: list, joint_rps: float = JOINT_RPS) -> list[float]:
 class ArmBridge:
     def __init__(self, url: str = DEFAULT_URL, *, name: str = "open play",
                  on_event: Callable[[str, dict], Any] | None = None,
-                 lin_mps: float = LIN_MPS, ang_rps: float = ANG_RPS, joint_rps: float = JOINT_RPS):
+                 lin_mps: float = LIN_MPS, ang_rps: float = ANG_RPS, joint_rps: float = JOINT_RPS,
+                 stream_ttl_ms: float = STREAM_TTL_MS, trace: Callable[[str, dict], Any] | None = None):
         self.url, self.name = url, name
+        self.stream_ttl_ms = float(stream_ttl_ms)
+        # trace("tx" | "rx", msg): every armctl message, for openplay.eventlog (observe only)
+        self.trace = trace
         self.http = url.replace("wss://", "https://").replace("ws://", "http://").rsplit("/armctl", 1)[0]
         self.on_event = on_event or (lambda kind, data: None)
         self.lin_mps, self.ang_rps, self.joint_rps = lin_mps, ang_rps, joint_rps
@@ -215,6 +219,9 @@ class ArmBridge:
                     m = json.loads(raw)
                 except ValueError:
                     continue
+                if self.trace is not None:
+                    with contextlib.suppress(Exception):
+                        self.trace("rx", m)
                 op = m.get("op")
                 if op == "state":
                     self.state = m
@@ -256,6 +263,9 @@ class ArmBridge:
     async def _send(self, msg: dict) -> None:
         if self.ws is None:
             raise Refused(self.unavailable_reason() or "the arm is not connected")
+        if self.trace is not None:
+            with contextlib.suppress(Exception):
+                self.trace("tx", msg)
         try:
             await self.ws.send(json.dumps(msg))
         except Exception as e:
@@ -305,10 +315,10 @@ class ArmBridge:
 
     # ------------------------------------------------------------------ commands
     async def stream(self, v: dict | None = None, qd: list | None = None, grip: float | None = None) -> None:
-        """One live setpoint (normalized -1..1). The daemon's deadman stops the arm 300 ms
-        after the last one."""
+        """One live setpoint (normalized -1..1). The daemon's deadman stops the arm
+        ``stream_ttl_ms`` (default 300 ms; the daemon caps it at 500) after the last one."""
         self._need()
-        msg: dict[str, Any] = {"op": "stream", "ttl_ms": STREAM_TTL_MS}
+        msg: dict[str, Any] = {"op": "stream", "ttl_ms": round(self.stream_ttl_ms)}
         if qd is not None:
             msg["qd"] = scale_qd(qd, self.joint_rps)
         else:

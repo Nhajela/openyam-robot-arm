@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open play events</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #dddcd6;
+    --phone: #2f6fdf; --server: #1f9d55; --arm: #7a4fd6; --bad: #d23c3c; --warn: #d98a00; --gap: rgba(210, 60, 60, .14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141413; --panel: #1d1d1b; --ink: #ecebe6; --muted: #9a9993; --line: #34332f;
+      --phone: #6b9cff; --server: #4cc98a; --arm: #a98bff; --bad: #ff6b6b; --warn: #f2b13c; --gap: rgba(255, 107, 107, .16); }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 2; }
+  header h1 { font-size: 16px; margin: 0 8px 0 0; }
+  header label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  select, input { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; }
+  #stat { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+  main { padding: 12px 16px; display: grid; gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; overflow: hidden; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 8px; }
+  canvas { width: 100%; height: 260px; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; }
+  .scroll { overflow: auto; max-height: 360px; }
+  .bad { color: var(--bad); } .warn { color: var(--warn); } .muted { color: var(--muted); }
+  #log td:last-child { white-space: normal; word-break: break-word; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Open play events</h1>
+  <label>window <select id="win"><option>5</option><option selected>10</option><option>30</option><option>60</option></select> s</label>
+  <label>player <select id="pid"><option value="">all</option></select></label>
+  <label>op <input id="op" size="10" placeholder="stream, move…"></label>
+  <label><input type="checkbox" id="pause"> pause</label>
+  <span id="stat">connecting…</span>
+</header>
+<main>
+  <section class="card">
+    <h2>Timeline (server clock)</h2>
+    <canvas id="tl"></canvas>
+    <div class="legend">
+      <span><i style="background:var(--phone)"></i>phone sent (its clock, synced)</span>
+      <span><i style="background:var(--server)"></i>server received → forwarded</span>
+      <span><i style="background:var(--warn)"></i>dropped / ignored</span>
+      <span><i style="background:var(--bad)"></i>refused, deadman, close</span>
+      <span><i style="background:var(--arm)"></i>armctl message</span>
+      <span><i style="background:var(--gap);border-radius:0"></i>stream gap &gt; ttl</span>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Streaming holds (<span id="ttl">?</span> ms ttl)</h2>
+    <div class="scroll"><table id="eps"><thead><tr>
+      <th>#</th><th>player</th><th>kind</th><th>dur s</th><th>msgs</th><th>Hz</th><th>arrival p50/p95/max ms</th>
+      <th>phone sent p50/p95/max</th><th>&gt; ttl</th><th>deadman</th><th>causes</th><th>end</th><th>refused</th>
+    </tr></thead><tbody></tbody></table></div>
+    <p class="muted" id="totals"></p>
+  </section>
+  <section class="card">
+    <h2>Events</h2>
+    <div class="scroll"><table id="log"><thead><tr><th>time</th><th>lane</th><th>kind</th><th>who</th><th>op</th><th>gap ms</th><th>owd ms</th><th>detail</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</main>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const recs = [];            // newest last
+let lastN = 0, ttl = 300, srvNow = 0, srvAt = 0, names = {};
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmtT = (t) => { const d = new Date(t * 1000); return d.toTimeString().slice(0, 8) + '.' + String(d.getMilliseconds()).padStart(3, '0'); };
+const who = (r) => (r.pid ? (names[r.pid] || r.pid.slice(0, 8)) : (r.who || ''));
+const filt = () => ({ pid: $('pid').value, op: $('op').value.trim() });
+function pass(r, f) {
+  if (f.pid && r.pid && r.pid !== f.pid) return false;
+  if (f.op && !(String(r.op || '') === f.op || r.kind === f.op)) return false;
+  return true;
+}
+
+async function poll() {
+  try {
+    const res = await fetch(`/api/events?since=${lastN}&limit=5000`, { cache: 'no-store' });
+    const j = await res.json();
+    ttl = j.ttl_ms; srvNow = j.now; srvAt = performance.now();
+    for (const r of j.events) {
+      if (r.kind === 'hello' && r.pid) {
+        if (!names[r.pid]) { const o = document.createElement('option'); o.value = r.pid; o.textContent = r.name || r.pid.slice(0, 8); $('pid').appendChild(o); }
+        names[r.pid] = r.name || names[r.pid];
+      }
+      recs.push(r);
+    }
+    lastN = j.n;
+    const cut = srvNow - 120;
+    while (recs.length && (recs[0].t < cut || recs.length > 30000)) recs.shift();
+    $('stat').textContent = `${j.n} records · ttl ${ttl} ms`;
+    $('ttl').textContent = ttl;
+    if (!$('pause').checked) renderLog();
+  } catch (e) { $('stat').textContent = 'server not reachable: retrying'; }
+  setTimeout(poll, 400);
+}
+
+async function pollStats() {
+  try {
+    const j = await (await fetch('/api/streamstats', { cache: 'no-store' })).json();
+    const tb = $('eps').querySelector('tbody'); tb.textContent = '';
+    for (const e of j.episodes.slice().reverse()) {
+      const tr = document.createElement('tr');
+      const a = e.arrival, s = e.sent, f = (g) => `${g.p50 ?? '-'} / ${g.p95 ?? '-'} / ${g.max ?? '-'}`;
+      const causes = [...new Set(e.gaps_over_ttl.map((g) => g.cause))].join(', ');
+      const cells = [e.episode, names[e.pid] || (e.pid || '').slice(0, 8), e.stream, e.dur_s, e.n, e.rate_hz ?? '-', f(a), s.n ? f(s) : '-',
+        e.gaps_over_ttl.length, e.deadman_in_gaps, causes || '-', e.end, Object.entries(e.refusals).map(([k, v]) => `${k} ×${v}`).join('; ')];
+      cells.forEach((c, i) => { const td = document.createElement('td'); td.textContent = c; if ((i === 8 || i === 9) && c > 0) td.className = 'bad'; tr.appendChild(td); });
+      tb.appendChild(tr);
+    }
+    const t = j.totals || {};
+    const sync = Object.entries(j.sync || {}).map(([p, s]) => `${names[p] || p.slice(0, 8)}: ${s.offset_ms} ± ${s.unc_ms} ms`).join(' · ');
+    $('totals').textContent = `holds ${t.episodes || 0}, gaps > ttl ${t.gaps_over_ttl || 0}, deadman in gaps ${t.deadman_in_gaps || 0}, `
+      + `deadman after release (harmless) ${t.deadman_after_release || 0}` + (sync ? ` · clock offsets (phone − server): ${sync}` : '');
+  } catch (_) { /* next time */ }
+  setTimeout(pollStats, 2000);
+}
+
+function detail(r) {
+  const bits = [];
+  if (r.act) bits.push(r.act + (r.reason ? `: ${r.reason}` : ''));
+  if (r.sum) bits.push(JSON.stringify(r.sum));
+  for (const k of ['ev', 'text', 'cause', 'why', 'after_zero', 'since_last_ms', 'code', 'by', 'ack_ms', 'done_ms', 'req', 'cmd', 'mode', 'offset_ms', 'unc_ms', 'rtt_ms', 'dt_ms', 'lag_ms', 'seq_gap', 'skip', 'buf', 'ep'])
+    if (r[k] !== undefined && r[k] !== null && !(k === 'reason')) bits.push(`${k}=${typeof r[k] === 'object' ? JSON.stringify(r[k]) : r[k]}`);
+  if (r.kind === 'episode') bits.push(`hold #${r.episode}: ${r.n} msgs, arrival p95 ${r.arrival.p95} ms, ${r.gaps_over_ttl.length} > ttl, end ${r.end}`);
+  if (r.kind === 'state' && r.q) bits.push('q=' + r.q.join(','));
+  return bits.join('  ');
+}
+function renderLog() {
+  const f = filt(), tb = $('log').querySelector('tbody');
+  tb.textContent = '';
+  let n = 0;
+  for (let i = recs.length - 1; i >= 0 && n < 300; i--) {
+    const r = recs[i];
+    if (!pass(r, f) || (r.kind === 'state' && !f.op)) continue;
+    n++;
+    const tr = document.createElement('tr');
+    const bad = r.act === 'refuse' || r.op === 'refused' || (r.kind === 'stream_stop' && r.cause === 'expired' && !r.after_zero) || r.kind === 'close' || (r.gap_ms > ttl && r.op === 'stream');
+    if (bad) tr.className = 'bad'; else if (r.act === 'drop' || r.act === 'ignore' || r.kind === 'diag') tr.className = 'warn';
+    for (const c of [fmtT(r.t), r.lane, r.kind, who(r), r.op || '', r.gap_ms ?? '', r.owd_ms ?? '', detail(r)]) {
+      const td = document.createElement('td'); td.textContent = c; tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+}
+
+// ---- the timeline canvas
+const cv = $('tl'), ctx = cv.getContext('2d');
+function draw() {
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== W * dpr || cv.height !== H * dpr) { cv.width = W * dpr; cv.height = H * dpr; }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const win = +$('win').value, left = 64;
+  const now = $('pause').checked ? (draw.frozen ||= srvNow + (performance.now() - srvAt) / 1000) : (draw.frozen = 0, srvNow + (performance.now() - srvAt) / 1000);
+  const t0 = now - win, x = (t) => left + (t - t0) / win * (W - left - 8);
+  const lanes = { phone: 40, server: 120, arm: 200 }, f = filt();
+  ctx.font = '12px system-ui'; ctx.fillStyle = css('--muted'); ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
+  for (const [k, y] of Object.entries(lanes)) { ctx.fillText(k, 8, y + 4); ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(W - 8, y); ctx.stroke(); }
+  for (let s = Math.ceil(t0); s <= now; s++) { const xx = x(s); ctx.fillText(new Date(s * 1000).toTimeString().slice(3, 8), xx - 14, H - 4); ctx.beginPath(); ctx.moveTo(xx, 20); ctx.lineTo(xx, H - 16); ctx.globalAlpha = .25; ctx.stroke(); ctx.globalAlpha = 1; }
+  const lastStream = {};
+  const dot = (xx, y, c, r = 3) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(xx, y, r, 0, 7); ctx.fill(); };
+  for (const r of recs) {
+    if (r.t < t0 - 2 || !pass(r, f)) continue;
+    const xr = x(r.t);
+    if (r.lane === 'phone' && r.kind === 'rx') {
+      if (r.op === 'stream') {
+        const prev = lastStream[r.cid];
+        if (prev !== undefined && (r.t - prev) * 1000 > ttl) {
+          ctx.fillStyle = css('--gap'); ctx.fillRect(x(prev), 20, xr - x(prev), H - 36);
+          ctx.fillStyle = css('--bad'); ctx.fillText(`${Math.round((r.t - prev) * 1000)} ms`, x(prev) + 2, 30);
+        }
+        lastStream[r.cid] = r.t;
+      }
+      if (r.t_ph_srv) {
+        const xp = x(r.t_ph_srv);
+        ctx.strokeStyle = css('--phone'); ctx.globalAlpha = .5; ctx.beginPath(); ctx.moveTo(xp, lanes.phone); ctx.lineTo(xr, lanes.server); ctx.stroke(); ctx.globalAlpha = 1;
+        dot(xp, lanes.phone, css('--phone'));
+      }
+      const c = r.act === 'forward' || r.act === 'start' || r.act === 'ok' ? css('--server') : r.act === 'refuse' ? css('--bad') : css('--warn');
+      dot(xr, lanes.server, c, r.op === 'stream' ? 3 : 5);
+      if (r.op !== 'stream' && r.op !== 'ping') { ctx.fillStyle = css('--ink'); ctx.fillText(r.op, xr + 5, lanes.server - 8); }
+    } else if (r.lane === 'phone' && r.kind === 'diag') {
+      const xp = x(r.t_ph_srv || r.t);
+      ctx.fillStyle = css('--bad'); ctx.fillRect(xp - 1, lanes.phone - 14, 2, 28); ctx.fillText(r.ev, xp + 3, lanes.phone - 16);
+    } else if (r.lane === 'arm') {
+      if (r.kind === 'stream_stop') {
+        const bad = r.cause === 'expired' && !r.after_zero;
+        ctx.fillStyle = bad ? css('--bad') : css('--muted');
+        ctx.beginPath(); ctx.moveTo(xr, lanes.arm - 9); ctx.lineTo(xr - 6, lanes.arm + 7); ctx.lineTo(xr + 6, lanes.arm + 7); ctx.fill();
+        ctx.fillText(r.cause === 'expired' ? (r.after_zero ? 'release expiry' : 'DEADMAN') : r.cause, xr + 7, lanes.arm + 20);
+      } else if (r.kind === 'rx' && r.op === 'refused') {
+        dot(xr, lanes.arm, css('--bad'), 5); ctx.fillText((r.reason || '').slice(0, 40), xr + 6, lanes.arm - 10);
+      } else if (r.kind === 'tx' || r.kind === 'rx') {
+        ctx.fillStyle = css('--arm'); ctx.fillRect(xr - .5, lanes.arm - (r.kind === 'tx' ? 6 : 0), 1, 6);
+        if (r.op !== 'stream') ctx.fillText(r.cmd || r.op, xr + 3, lanes.arm + (r.kind === 'tx' ? -8 : 16));
+      } else if (r.kind === 'state' && r.streaming) {
+        ctx.fillStyle = css('--server'); ctx.globalAlpha = .35; ctx.fillRect(xr - 2, lanes.arm + 10, 4, 4); ctx.globalAlpha = 1;
+      }
+    } else if (r.lane === 'conn' && (r.kind === 'open' || r.kind === 'close' || r.kind === 'hello')) {
+      ctx.strokeStyle = r.kind === 'close' ? css('--bad') : css('--muted'); ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(xr, 20); ctx.lineTo(xr, H - 16); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = ctx.strokeStyle; ctx.fillText(`${r.kind}${r.code ? ' ' + r.code : ''}`, xr + 3, H - 20);
+    } else if (r.lane === 'server' && (r.kind === 'event' || r.kind === 'relay' || r.kind === 'loop_lag')) {
+      ctx.fillStyle = r.kind === 'event' ? css('--muted') : css('--bad');
+      ctx.fillText(r.kind === 'event' ? r.ev : r.kind, xr + 3, lanes.server + 18); dot(xr, lanes.server, ctx.fillStyle, 2);
+    }
+  }
+  requestAnimationFrame(draw);
+}
+for (const id of ['pid', 'op', 'pause']) $(id).addEventListener('input', renderLog);
+poll(); pollStats(); requestAnimationFrame(draw);
+</script>
+</body>
+</html>
