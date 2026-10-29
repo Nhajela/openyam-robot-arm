@@ -548,7 +548,7 @@ def _xyz(s):
 
 
 def cmd_plan(a):
-    views = plan_views(a.board_center, a.n, purpose=a.purpose, seed=a.seed)
+    views = plan_views(a.board_center, a.n, purpose=a.purpose, seed=a.seed, **_plan_guess(a))
     print(f"{len(views)} views ({a.purpose}) around board centre {a.board_center} (base frame):")
     for i, v in enumerate(views):
         print(f"  {i:2d} q={v['q']}  tip={v['tip']}  cam h {v['cam_height']:.3f} m  tilt {v['tilt_deg']:4.1f} deg  "
@@ -564,8 +564,20 @@ def cmd_plan(a):
     return views
 
 
+def _plan_guess(a) -> dict:
+    """Plan with a measured camera instead of the nominal one: --calib-guess (intrinsics json) and
+    --handeye-guess (a handeye or rejected-handeye json with T_tip_cam). Visibility only; the
+    solve never uses these."""
+    kw = {}
+    if getattr(a, "calib_guess", None):
+        kw["cam"] = CameraModel.load(a.calib_guess)
+    if getattr(a, "handeye_guess", None):
+        kw["T_tip_cam"] = np.array(json.loads(Path(a.handeye_guess).read_text())["T_tip_cam"], float)
+    return kw
+
+
 def cmd_collect(a):
-    views = plan_views(a.board_center, a.n, purpose=a.purpose, seed=a.seed)
+    views = plan_views(a.board_center, a.n, purpose=a.purpose, seed=a.seed, **_plan_guess(a))
     out = Path(a.out)
     print(f"{len(views)} views planned; frames + joint angles go to {out}")
     if not a.execute:
@@ -645,6 +657,8 @@ def main(argv=None):
         s.add_argument("--n", type=int, default=15)
         s.add_argument("--purpose", choices=("handeye", "intrinsics"), default="handeye")
         s.add_argument("--seed", type=int, default=0)
+        s.add_argument("--calib-guess", default=None, help="intrinsics json to plan visibility with")
+        s.add_argument("--handeye-guess", default=None, help="json with T_tip_cam (e.g. a rejected solve) to plan with")
     sub.choices["plan"].add_argument("--out", default=None, help="write the views as JSON")
     c = sub.choices["collect"]
     c.add_argument("--out", required=True)
