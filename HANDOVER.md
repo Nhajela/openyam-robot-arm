@@ -10,7 +10,16 @@ The starting point for a local session on the lab laptop with the real arm. It s
 - **Cup:** the dry run on bare wood finds it to ±1 mm (`experiments/2026-10-29-first-pick/cup-dryrun3/look.jpg`), and the pick plan validates (fingertip grasp just below the rim, `--grasp-frac 0.85`; workcell gripper opening 0.11 m from Naman's measurements). **The real closed-loop pick has not been run yet.** The cup has since been moved: re-look first.
   - Real pick command (after a probe + real stack): `.venv/bin/python -m interfaces.wristcam.look_and_grasp --execute --object cup --finder cup --grasp-frac 0.85 --expect <table x,y> --place <same x,y> --settle 1.0` (each motion asks y/N).
 - **Known issues:** the tap path (`target.resolve`) refuses taps on the cup ("bare_table"); a white cup on white paper isn't segmented; `look_and_grasp --expect` doesn't narrow the dry-run search (it found the tape roll).
-- **Next idea (Naman):** continuous object tracking + visual-servo following (experiments/README backlog), to be built in the cloud.
+- **Next idea (Naman):** continuous object tracking + visual-servo following. **Built in the cloud on 29 Oct (11:00–11:30, serenity, sim only): see §0b.**
+
+## 0b. Follow: track an object and keep the camera over it (built 29 Oct, sim only)
+- **Code:** [`interfaces/follow/`](interfaces/follow/README.md). Notebook: [`experiments/2026-10-29-follow/LOG.md`](experiments/2026-10-29-follow/LOG.md).
+- **What it does:** two-rate tracking. A fast patch tracker (~7 ms/frame) is re-anchored by `CupFinder` in a thread (~1 Hz), fused by a Kalman filter with capture-time stamps. The arm streams joint velocities at 30 Hz through the daemon's deadman to keep the camera 0.15 m over the cup, looking down. It sends nothing when the track is lost or frames/state are stale.
+- **Tested:** virtual-clock sim (still cup ~1 mm; 4 cm/s circle 3.5 mm median centring, estimate 0.7 mm; a removed cup stops the arm; an identical cup nearby is ignored) and end to end through the mock daemon with the synthetic camera. `pytest interfaces/tests/test_follow.py`: 15 tests. **Never on the real arm.**
+- **First real steps** (after the probe + real stack, `interfaces/follow/README.md` "Real-arm procedure"):
+  1. `--dry-run` (track only, nothing moves): `.venv/bin/python -m interfaces.follow.run --source dashboard --finder cup --dry-run --duration 30 --frames-every 5`. Slide the cup by hand, check the track, and measure the camera latency (→ `--latency`).
+  2. Follow a still cup at `--v-max 0.02`, then slide it slowly.
+  - Keep runs short: j4 heats at look poses.
 
 ## 0. Start here (next session, after 28 Oct)
 
@@ -140,6 +149,8 @@ Then test with two real phones on the Wi-Fi:
 - Turn length for busy nights (3 / 5 / 10 min)?
 
 ## 8. Next (after the first hardware session)
+
+- 🧪 **Follow** (`interfaces/follow/`, §0b): real-arm dry run, then following. Next to build: the servoed descent into a grasp (lower `follow_h` while correcting, then the engine's CLOSE/LIFT/VERIFY), a tap seed via `target.SeededFinder`, and a second camera in the same filter.
 
 - Chess mode in open play: built in the mock (real board + phone chess clock + display panel; `--chess-sensor fake|camera`; refused on the real arm until `workcell.json` is calibrated). Next: the board camera (`interfaces/chess_vision/camera.py`), then calibration (`CHESS.md` §5).
 - 🧪 A spline ease, so pose sequences and recordings flow instead of stopping at each keyframe: built (`flow` ease, `interfaces/timeline/flow.py`, `style="flow"`, `record --flow`), tested in pure code only; try it in `--simulation` before the real arm.

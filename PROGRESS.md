@@ -10,6 +10,24 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ---
 
+## 2026-10-29 (late morning, 10:55–11:40 IST): follow, tracking + visual servoing (serenity; no arm)
+
+**Where:** serenity, repo `.venv` (Python 3.12.3, OpenCV 5.0.0, no DimOS), on top of `e5a64ec`. Notebook: [experiments/2026-10-29-follow/LOG.md](experiments/2026-10-29-follow/LOG.md). Code: [`interfaces/follow/`](interfaces/follow/README.md).
+
+- 🧪 **Tracker** (`350e2ce`): a fast patch tracker (~7 ms/frame), re-anchored by `CupFinder` in a thread, and a Kalman filter with capture-time stamps. Estimate error 0.5–1.7 mm median in every simulated case.
+- 🧪 **Controller** (`abfd12a`): the camera stays 0.15 m over the object, looking at it. Joint-velocity output, translation first, then the soft box lookahead and the table guard.
+- 🧪 **Virtual-clock sim** (`9737fa7`): circle 4 cm/s gives 3.5 mm median centring. A still cup ~1 mm. A removed cup stops the arm. A teleported cup is followed. An identical cup 8 cm away is ignored. A cup at 8 cm/s is too fast for the joint caps (lags 3.5 cm), but the tracker keeps it.
+- 🧪 **Program** (`2e248a4`): `interfaces.follow.run` through the daemon. Mock daemon + synthetic camera end to end: match error 0.5 mm median. `--dry-run` for the first real step.
+- ✅ Tests (`7fd256e`): `pytest interfaces/tests/test_follow.py` gives 15 passed (serenity). README (`77e7561`).
+- **Full suite on serenity:** 432 passed, 26 failed, 14 errors **before** this work, all environmental or pre-existing: no `dimos` in the repo `.venv` (20, gravity + gains), OpenCV 5.0 dropped `cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC` and `cv2.undistortPointsIter` (7, wristcam calib), and chess/spots/engine tests read the real 29 Oct `workcell.json` (calibrated table, `max_width` 0.11) (13). Not touched here.
+
+### Next
+1. ⏳ Real arm: follow `--dry-run` (track only), measure the camera latency, then follow a still cup at `--v-max 0.02` (HANDOVER §0b).
+2. ⏳ Servoed descent into a grasp; a tap seed (`SeededFinder`); a second camera in the filter.
+3. ❗ The pre-existing test failures above: make the chess/spots/engine tests use a fixture workcell instead of the real file? (Naman)
+
+---
+
 ## 2026-10-28 (late afternoon/evening): real-arm day: phone, harness, layout, wrist camera, gravity cause
 
 **Where:** lab laptop, real arm. Notebook: [experiments/2026-10-28-laptop-systems-check/LOG.md](experiments/2026-10-28-laptop-systems-check/LOG.md); research: [experiments/2026-10-28-prior-art/](experiments/2026-10-28-prior-art/REPORT.md), [j4 gravity](experiments/2026-10-28-j4-gravity-scale/LOG.md).

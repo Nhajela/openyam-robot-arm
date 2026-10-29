@@ -1,0 +1,76 @@
+{
+ "sim": {
+  "path": "circle",
+  "start": [
+   0.0,
+   -0.12
+  ],
+  "speed": 0.04,
+  "radius": 0.05,
+  "duration": 10.0,
+  "fps": 15.0,
+  "latency": 0.08,
+  "assumed_latency": null,
+  "lead": 0.05,
+  "control_hz": 30.0,
+  "ttl": 0.2,
+  "anchor_delay": 0.4,
+  "size": [
+   640,
+   360
+  ],
+  "joint_noise": 0.0005,
+  "seed": 0,
+  "vanish_at": 4.0,
+  "distractor": null,
+  "settle": 3.0
+ },
+ "follow": {
+  "follow_h": 0.15,
+  "max_tilt_deg": 25.0,
+  "kp_pos": 1.8,
+  "kp_rot": 2.5,
+  "v_max": 0.06,
+  "w_max": 0.6,
+  "ff_gain": 1.0,
+  "deadband_pos": 0.002,
+  "deadband_rot_deg": 0.8,
+  "reach": [
+   0.16,
+   0.44
+  ],
+  "damping": 0.04,
+  "null_gain": 1.0,
+  "speed_scale": 0.6,
+  "min_margin": 0.02
+ },
+ "track": {
+  "frames": 149,
+  "matches": 142,
+  "misses": 0,
+  "anchors": 9,
+  "anchor_misses": 0,
+  "resets": 0,
+  "lost": 0,
+  "match_ms_median": 7.19,
+  "match_ms_p95": 8.91
+ },
+ "path": "circle",
+ "centring_median_mm": 3.5,
+ "centring_p95_mm": 4.65,
+ "centring_max_mm": 4.9,
+ "est_err_median_mm": 0.7,
+ "est_err_p95_mm": 1.3,
+ "tracked_frac": 1.0,
+ "min_tip_z": 0.2148,
+ "min_margin": 0.0835,
+ "max_qd": [
+  0.18,
+  0.18,
+  0.119,
+  0.129,
+  0.095,
+  0.104
+ ],
+ "box_violations": []
+}

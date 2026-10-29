@@ -22,7 +22,7 @@ Instead of look, then plan, then move (`interfaces/wristcam/engine.py`), a feedb
 .venv/bin/python -m armctl.daemon --backend mock --auto-approve
 .venv/bin/python -m interfaces.follow.run --source synthetic --sim-path circle --expect 0.0,-0.12 --duration 20 --v-max 0.06
 
-.venv/bin/python -m pytest -q interfaces/tests/test_follow.py        # 14 tests, ~1 min
+.venv/bin/python -m pytest -q interfaces/tests/test_follow.py        # 15 tests, ~1 min
 ```
 
 ## How it decides to move (and not to)
