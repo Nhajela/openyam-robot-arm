@@ -1,0 +1,57 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE to ready
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.632 rad (j2); tip -> (0.278, -0.003, 0.100) m; q=[-0.0124, 1.0938, 0.4728, -0.1151, 0.0273, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.052 rad (j2); tip -> (0.284, -0.005, 0.100) m; q=[-0.0189, 1.1286, 0.4884, -0.0952, 0.0272, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.015 rad (j2); tip -> (0.285, -0.005, 0.100) m; q=[-0.0188, 1.13, 0.4892, -0.0946, 0.0272, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> GRIPPER -> 0.73 (0 closed .. 1 open)
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.872 rad (j4); tip -> (0.308, -0.013, 0.083) m; q=[-0.0432, 1.7544, 1.211, -0.9661, 0.0276, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.051 rad (j4); tip -> (0.310, -0.013, 0.065) m; q=[-0.0416, 1.7898, 1.1768, -0.9029, 0.0276, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.075 rad (j4); tip -> (0.310, -0.013, 0.045) m; q=[-0.0416, 1.8245, 1.1369, -0.8302, 0.0275, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.081 rad (j4); tip -> (0.310, -0.013, 0.026) m; q=[-0.0414, 1.861, 1.0959, -0.7532, 0.0275, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.084 rad (j4); tip -> (0.309, -0.013, 0.006) m; q=[-0.0409, 1.9015, 1.0564, -0.6732, 0.0275, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.054 rad (j4); tip -> (0.308, -0.013, -0.004) m; q=[-0.0413, 1.9213, 1.0357, -0.6317, 0.0275, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> GRIPPER -> 0.27 (0 closed .. 1 open)
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.342 rad (j4); tip -> (0.312, -0.010, 0.094) m; q=[-0.0312, 1.76, 1.2641, -1.018, 0.0277, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/look_and_grasp.py", line 275, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/look_and_grasp.py", line 245, in main
+    res = eng.run()
+          ^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 493, in run
+    nxt = getattr(self, f"st_{self.state}")()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 428, in st_lift
+    self.move(q, f"lift {self.cfg.lift:.2f} m", floor=self.wc.floor_base(), slow=True)
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 255, in move
+    self.arm.move_joints(np.asarray(q, float), speed)
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 567, in move_joints
+    self._run(self.client.do("move_joints", q=q, speed=min(speed or self.speed, 0.3), timeout=120))
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 523, in _run
+    return self.loop.run_until_complete(coro)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/client.py", line 149, in do
+    return await self._wait_op("done", mid, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/client.py", line 124, in _wait_op
+    raise Refused(m.get("reason", "refused"))
+interfaces.client.Refused: move_joints did not reach target: j2 error 0.051 rad > 0.05; stopped

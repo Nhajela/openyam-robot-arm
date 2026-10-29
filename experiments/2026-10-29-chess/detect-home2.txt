@@ -1,0 +1,198 @@
+11:16:21.751 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/torch/jit/_serialization.py:176: FutureWarning: `torch.jit.load` is deprecated. Please switch to `torch.export`.
+  warnings.warn(
+11:16:24.002 [inf][n/detection/detectors/yoloe.py] YOLO-E detector loaded model=yoloe-11s-seg.pt prompt_mode=prompt device=cpu conf=0.15
+{
+ "q": [
+  -0.004,
+  0.0,
+  0.012,
+  -0.008,
+  -0.015,
+  -0.016
+ ],
+ "target": {
+  "id": "7fe74345",
+  "xy_table": [
+   -0.0613,
+   -0.1081
+  ],
+  "height": 0.0317,
+  "size": [
+   0.0233,
+   0.0233
+  ],
+  "yaw_table": 0.0,
+  "pixel": [
+   609.4,
+   510.9
+  ],
+  "height_known": true,
+  "sigma_xy": 0.0036,
+  "label": "chess piece",
+  "kind": "cup",
+  "refusal": null,
+  "width_mm": 23,
+  "height_mm": 32,
+  "outline_px": [
+   [
+    598.0,
+    490.0
+   ],
+   [
+    596.0,
+    494.0
+   ],
+   [
+    590.0,
+    496.0
+   ],
+   [
+    590.0,
+    546.0
+   ],
+   [
+    604.0,
+    554.0
+   ],
+   [
+    620.0,
+    554.0
+   ],
+   [
+    636.0,
+    544.0
+   ],
+   [
+    640.0,
+    534.0
+   ],
+   [
+    638.0,
+    524.0
+   ],
+   [
+    624.0,
+    508.0
+   ],
+   [
+    622.0,
+    498.0
+   ],
+   [
+    616.0,
+    490.0
+   ]
+  ],
+  "footprint_table": [
+   [
+    -0.0496,
+    -0.1081
+   ],
+   [
+    -0.053,
+    -0.0999
+   ],
+   [
+    -0.0613,
+    -0.0965
+   ],
+   [
+    -0.0695,
+    -0.0999
+   ],
+   [
+    -0.0729,
+    -0.1081
+   ],
+   [
+    -0.0695,
+    -0.1164
+   ],
+   [
+    -0.0613,
+    -0.1198
+   ],
+   [
+    -0.053,
+    -0.1164
+   ]
+  ],
+  "request": {
+   "frame_id": "mask",
+   "q": [
+    -0.004,
+    0.0,
+    0.012,
+    -0.008,
+    -0.015,
+    -0.016
+   ],
+   "kind": "prompt",
+   "pixel": [
+    611.3,
+    523.8
+   ],
+   "prompt": null,
+   "box": null,
+   "label": "chess piece"
+  }
+ },
+ "candidates": [
+  {
+   "label": "chess piece",
+   "score": 0.244,
+   "box": [
+    605.9,
+    195.5,
+    643.3,
+    271.5
+   ],
+   "error": "that's too small to pick up",
+   "code": "too_small"
+  },
+  {
+   "label": "chess piece",
+   "score": 0.208,
+   "box": [
+    588.2,
+    405.4,
+    640.6,
+    554.5
+   ],
+   "xy": [
+    -0.0573,
+    -0.0915
+   ],
+   "height": 0.06,
+   "size": [
+    0.0549,
+    0.0213
+   ],
+   "refusal": "bigger than one object (5.5 cm > 3.5 cm): probably two together"
+  },
+  {
+   "label": "chess piece",
+   "score": 0.154,
+   "box": [
+    589.3,
+    489.9,
+    640.4,
+    554.7
+   ],
+   "xy": [
+    -0.0613,
+    -0.1081
+   ],
+   "height": 0.0317,
+   "size": [
+    0.0233,
+    0.0233
+   ],
+   "refusal": null
+  }
+ ],
+ "refused": null,
+ "detector_ms": 188.3
+}
+annotated: experiments/2026-10-29-chess/detect-home2/look.jpg

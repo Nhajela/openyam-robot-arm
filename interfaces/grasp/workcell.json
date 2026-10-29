@@ -82,6 +82,11 @@
       "title": "orange ball (~40 mm, table-tennis size; 39 x 33 mm blob from the wrist camera at home, 29 Oct)",
       "height": 0.04,
       "width": 0.04
+    },
+    "chess_tall": {
+      "title": "tall white chess piece (queen/king-like; height guessed 7 cm, body ~2.2 cm; 29 Oct)",
+      "height": 0.07,
+      "width": 0.022
     }
   },
   "provisional": true,

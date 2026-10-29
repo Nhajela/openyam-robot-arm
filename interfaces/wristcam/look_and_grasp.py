@@ -176,7 +176,7 @@ def main(argv=None):
     mode.add_argument("--simulate", action="store_true", help="closed loop against the synthetic world")
     mode.add_argument("--execute", action="store_true", help="REAL ARM: closed loop through the armctl daemon")
     ap.add_argument("--object", default="cup", help="workcell.json objects key (default cup)")
-    ap.add_argument("--finder", default=None, choices=("cup", "tags", "blob"), help="default: cup for 'cup', else tags")
+    ap.add_argument("--finder", default=None, choices=("cup", "tags", "blob", "fixed"), help="default: cup for 'cup', else tags")
     ap.add_argument("--source", default="dashboard", help="frame source (vision/sources.py spec)")
     ap.add_argument("--image", default=None, help="dry run on a saved frame instead of --source")
     ap.add_argument("--q", default=None, help="joint angles of that frame (default: read from the daemon)")
@@ -193,6 +193,7 @@ def main(argv=None):
     ap.add_argument("--realign-max", type=float, default=None, help="descent: largest offset re-aligned on the way down (m; default 0.008)")
     ap.add_argument("--min-tip-z", type=float, default=None, help="lowest fingertip height above the calibrated table (m; workcell default)")
     ap.add_argument("--no-grip-check", action="store_true", help="don't judge holding from the grip reading (it echoes the target on DimOS); camera verify only")
+    ap.add_argument("--finger-yaw", type=float, default=None, help="rad (base frame): direction the fingers close along")
     ap.add_argument("--miss-first", action="store_true", help="simulate: the first grasp misses")
     a = ap.parse_args(argv)
     out = Path(a.out) if a.out else RUNS / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -213,6 +214,8 @@ def main(argv=None):
     cfg = GraspConfig(obj=a.object, width=width, height=height, grasp_frac=a.grasp_frac, expected_table=tuple(_floats(a.expect, 2)),
                       place_table=tuple(_floats(a.place, 2)), settle_s=a.settle if a.execute else 0.0)
     cfg.grip_check = not a.no_grip_check
+    if a.finger_yaw is not None:
+        cfg.finger_yaw = a.finger_yaw
     if a.realign_max is not None:
         cfg.realign_max = a.realign_max
     cam, T_tc, notes = load_view_inputs(a.calib, a.handeye)
@@ -222,6 +225,8 @@ def main(argv=None):
     fkw = {"obj": a.object} if kind == "cup" else {}
     if kind == "cup" and a.ring_std is not None:
         fkw["max_ring_std"] = a.ring_std   # 2026-10-29: real cup by the tag sheet scored 23.8 against 22
+    if kind == "fixed":   # the object is where --expect says (measured beforehand): go for it
+        fkw = {"xy_table": tuple(_floats(a.expect, 2)), "height": height}
     if kind == "blob":
         if a.hsv:
             hsv = [int(v) for v in a.hsv.split(",")]

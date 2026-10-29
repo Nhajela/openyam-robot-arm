@@ -1,0 +1,4 @@
+down to release {'op': 'done', 'id': 3, 'cmd': 'move_joints'}
+open {'op': 'ack', 'id': 4, 'cmd': 'gripper', 'width': 0.73}
+back off up {'op': 'done', 'id': 5, 'cmd': 'move_joints'}
+home {'op': 'done', 'id': 6, 'cmd': 'home'}

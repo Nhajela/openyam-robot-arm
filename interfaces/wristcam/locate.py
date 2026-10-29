@@ -456,6 +456,25 @@ class ColorBlobFinder:
                          extra={"area_m2": round(float(area), 6), "size_m": [round(float(v) * res, 4) for v in rect[1]]})
 
 
+# --------------------------------------------------------------------------- fixed (known position)
+@dataclass
+class FixedFinder:
+    """"We know where it is, go for it": always reports the object at a known table xy (measured
+    beforehand, e.g. by the detector from an oblique look), so the engine's centring, descent and
+    checks run open-loop on that position. For things the camera can't re-find from straight above
+    (29 Oct: chess pieces; YOLO-E sees them only obliquely)."""
+    xy_table: tuple
+    height: float
+    sigma_xy: float = 0.002
+
+    def find(self, frame, view: View, hint: Hint | None = None) -> Detection | None:
+        p_t = np.array([self.xy_table[0], self.xy_table[1], self.height], float)
+        uv = view.project_table([p_t])[0]
+        return Detection("fixed", view.table_to_base(p_t)[0].tolist(), p_t.tolist(), 0.0, None, self.height,
+                         self.sigma_xy, uv.tolist() if np.isfinite(uv).all() else None, 1.0,
+                         extra={"coverage": 1.0, "source": "fixed position"})
+
+
 # --------------------------------------------------------------------------- Claude vision seam
 @dataclass
 class ClaudeVisionFinder:
@@ -540,6 +559,8 @@ def make_finder(kind: str, **kw) -> ObjectFinder:
         return TagFinder.from_tags_json(**kw)
     if kind == "blob":
         return ColorBlobFinder(**kw)
+    if kind == "fixed":
+        return FixedFinder(**kw)
     if kind == "claude":
         return ClaudeVisionFinder(**kw)
     raise ValueError(f"unknown finder {kind!r} (cup, tags, blob, claude)")

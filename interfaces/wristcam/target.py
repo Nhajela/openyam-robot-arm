@@ -790,7 +790,7 @@ class SeededFinder:
 
 # --------------------------------------------------------------------------- name it: open-vocabulary
 def resolve_prompt(frame, view: View, prompt: str | None, detector, wc: Workcell, cfg: PickConfig | None = None,
-                   max_open: float | None = None) -> tuple[Target | None, list[dict]]:
+                   max_open: float | None = None, max_size: float | None = None) -> tuple[Target | None, list[dict]]:
     """"Pick up the blue marker": the detector's masks (``interfaces.wristcam.detect``) ->
     ``Target`` via the same geometry as a tap (``target_from_mask``). Returns (best, candidates):
     best = the highest-scoring detection that makes a target the gripper can take (else the best
@@ -812,6 +812,10 @@ def resolve_prompt(frame, view: View, prompt: str | None, detector, wc: Workcell
         t.fit["detector"] = {"name": getattr(detector, "name", "?"), "score": float(d.score), "box": list(d.box)}
         c.update(xy=[round(float(v), 4) for v in t.xy_table], height=round(t.height, 4),
                  size=[round(float(v), 4) for v in t.size], refusal=t.refusal)
+        if max_size is not None and not t.refusal and max(t.size) > max_size:
+            # 29 Oct, chess: one box covered a pawn and the piece behind it (63 x 23 mm)
+            t.refusal = f"bigger than one object ({max(t.size) * 100:.1f} cm > {max_size * 100:.1f} cm): probably two together"
+            c["refusal"] = t.refusal
         cands.append(c)
         (refused if t.refusal else ok).append(t)
     best = ok[0] if ok else (refused[0] if refused else None)
@@ -900,7 +904,7 @@ def pick_config(t: Target, wc: Workcell, place_table=None, **kw):
                        expected_table=tuple(float(v) for v in t.xy_table),
                        place_table=tuple(place_table) if place_table is not None else tuple(float(v) for v in t.xy_table),
                        search_offsets=((0.0, 0.0), (0.03, 0.0), (-0.03, 0.0)),
-                       finger_yaw=wc.yaw_to_base(t.grasp_yaw_table), **kw)
+                       **{"finger_yaw": wc.yaw_to_base(t.grasp_yaw_table), **kw})
 
 
 class _QArm:

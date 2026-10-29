@@ -33,6 +33,7 @@ frame()``. ``DaemonArm`` implements it over ``interfaces.client.ArmClient`` + a 
 from __future__ import annotations
 
 import json
+import re
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -78,6 +79,7 @@ class GraspConfig:
     descent_step: float = 0.02
     realign_min: float = 0.0015
     realign_max: float = 0.008
+    arrival_slack: float = 0.09   # rad: accept a daemon arrival miss up to this and carry on (see move)
     grip_check: bool = True       # False: the backend's grip reading echoes the target (DimOS, 29 Oct), so
                                   # don't judge holding from it; verify with the camera only
     lift: float = 0.08
@@ -252,7 +254,16 @@ class GraspEngine:
         speed = self.cfg.slow_speed if slow else self.cfg.speed
         self.log("move", why=why, q_from=np.asarray(q0), q_to=np.asarray(q), speed=speed,
                  tip_table=self.tip_table(q))
-        self.arm.move_joints(np.asarray(q, float), speed)
+        try:
+            self.arm.move_joints(np.asarray(q, float), speed)
+        except Exception as e:
+            # the daemon stops a move that ends past its arrival tolerance; under load (holding, or
+            # pressing at full reach) j2 sags a little past it (2026-10-29: lift refused at 0.051 > 0.05).
+            # Carry on from where the arm got to if the miss is small; the next step plans from arm.q().
+            m = re.search(r"did not reach target: j(\d) error ([\d.]+) rad", str(e))
+            if not m or float(m.group(2)) > self.cfg.arrival_slack:
+                raise
+            self.log("arrival_miss", why=why, joint=int(m.group(1)), error=float(m.group(2)), q=np.asarray(self.arm.q()))
 
     def grip_to(self, g: float, why: str):
         self.log("gripper", why=why, target=round(float(g), 4))
@@ -385,6 +396,8 @@ class GraspEngine:
             z = max(z_grasp, z - c.descent_step)
             # look first (rim visible while the camera is well above it)
             det, view, _ = self.observe(Hint(tuple(self.est), 0.02))
+            if det is not None and det.kind == "fixed":
+                det = None   # a fixed position carries no new information: the "offset" would only be the arm's sag
             if det is not None and det.extra.get("coverage", 1) >= 0.6:
                 tip = self.tip_table()[:2]
                 off = np.array(det.xyz_table[:2]) - tip
@@ -392,6 +405,10 @@ class GraspEngine:
                 self.log("decision", decision="align", offset_mm=off * 1000, finger_clearance_mm=clear * 1000)
                 if d > min(c.realign_max, clear - 0.003):
                     self.log("decision", decision="abort_descent", offset_mm=d * 1000)
+                    self.descent_aborts = getattr(self, "descent_aborts", 0) + 1
+                    if self.descent_aborts > 2:   # 29 Oct, chess: the same abort repeated forever
+                        self.reason = f"descent aborted {self.descent_aborts} times (offset {d * 1000:.1f} mm each time)"
+                        return "failed"
                     self.est = np.array(det.xyz_table[:2])
                     q_up = self.tip_over(self.est, z_above)
                     self.move(q_up, "back up to re-centre", floor=self.wc.floor_base(), slow=True)

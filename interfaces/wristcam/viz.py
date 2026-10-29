@@ -10,11 +10,14 @@ Then open http://127.0.0.1:8097/. It reads ``run.jsonl`` and ``frames/`` that ``
 writes (``look_and_grasp --simulate/--execute --out DIR``) and polls them every 0.5 s, so it works
 during a run and as a replay afterwards. It shows the latest frame with a detection overlay (box,
 outline, label, image-centre crosshair and the pixel error line, projected from the logged q and
-camera model), the state strip, the estimate and how it converged, the last decision and move, a
-top-down table map and the event log.
+camera model), a LIVE panel (the lab console's latest frame, proxied by GET, with the estimate
+projected at the arm's live q from the console's read-only /armctl/status), the state strip, the
+estimate and how it converged, the last decision and move, a top-down table map and the event log.
 
-Read-only: it opens files and nothing else. It never talks to the daemon, DimOS or CAN, binds
-127.0.0.1 only, and refuses the console/daemon ports (8090, 8091).
+Read-only: besides files it only makes GET requests to --camera-url and --status-url (defaults:
+the console's /camera.jpg and /armctl/status; any other /armctl/ URL is refused). It never POSTs,
+never opens the daemon's websocket, never touches DimOS or CAN, binds 127.0.0.1 only, and refuses
+the console/daemon ports (8090, 8091). ``--camera-url ''`` turns the live panel off.
 """
 from __future__ import annotations
 
@@ -26,6 +29,7 @@ from functools import lru_cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
+from urllib.request import Request, urlopen
 
 import cv2
 import numpy as np
@@ -34,6 +38,8 @@ STATES = ["search", "center", "approach", "descend", "close", "lift", "verify", 
 RESERVED_PORTS = {8090, 8091}         # lab console, armctl daemon
 FRAME_RE = re.compile(r"^[\w.-]+\.(jpg|jpeg|png)$")
 LIVE_S = 120.0                        # a run with no end event and a log touched this recently is "live"
+CAMERA_URL = "http://127.0.0.1:8090/camera.jpg"      # the lab console's latest wrist-camera frame (GET)
+STATUS_URL = "http://127.0.0.1:8090/armctl/status"   # read-only daemon status via the console (GET): state.q
 
 
 # ---------------------------------------------------------------------------------------------- runs
@@ -346,12 +352,101 @@ def summarize(events: list[dict], run_dir: Path | None = None, with_overlay: boo
     }
 
 
+# ---------------------------------------------------------------------------------------------- live camera
+def check_get_url(url: str) -> str:
+    """Only plain http(s) GETs, and nothing under /armctl/ except the read-only status."""
+    u = urlparse(url)
+    if u.scheme not in ("http", "https") or not u.netloc:
+        raise ValueError(f"not an http URL: {url!r}")
+    if "/armctl" in u.path and u.path.rstrip("/") != "/armctl/status":
+        raise ValueError(f"refusing {url!r}: the only armctl endpoint the viewer may read is /armctl/status")
+    return url
+
+
+def http_get(url: str, timeout: float = 1.0) -> bytes:
+    with urlopen(Request(check_get_url(url), method="GET"), timeout=timeout) as r:
+        return r.read()
+
+
+class LiveSource:
+    """The latest camera frame and arm q, each fetched by GET at most every ``min_interval`` s however
+    many pages poll. Failures are reported, never raised: the page shows "no live camera"."""
+
+    def __init__(self, camera_url: str | None = CAMERA_URL, status_url: str | None = STATUS_URL,
+                 fetch=http_get, min_interval: float = 0.08, q_interval: float = 0.2):
+        self.camera_url = check_get_url(camera_url) if camera_url else None
+        self.status_url = check_get_url(status_url) if status_url else None
+        self.fetch, self.min_interval, self.q_interval = fetch, min_interval, q_interval
+        self._frame, self._frame_t, self._frame_try, self._frame_err = None, 0.0, 0.0, None
+        self._q, self._q_t, self._q_try, self._q_err = None, 0.0, 0.0, None
+
+    def frame(self) -> tuple[bytes | None, float | None, str | None]:
+        """(jpeg or None, age of that jpeg in s, error of the last attempt)."""
+        if not self.camera_url:
+            return None, None, "live camera disabled (--camera-url '')"
+        now = time.time()
+        if now - self._frame_try >= self.min_interval:
+            self._frame_try = now
+            try:
+                b = self.fetch(self.camera_url, 1.0)
+                if not b[:2] == b"\xff\xd8":
+                    raise ValueError("not a JPEG")
+                self._frame, self._frame_t, self._frame_err = b, now, None
+            except Exception as e:  # noqa: BLE001 - any failure means "no live camera"
+                self._frame_err = f"{type(e).__name__}: {e}"[:200]
+        age = (now - self._frame_t) if self._frame is not None else None
+        if self._frame is not None and age > 5.0:
+            return None, age, self._frame_err or "stale"
+        return self._frame, age, self._frame_err
+
+    def q(self) -> tuple[list | None, str | None]:
+        if not self.status_url:
+            return None, "no status URL"
+        now = time.time()
+        if now - self._q_try >= self.q_interval:
+            self._q_try = now
+            try:
+                st = json.loads(self.fetch(self.status_url, 1.0))
+                q = (st.get("state") or {}).get("q")
+                if not q or len(q) < 6:
+                    raise ValueError("no state.q in status")
+                self._q, self._q_t, self._q_err = [float(x) for x in q[:6]], now, None
+            except Exception as e:  # noqa: BLE001
+                self._q_err = f"{type(e).__name__}: {e}"[:200]
+        if self._q is not None and now - self._q_t > 2.0:
+            return None, self._q_err or "stale q"
+        return self._q, self._q_err
+
+
+def live_overlay(s: dict, start: dict | None, q, size) -> dict | None:
+    """Where the run's current estimate projects in a live frame taken at q."""
+    E = s.get("estimate") or {}
+    if q is None or not E.get("table"):
+        return None
+    z = next((o["det"]["xyz_table"][2] for o in reversed(s["observations"])
+              if o["det"] and o["det"].get("xyz_table")), 0.0)
+    det = {"kind": f"{s.get('obj') or 'object'} estimate", "xyz_table": [E["table"][0], E["table"][1], z],
+           "diameter": (E.get("width_mm") or E.get("expected_width_mm") or 40) / 1000,
+           "sigma_xy": (E.get("sigma_mm") or 0) / 1000 or None, "pixel": None, "extra": {}}
+    cam = _camera(start)
+    if cam is None:
+        return None
+    ov = overlay_for(det, q, cam, (start or {}).get("T_tip_cam"), (start or {}).get("T_base_table"),
+                     size or cam.size)
+    if ov.get("poly"):
+        P = np.array(ov["poly"])
+        ov["pixel"] = P.mean(0).round(1).tolist()
+    return ov
+
+
 # ---------------------------------------------------------------------------------------------- server
 class Viewer:
-    def __init__(self, root: Path, follow: bool = False):
+    def __init__(self, root: Path, follow: bool = False, live: LiveSource | None = None):
         self.root = Path(root).resolve()
         self.follow = follow
+        self.live = live or LiveSource(None, None)
         self._cache: dict[str, tuple[tuple, dict]] = {}
+        self._start: dict[str, dict | None] = {}
 
     def runs(self) -> list[dict]:
         out = []
@@ -379,7 +474,9 @@ class Viewer:
         if hit and hit[0] == key:
             s = hit[1]
         else:
-            s = summarize(read_events(p), d)
+            ev = read_events(p)
+            s = summarize(ev, d)
+            self._start[str(d)] = next((e for e in ev if e.get("event") == "start"), None)
             s["version"] = f"{st.st_mtime_ns}-{st.st_size}"
             self._cache[str(d)] = (key, s)
         s["live"] = (not s["ended"]) and (time.time() - st.st_mtime) < LIVE_S
@@ -419,6 +516,29 @@ def make_handler(viewer: Viewer):
                 if qs.get("v") and qs["v"] == s.get("version"):
                     return self._json({"unchanged": True, "version": s["version"], "live": s["live"], "name": s["name"]})
                 return self._json(s)
+            if u.path == "/live.jpg":
+                b, age, err = viewer.live.frame()
+                if b is None:
+                    return self._send(503, (err or "no live camera").encode(), "text/plain")
+                self.send_response(200)
+                self.send_header("Content-Type", "image/jpeg")
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("X-Frame-Age", f"{age:.3f}")
+                self.send_header("Content-Length", str(len(b)))
+                self.end_headers()
+                self.wfile.write(b)
+                return
+            if u.path == "/api/live":
+                q, q_err = viewer.live.q()
+                out = {"camera": bool(viewer.live.camera_url), "q": q, "q_error": q_err, "overlay": None}
+                d = viewer.run_dir(qs.get("run"))
+                if d is not None and q is not None:
+                    try:
+                        size = (int(qs["w"]), int(qs["h"])) if qs.get("w") and qs.get("h") else None
+                        out["overlay"] = live_overlay(viewer.summary(d), viewer._start.get(str(d)), q, size)
+                    except Exception as e:  # noqa: BLE001
+                        out["overlay_error"] = str(e)[:200]
+                return self._json(out)
             if u.path == "/frame":
                 d = viewer.run_dir(qs.get("run"))
                 f = qs.get("f", "")
@@ -433,10 +553,10 @@ def make_handler(viewer: Viewer):
     return H
 
 
-def serve(root: Path, port: int = 8097, follow: bool = False) -> ThreadingHTTPServer:
+def serve(root: Path, port: int = 8097, follow: bool = False, live: LiveSource | None = None) -> ThreadingHTTPServer:
     if port in RESERVED_PORTS:
         raise SystemExit(f"port {port} is the lab console/armctl daemon's: pick another (default 8097)")
-    srv = ThreadingHTTPServer(("127.0.0.1", port), make_handler(Viewer(root, follow)))
+    srv = ThreadingHTTPServer(("127.0.0.1", port), make_handler(Viewer(root, follow, live)))
     srv.daemon_threads = True
     return srv
 
@@ -446,6 +566,9 @@ def main(argv=None):
     ap.add_argument("run_dir", nargs="?", help="a run dir (has run.jsonl) or a folder of runs")
     ap.add_argument("--latest-under", metavar="DIR", help="follow whichever run under DIR is newest")
     ap.add_argument("--port", type=int, default=8097)
+    ap.add_argument("--camera-url", default=CAMERA_URL, help="live frame, fetched by GET ('' = no live panel)")
+    ap.add_argument("--status-url", default=STATUS_URL,
+                    help="read-only status GET for the live q (estimate overlay on the live frame; '' = off)")
     a = ap.parse_args(argv)
     root = a.latest_under or a.run_dir
     if not root:
@@ -456,7 +579,11 @@ def main(argv=None):
             root.mkdir(parents=True, exist_ok=True)
         else:
             ap.error(f"{root} is not a directory")
-    srv = serve(root, a.port, follow=bool(a.latest_under))
+    try:
+        live = LiveSource(a.camera_url or None, a.status_url or None)
+    except ValueError as e:
+        ap.error(str(e))
+    srv = serve(root, a.port, follow=bool(a.latest_under), live=live)
     n = len(find_runs(root))
     print(f"wristcam viz: {root} ({n} run{'s' if n != 1 else ''}) on http://127.0.0.1:{a.port}/  (Ctrl-C to stop)")
     try:
@@ -496,6 +623,12 @@ main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);gap:12
 .framewrap{position:relative;width:100%;background:#000;border-radius:6px;overflow:hidden;aspect-ratio:16/9}
 .framewrap img,.framewrap svg{position:absolute;inset:0;width:100%;height:100%}
 .framewrap img{object-fit:contain}
+#frames{display:grid;gap:8px;grid-template-columns:1fr}
+#frames.both{grid-template-columns:1fr 1fr}
+#frames.obs #livewrap,#frames.live #obswrap{display:none}
+.tag{position:absolute;top:8px;right:8px;z-index:2;padding:2px 8px;border-radius:4px;font:600 12px ui-monospace,Menlo,monospace;background:#000a;color:var(--ink2)}
+.tag.on{background:var(--bad);color:#fff}
+.nolive{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:14px;text-align:center;padding:12px}
 .framebar{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;color:var(--ink2)}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-variant-numeric:tabular-nums}
 .kv b{color:var(--ink3);font-weight:500}
@@ -525,8 +658,12 @@ main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);gap:12
  <div class="col">
   <div class="card"><div id="strip"></div></div>
   <div class="card">
-   <div class="framewrap"><img id="frame" alt=""><svg id="ov" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet"></svg></div>
+   <div id="frames" class="both">
+    <div class="framewrap" id="obswrap"><span class="tag">LAST LOOK</span><img id="frame" alt=""><svg id="ov" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="framewrap" id="livewrap"><span class="tag" id="livetag">LIVE</span><img id="live" alt=""><svg id="liveov" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet"></svg><div class="nolive" id="nolive">no live camera</div></div>
+   </div>
    <div class="framebar">
+    <select id="mode" title="frames"><option value="both">last look + live</option><option value="obs">last look</option><option value="live">live camera</option></select>
     <button id="prev">&larr;</button><button id="next">&rarr;</button><button id="latest">latest</button>
     <label><input type="checkbox" id="ovon" checked> overlay</label>
     <span id="frameinfo" class="mono"></span>
@@ -611,7 +748,7 @@ function render(){
   chart("c_ch", S.observations.map(o => o.change_mm), S.tolerances.change_mm, "mm");
   // move
   const m = S.last_move;
-  $("movetitle").textContent = S.move_pending ? "Moving now" : "Last move";
+  $("movetitle").textContent = S.move_pending && S.live ? "Moving now" : "Last move";
   $("move").innerHTML = m ? `<b>why</b><span>${esc(m.why)}</span><b>state</b><span>${esc(m.state)} (t ${f(m.t,1)} s)</span>
     <b>tip target</b><span class="mono">${m.tip_table ? `(${m.tip_table.map(v=>f(v,3)).join(", ")})` : "–"} m table</span>
     <b>biggest joint</b><span>${m.joint ? `j${m.joint} ${m.dq_deg >= 0 ? "+" : ""}${f(m.dq_deg,1)}°` : "–"}</span>
@@ -724,6 +861,62 @@ function renderMap(){
 
 async function loop(){ try { await loadRuns(); await tick(); } catch(e) {} setTimeout(loop, 500); }
 loop();
+
+// ---- live camera (proxied by the viewer from the lab console; GET only)
+let liveOk = false, liveT = 0, liveAge = null, liveUrl = null;
+try { const m = localStorage.getItem("wcviz.mode"); if (m) $("mode").value = m; } catch(e) {}
+$("frames").className = $("mode").value;
+$("mode").onchange = e => { $("frames").className = e.target.value; try { localStorage.setItem("wcviz.mode", e.target.value); } catch(_) {} };
+const liveOn = () => $("mode").value !== "obs" && !document.hidden;
+async function liveFrame(){
+  if (liveOn()){
+    try {
+      const r = await fetch("/live.jpg", {cache: "no-store"});
+      if (!r.ok) throw new Error(await r.text());
+      const age = parseFloat(r.headers.get("X-Frame-Age") || "0"), u = URL.createObjectURL(await r.blob()), img = $("live");
+      img.onload = () => { if (liveUrl && liveUrl !== u) URL.revokeObjectURL(liveUrl); liveUrl = u; };
+      img.src = u;
+      liveOk = true; liveT = performance.now(); liveAge = age; $("nolive").style.display = "none";
+    } catch(e) {
+      liveOk = false; $("nolive").style.display = ""; $("nolive").textContent = "no live camera: " + String(e.message || e).slice(0, 140);
+    }
+    liveTag();
+  }
+  setTimeout(liveFrame, liveOk ? 150 : 1000);
+}
+function liveTag(){
+  const t = $("livetag");
+  if (!liveOk){ t.textContent = "LIVE: off"; t.className = "tag"; return; }
+  const a = (liveAge || 0) + (performance.now() - liveT) / 1000;
+  t.textContent = `LIVE ${a.toFixed(1)} s`; t.className = "tag" + (a < 1.5 ? " on" : "");
+}
+async function liveMeta(){
+  if (liveOn() && liveOk && cur){
+    const img = $("live"), w = img.naturalWidth, h = img.naturalHeight;
+    try {
+      const r = await (await fetch(`/api/live?run=${encodeURIComponent(cur)}` + (w ? `&w=${w}&h=${h}` : ""))).json();
+      drawLiveOv(w, h, r);
+    } catch(e) { $("liveov").innerHTML = ""; }
+  } else $("liveov").innerHTML = "";
+  setTimeout(liveMeta, 250);
+}
+function drawLiveOv(w, h, r){
+  const O = r.overlay, svg = $("liveov");
+  if (!w){ svg.innerHTML = ""; return; }
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  const k = w / 1280; let s = "";
+  if (O && O.centre){ const [cx, cy] = O.centre, rr = 22 * k;
+    s += `<g stroke="#3fb6ff" stroke-width="${2*k}" opacity=".8"><line x1="${cx-rr}" y1="${cy}" x2="${cx+rr}" y2="${cy}"/><line x1="${cx}" y1="${cy-rr}" x2="${cx}" y2="${cy+rr}"/></g>`; }
+  if (O && O.poly){
+    s += `<polygon points="${O.poly.map(p=>p.join(",")).join(" ")}" fill="#ff9f43" fill-opacity=".1" stroke="#ff9f43" stroke-width="${2.5*k}" stroke-dasharray="${10*k} ${6*k}"/>`;
+    if (O.box && O.label){ const [a, b] = O.box, fs = 20 * k, tw = O.label.length * fs * 0.56 + 14 * k, ty = Math.max(b - fs - 10*k, 0);
+      s += `<rect x="${a}" y="${ty}" width="${tw}" height="${fs + 10*k}" fill="#ff9f43"/><text x="${a + 5*k}" y="${ty + fs + 1*k}" fill="#000" font-size="${fs}" font-weight="700" font-family="ui-monospace,Menlo,monospace">${esc(O.label)}</text>`; } }
+  const note = r.q ? (O ? "estimate projected at the live q" : "live q, no estimate yet") : "no live q" + (r.q_error ? ": " + r.q_error : "");
+  s += `<text x="${12*k}" y="${h - 14*k}" fill="#e6edf3" font-size="${16*k}" stroke="#000" stroke-width="${4*k}" paint-order="stroke" font-family="ui-monospace,Menlo,monospace">${esc(note.slice(0, 90))}</text>`;
+  svg.innerHTML = s;
+}
+setInterval(liveTag, 200);
+liveFrame(); liveMeta();
 </script></body></html>
 """
 

@@ -1,0 +1,234 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+11:15:26.896 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/torch/jit/_serialization.py:176: FutureWarning: `torch.jit.load` is deprecated. Please switch to `torch.export`.
+  warnings.warn(
+11:15:29.251 [inf][n/detection/detectors/yoloe.py] YOLO-E detector loaded model=yoloe-11s-seg.pt prompt_mode=prompt device=cpu conf=0.15
+{
+ "q": [
+  0.0052,
+  0.0,
+  0.02,
+  0.0029,
+  0.0032,
+  0.0086
+ ],
+ "target": {
+  "id": "48788099",
+  "xy_table": [
+   -0.0508,
+   -0.0794
+  ],
+  "height": 0.05,
+  "size": [
+   0.0625,
+   0.0228
+  ],
+  "yaw_table": 1.5254,
+  "pixel": [
+   630.2,
+   455.2
+  ],
+  "height_known": false,
+  "sigma_xy": 0.0049,
+  "label": "chess piece",
+  "kind": "object",
+  "refusal": null,
+  "width_mm": 23,
+  "height_mm": 50,
+  "outline_px": [
+   [
+    614.0,
+    406.0
+   ],
+   [
+    608.0,
+    414.0
+   ],
+   [
+    608.0,
+    480.0
+   ],
+   [
+    614.0,
+    484.0
+   ],
+   [
+    612.0,
+    490.0
+   ],
+   [
+    608.0,
+    492.0
+   ],
+   [
+    608.0,
+    544.0
+   ],
+   [
+    614.0,
+    550.0
+   ],
+   [
+    646.0,
+    550.0
+   ],
+   [
+    654.0,
+    540.0
+   ],
+   [
+    656.0,
+    520.0
+   ],
+   [
+    640.0,
+    494.0
+   ],
+   [
+    640.0,
+    490.0
+   ],
+   [
+    652.0,
+    478.0
+   ],
+   [
+    656.0,
+    470.0
+   ],
+   [
+    656.0,
+    454.0
+   ],
+   [
+    648.0,
+    440.0
+   ],
+   [
+    648.0,
+    426.0
+   ],
+   [
+    646.0,
+    424.0
+   ],
+   [
+    644.0,
+    408.0
+   ],
+   [
+    642.0,
+    406.0
+   ]
+  ],
+  "footprint_table": [
+   [
+    -0.038,
+    -0.0487
+   ],
+   [
+    -0.0607,
+    -0.0476
+   ],
+   [
+    -0.0636,
+    -0.1101
+   ],
+   [
+    -0.0408,
+    -0.1111
+   ]
+  ],
+  "request": {
+   "frame_id": "mask",
+   "q": [
+    0.00515,
+    0.0,
+    0.02003,
+    0.00286,
+    0.00324,
+    0.00858
+   ],
+   "kind": "prompt",
+   "pixel": [
+    629.6,
+    479.3
+   ],
+   "prompt": null,
+   "box": null,
+   "label": "chess piece"
+  }
+ },
+ "candidates": [
+  {
+   "label": "chess piece",
+   "score": 0.461,
+   "box": [
+    606.7,
+    404.1,
+    657.3,
+    550.8
+   ],
+   "xy": [
+    -0.0508,
+    -0.0794
+   ],
+   "height": 0.05,
+   "size": [
+    0.0625,
+    0.0228
+   ],
+   "refusal": null
+  },
+  {
+   "label": "chess piece",
+   "score": 0.302,
+   "box": [
+    626.1,
+    197.2,
+    658.5,
+    274.1
+   ],
+   "error": "that's out of the arm's reach (59 cm from its base)",
+   "code": "reach"
+  },
+  {
+   "label": "chess piece",
+   "score": 0.282,
+   "box": [
+    607.8,
+    405.1,
+    658.0,
+    486.9
+   ],
+   "xy": [
+    -0.0507,
+    -0.0592
+   ],
+   "height": 0.05,
+   "size": [
+    0.0226,
+    0.022
+   ],
+   "refusal": null
+  }
+ ],
+ "refused": null,
+ "detector_ms": 132.5
+}
+annotated: experiments/2026-10-29-chess/pawn1/look.jpg
+
+>>> MOVE to ready
+    type y + Enter to do it, anything else aborts: Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/pick_anything.py", line 250, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/pick_anything.py", line 234, in main
+    arm.ready()
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 597, in ready
+    self._ok("MOVE to ready")
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 561, in _ok
+    raise Unsafe(f"operator declined: {what}")
+interfaces.wristcam.engine.Unsafe: operator declined: MOVE to ready

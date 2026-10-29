@@ -158,6 +158,15 @@ def main(argv=None) -> int:
     ap.add_argument("--place", default=None, help="table x,y to put it down (default: where it was)")
     ap.add_argument("--settle", type=float, default=1.0, help="execute: seconds to settle before each frame")
     ap.add_argument("--out", default=None, help="folder for the annotated image, run.jsonl and frames")
+    # grasp tuning, as in look_and_grasp (29 Oct real-arm runs)
+    ap.add_argument("--grasp-frac", type=float, default=None, help="grip height / object height (pinch from the top: ~0.8)")
+    ap.add_argument("--height", type=float, default=None, help="m, the object's real height (the camera can't see it from above)")
+    ap.add_argument("--open-margin", type=float, default=None, help="m wider than the object when opening (workcell default 0.02)")
+    ap.add_argument("--min-tip-z", type=float, default=None, help="m, lowest fingertip above the calibrated table")
+    ap.add_argument("--realign-max", type=float, default=None, help="m, largest offset re-aligned during the descent")
+    ap.add_argument("--no-grip-check", action="store_true", help="don't judge holding from the grip reading (DimOS echoes it)")
+    ap.add_argument("--max-size", type=float, default=None, help="m: refuse detections longer than this (two objects in one box)")
+    ap.add_argument("--finger-yaw", type=float, default=None, help="rad (base frame): direction the fingers close along")
     a = ap.parse_args(argv)
     if a.simulate:
         return 0 if simulate(a).get("ok") else 1
@@ -177,7 +186,7 @@ def main(argv=None) -> int:
         view = View.from_q(q, cam.for_image(frame), T_tc, wc.T_base_table)
         best, cands, err = None, [], None
         try:
-            best, cands = T.resolve_prompt(frame, view, prompts[0], detector, wc)
+            best, cands = T.resolve_prompt(frame, view, prompts[0], detector, wc, max_size=a.max_size)
         except T.TargetRefused as e:
             err = str(e)
         dets = detector.detect(frame, [p for p in prompts if p] or None)
@@ -209,9 +218,21 @@ def main(argv=None) -> int:
     if refusal:
         sys.exit(f"refusing --execute: {refusal}")
     from .engine import DaemonArm
+    if a.min_tip_z is not None:
+        wc.min_tip_z = a.min_tip_z
+    if a.open_margin is not None:
+        wc.open_margin = a.open_margin
+    gkw = {k: v for k, v in (("grasp_frac", a.grasp_frac), ("realign_max", a.realign_max),
+                              ("finger_yaw", a.finger_yaw)) if v is not None}
+    if a.no_grip_check:
+        gkw["grip_check"] = False
     with DaemonArm(source=a.source, program="pick-anything") as arm:
         time.sleep(a.settle)
         best, view = look(arm.frame(), arm.q())
+        if best is not None and a.height is not None:
+            best.height, best.height_known = float(a.height), True
+        if np.any(arm.q()[1:3] < 0.1):   # folded: every planned look fails the path check (29 Oct)
+            arm.ready()
         if best is None:
             return 2
         if best.refusal:
@@ -220,7 +241,7 @@ def main(argv=None) -> int:
         place = tuple(_floats(a.place)) if a.place else None
         res = T.run_pick(arm, best, cam, T_tc, wc, place_table=place, settle_s=a.settle,
                          finder=T.DetectorFinder(best, detector, prompts[0] or best.label),
-                         log_path=out / "run.jsonl", frames_dir=out / "frames")
+                         log_path=out / "run.jsonl", frames_dir=out / "frames", **gkw)
         print(json.dumps({k: res.get(k) for k in ("ok", "reason", "trace", "estimate_table", "observations")}, indent=1, default=float))
         print("REAL ARM: support it, then .venv/bin/python -I tools/disable_all.py can0 and check every LED is steady red.")
         return 0 if res.get("ok") else 1

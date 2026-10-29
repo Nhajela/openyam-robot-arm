@@ -1,0 +1,178 @@
+11:30:13.513 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/torch/jit/_serialization.py:176: FutureWarning: `torch.jit.load` is deprecated. Please switch to `torch.export`.
+  warnings.warn(
+11:30:15.250 [inf][n/detection/detectors/yoloe.py] YOLO-E detector loaded model=yoloe-11s-seg.pt prompt_mode=prompt device=cpu conf=0.15
+{
+ "q": [
+  0.0052,
+  0.0,
+  0.02,
+  0.0032,
+  0.0105,
+  0.0105
+ ],
+ "target": {
+  "id": "efab973a",
+  "xy_table": [
+   -0.0569,
+   -0.1039
+  ],
+  "height": 0.06,
+  "size": [
+   0.0445,
+   0.0246
+  ],
+  "yaw_table": 1.5402,
+  "pixel": [
+   616.1,
+   490.3
+  ],
+  "height_known": false,
+  "sigma_xy": 0.0056,
+  "label": "chess piece",
+  "kind": "object",
+  "refusal": "bigger than one object (4.5 cm > 3.5 cm): probably two together",
+  "width_mm": 25,
+  "height_mm": 60,
+  "outline_px": [
+   [
+    592.0,
+    450.0
+   ],
+   [
+    590.0,
+    454.0
+   ],
+   [
+    590.0,
+    578.0
+   ],
+   [
+    638.0,
+    578.0
+   ],
+   [
+    646.0,
+    576.0
+   ],
+   [
+    660.0,
+    556.0
+   ],
+   [
+    660.0,
+    544.0
+   ],
+   [
+    656.0,
+    536.0
+   ],
+   [
+    646.0,
+    526.0
+   ],
+   [
+    646.0,
+    502.0
+   ],
+   [
+    632.0,
+    484.0
+   ],
+   [
+    628.0,
+    464.0
+   ],
+   [
+    620.0,
+    450.0
+   ]
+  ],
+  "footprint_table": [
+   [
+    -0.0439,
+    -0.082
+   ],
+   [
+    -0.0685,
+    -0.0812
+   ],
+   [
+    -0.0698,
+    -0.1257
+   ],
+   [
+    -0.0453,
+    -0.1265
+   ]
+  ],
+  "request": {
+   "frame_id": "mask",
+   "q": [
+    0.0052,
+    0.0,
+    0.02,
+    0.0032,
+    0.0105,
+    0.0105
+   ],
+   "kind": "prompt",
+   "pixel": [
+    617.9,
+    521.3
+   ],
+   "prompt": null,
+   "box": null,
+   "label": "chess piece"
+  }
+ },
+ "candidates": [
+  {
+   "label": "chess piece",
+   "score": 0.758,
+   "box": [
+    588.0,
+    449.5,
+    661.4,
+    578.5
+   ],
+   "xy": [
+    -0.0569,
+    -0.1039
+   ],
+   "height": 0.06,
+   "size": [
+    0.0445,
+    0.0246
+   ],
+   "refusal": "bigger than one object (4.5 cm > 3.5 cm): probably two together"
+  },
+  {
+   "label": "chess piece",
+   "score": 0.387,
+   "box": [
+    622.5,
+    196.0,
+    657.7,
+    273.2
+   ],
+   "error": "that's out of the arm's reach (59 cm from its base)",
+   "code": "reach"
+  },
+  {
+   "label": "chess piece",
+   "score": 0.173,
+   "box": [
+    890.9,
+    207.3,
+    935.6,
+    272.5
+   ],
+   "error": "that's out of the arm's reach (59 cm from its base)",
+   "code": "reach"
+  }
+ ],
+ "refused": null,
+ "detector_ms": 81.7
+}
+annotated: experiments/2026-10-29-chess/verify1/look.jpg

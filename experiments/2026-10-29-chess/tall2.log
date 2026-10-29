@@ -1,0 +1,78 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE to ready
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.774 rad (j2); tip -> (0.317, 0.033, 0.132) m; q=[0.1037, 1.2358, 0.6875, -0.188, 0.0276, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.019 rad (j2); tip -> (0.318, 0.034, 0.132) m; q=[0.1055, 1.2396, 0.688, -0.1841, 0.0274, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.308 rad (j4); tip -> (0.318, 0.032, 0.071) m; q=[0.0996, 1.3846, 0.5172, 0.1318, 0.0275, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.018 rad (j2); tip -> (0.318, 0.032, 0.071) m; q=[0.0996, 1.3864, 0.5184, 0.1324, 0.0275, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> GRIPPER -> 0.65 (0 closed .. 1 open)
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 1.148 rad (j4); tip -> (0.344, 0.029, 0.085) m; q=[0.085, 1.8889, 1.3921, -1.0165, 0.0277, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.055 rad (j4); tip -> (0.345, 0.029, 0.066) m; q=[0.0849, 1.9173, 1.3513, -0.9506, 0.0276, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.070 rad (j4); tip -> (0.346, 0.030, 0.047) m; q=[0.0851, 1.949, 1.3126, -0.8818, 0.0274, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.073 rad (j4); tip -> (0.346, 0.030, 0.027) m; q=[0.0852, 1.9833, 1.2748, -0.8096, 0.0273, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.039 rad (j4); tip -> (0.347, 0.030, 0.017) m; q=[0.0852, 2.0035, 1.261, -0.7743, 0.0274, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> GRIPPER -> 0.11 (0 closed .. 1 open)
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.287 rad (j4); tip -> (0.345, 0.034, 0.099) m; q=[0.0985, 1.8778, 1.4318, -1.0639, 0.0276, 0.097]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> GRIPPER -> 0.65 (0 closed .. 1 open)
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.081 rad (j2); tip -> (0.336, 0.034, 0.105) m; q=[0.1003, 1.8446, 1.4129, -1.0837, 0.027, 0.097]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.889 rad (j4); tip -> (0.320, 0.033, 0.132) m; q=[0.1046, 1.2458, 0.6937, -0.1839, 0.0281, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> GRIPPER -> 0.65 (0 closed .. 1 open)
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.825 rad (j4); tip -> (0.344, 0.029, 0.085) m; q=[0.085, 1.8873, 1.389, -1.0141, 0.0277, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.053 rad (j4); tip -> (0.345, 0.029, 0.066) m; q=[0.0849, 1.9168, 1.3505, -0.95, 0.0275, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.070 rad (j4); tip -> (0.346, 0.030, 0.047) m; q=[0.0851, 1.949, 1.3125, -0.8818, 0.0274, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.073 rad (j4); tip -> (0.346, 0.030, 0.027) m; q=[0.0852, 1.9833, 1.2748, -0.8096, 0.0273, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.039 rad (j4); tip -> (0.347, 0.030, 0.017) m; q=[0.0852, 2.0037, 1.2612, -0.7744, 0.0274, 0.0867]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> GRIPPER -> 0.11 (0 closed .. 1 open)
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.286 rad (j4); tip -> (0.345, 0.034, 0.099) m; q=[0.0985, 1.8783, 1.4322, -1.0638, 0.0276, 0.097]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: {
+ "ok": false,
+ "reason": "grasp missed (and the retry missed too)",
+ "trace": [
+  "search",
+  "center",
+  "approach",
+  "descend",
+  "close",
+  "lift",
+  "verify",
+  "miss",
+  "center",
+  "approach",
+  "descend",
+  "close",
+  "lift",
+  "verify",
+  "miss",
+  "failed"
+ ],
+ "estimate_table": [
+  -0.0512,
+  -0.0559
+ ],
+ "observations": 15,
+ "measured_width": null
+}
+log: experiments/2026-10-29-chess/tall2/run.jsonl

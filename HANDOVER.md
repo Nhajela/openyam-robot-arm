@@ -4,6 +4,13 @@ The starting point for a local session on the lab laptop with the real arm. It s
 
 > **Status at a glance:** everything runs in armctl's **mock** sim, and the full stack (DimOS coordinator → armctl daemon on `DimosBackend` → open play → phone) also runs in DimOS **`--simulation`**. **On 28 Oct the laptop ran §5 steps 1–3 on the real arm (ready, home, gripper); nothing beyond that has moved it.** The code lives on Naman's fork, **`Nhajela/openyam-robot-arm` `main`**. Our GitHub account can't push to `Edge-City/openyam-robot-arm` (pull-only), so work goes to the fork; a PR to Edge-City is optional.
 
+## 0. Where we stopped (29 Oct, 17:00): pick works; chess next
+- **Arm:** folded home, motors disabled (j4 ~52 °C). Probe before re-enabling. j4 heats when the arm is **held** under torque (ready or look poses, open play idling): fold home or disable between sessions; the guard stops picks at 57 °C.
+- **Picking works on the real arm** (`experiments/2026-10-29-first-pick/LOG.md`): purple ball picked seamlessly (purple4) with `look_and_grasp --finder blob --hsv 145,150,70,165,255,255 --grasp-frac 0.25 --min-tip-z 0.03 --open-margin 0.04 --realign-max 0.012 --no-grip-check` and the guarded auto-answer. Keep objects 25–35 cm from the base (j2 load).
+- **Chess** (`experiments/2026-10-29-chess/LOG.md`): YOLO-E (CPU; NVIDIA driver not loaded: install `nvidia-driver-595`) finds pieces only obliquely; `--finder fixed` goes for a known position. Last try: the pinch closed on the piece's round head (height guessed) and slipped. **Next:** a side camera (phone via `dashboard/phonecam.py`) for neck heights and a lift check; then pinch under the head; verify from home with the detector.
+- Phone/open play: the room key changes every start (rescan the QR); `.env` holds `CLAUDE_API_KEY`, pass it as `ANTHROPIC_API_KEY`; after an E-STOP: reset on the display, then approve open play in the console (:8090).
+- Viewer: `.venv/bin/python -m interfaces.wristcam.viz --latest-under <runs dir> --port 8097` (live camera panel).
+
 ## 0a. Where we stopped (29 Oct, 10:47)
 - **Arm:** motors disabled (folded home) to let **j4 cool** (rotor 58–60 °C after holding look poses). Probe before re-enabling; keep look/hold time short.
 - **Calibration:** wrist-camera hand-eye **accepted as PROVISIONAL** by Naman (35 views of the 25 mm tag sheet; position spread 4.2 mm, board scale ×1.001; reprojection 4.8 px / rotation 1.4° miss the strict gates). Joint zero corrections in `armctl/kin_corrections.json` (vision/grasp only). To clear "provisional": a rigid flat board + redo.

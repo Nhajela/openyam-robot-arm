@@ -119,3 +119,41 @@ def test_server_lists_runs_and_serves_summary(tmp_path):
     finally:
         srv.shutdown()
         srv.server_close()
+
+
+def test_live_camera_proxy_fails_gracefully_and_only_gets(tmp_path):
+    with pytest.raises(ValueError):
+        viz.check_get_url("http://127.0.0.1:1/armctl/lease")      # only /armctl/status may be read
+    assert viz.check_get_url("http://127.0.0.1:1/armctl/status")
+    _write(tmp_path / "r", EVENTS)
+    calls = []
+
+    def down(url, timeout):                                         # the console is not there
+        calls.append(url)
+        raise OSError("connection refused")
+
+    srv = viz.serve(tmp_path, 0, live=viz.LiveSource("http://127.0.0.1:1/camera.jpg", "http://127.0.0.1:1/armctl/status", fetch=down))
+    Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        with pytest.raises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(base + "/live.jpg", timeout=5)
+        assert e.value.code == 503 and b"connection refused" in e.value.read()
+        r = json.loads(urllib.request.urlopen(base + "/api/live", timeout=5).read())
+        assert r["q"] is None and "connection refused" in r["q_error"] and r["overlay"] is None
+        assert b"Wristcam Pick Viewer" in urllib.request.urlopen(base + "/", timeout=5).read()   # page still up
+    finally:
+        srv.shutdown()
+        srv.server_close()
+    assert set(calls) == {"http://127.0.0.1:1/camera.jpg", "http://127.0.0.1:1/armctl/status"}
+
+    # console up: the frame passes through with its age, and the estimate projects at the live q
+    up = lambda url, timeout: b"\xff\xd8live" if url.endswith(".jpg") else json.dumps({"state": {"q": Q}}).encode()
+    live = viz.LiveSource("http://x/camera.jpg", "http://x/armctl/status", fetch=up)
+    b, age, err = live.frame()
+    assert b == b"\xff\xd8live" and age < 1 and err is None
+    v = viz.Viewer(tmp_path, live=live)
+    d = v.run_dir(None)
+    ov = viz.live_overlay(v.summary(d), v._start[str(d)], live.q()[0], (1280, 720))
+    assert ov["label"].startswith("cup estimate") and ov["centre"] == [640.0, 360.0]
+    assert viz.LiveSource(None, None).frame()[0] is None

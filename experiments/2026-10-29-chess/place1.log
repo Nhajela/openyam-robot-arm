@@ -1,0 +1,5 @@
+q:0.2113,1.9101,1.3674,-0.9750,0.0195,0. {'op': 'done', 'id': 3, 'cmd': 'move_joints'}
+q:0.2141,1.9963,1.2734,-0.7924,0.0277,0. {'op': 'done', 'id': 4, 'cmd': 'move_joints'}
+g:0.65 {'op': 'ack', 'id': 5, 'cmd': 'gripper', 'width': 0.65}
+q:0.2113,1.9101,1.3674,-0.9750,0.0195,0. refused: move_joints did not reach target: j2 error 0.053 rad > 0.05; stopped
+home {'op': 'done', 'id': 7, 'cmd': 'home'}

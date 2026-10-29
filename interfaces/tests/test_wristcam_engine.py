@@ -118,3 +118,31 @@ def test_camera_model_roundtrip(tmp_path):
     c = CameraModel.load(p)
     uv = np.array([[100.0, 80.0], [640, 360], [1200, 700]])
     assert np.allclose(c.project(c.rays(uv)), uv, atol=1e-3)
+
+
+def test_small_arrival_miss_carries_on_large_one_stops():
+    """The daemon refuses a move that ends past its arrival tolerance; under load j2 sags just past it
+    (real arm, 29 Oct: lift refused at j2 0.051 > 0.05). Small misses carry on, large ones still stop."""
+    class Arm:
+        def __init__(self, err):
+            self.err = err
+
+        def q(self):
+            return np.zeros(6)
+
+        def move_joints(self, q, speed):
+            raise RuntimeError(f"move_joints did not reach target: j2 error {self.err} rad > 0.05; stopped")
+
+    for err, ok in ((0.051, True), (0.12, False)):
+        e = engine.GraspEngine.__new__(engine.GraspEngine)
+        e.cfg, e.arm = engine.GraspConfig(), Arm(err)
+        e._check = lambda *a, **k: None
+        e.tip_table = lambda q=None: np.zeros(3)
+        events = []
+        e.log = lambda ev, **k: events.append(ev)
+        if ok:
+            e.move(np.zeros(6), "lift")
+            assert events == ["move", "arrival_miss"]
+        else:
+            with pytest.raises(RuntimeError):
+                e.move(np.zeros(6), "lift")
