@@ -1,0 +1,34 @@
+armctl.dimos_coordinator: mode=REAL can=can0 adapter=armctl_openyam_damiao bus=224.0.0.123:7449 tasks=['eef_twist_arm', 'joint_trajectory', 'openyam_gripper'] ik_margin=0.1 joint_vel=0.3 traj_vel_limit=0.5 twist_timeout=0.3 planner=False gains[OVERRIDE j4]: kp=[80,80,80,22,10,10] kd=[5,5,5,2,1.5,1.5] gravity[OVERRIDE j4x0.83]
+02:45:36.339 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+gravity feedforward at ready [0.0, 0.5, 0.8, 0.0, 0.0, 0.0]: j4 2.378->1.974 N·m (adapter armctl_openyam_damiao)
+REAL ARM: Ctrl-C stops the coordinator but may leave torque on: run tools/disable_all.py after.
+02:45:36.345 [inf][dination/module_coordinator.py] Building the blueprint
+02:45:36.346 [inf][dination/module_coordinator.py] Starting the modules
+02:45:36.790 [inf][ation/worker_manager_python.py] Worker pool started. n_workers=2
+02:45:37.823 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+02:45:37.837 [inf][dimos/control/coordinator.py  ] ControlCoordinator initialized at 100.0Hz
+02:45:37.837 [inf][/coordination/python_worker.py] Deployed module. module=ArmctlTwistCoordinator module_id=0 worker_id=0
+02:45:37.842 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+02:45:37.901 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+02:45:40.925 [war][e/whole_body/damiao/adapter.py] Clamping Damiao joint feedback at position limit hardware_id=openyam joint=yam_joint2 limit=0.0 value=-0.000953688868543523
+02:45:40.926 [war][e/whole_body/damiao/adapter.py] Clamping Damiao joint feedback at position limit hardware_id=openyam joint=yam_joint3 limit=0.0 value=-0.000953688868543523
+02:45:40.926 [inf][dimos/control/coordinator.py  ] Added hardware openyam with joints: ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6', 'arm/gripper']
+02:45:41.734 [inf][dimos/control/coordinator.py  ] Added task eef_twist_arm
+02:45:41.734 [inf][ectory_task/trajectory_task.py] JointTrajectoryTask joint_trajectory initialized for joints: ('yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6')
+02:45:41.734 [inf][dimos/control/coordinator.py  ] Added task joint_trajectory
+02:45:41.736 [inf][dimos/control/coordinator.py  ] Added task openyam_gripper
+02:45:41.736 [inf][dimos/control/tick_loop.py    ] TickLoop started at 100.0Hz
+02:45:41.740 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=gripper_command
+02:45:41.741 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=ee_twist_command
+02:45:41.741 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=joint_command
+02:45:41.741 [inf][dimos/control/coordinator.py  ] ControlCoordinator started at 100.0Hz
+02:46:27.744 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 51 points, duration=5.000s
+02:46:32.749 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+02:47:34.370 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 22 points, duration=1.970s
+02:47:36.344 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+02:48:37.969 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 38 points, duration=3.610s
+02:48:41.598 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+02:49:43.210 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 27 points, duration=2.510s
+02:49:45.736 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory
+02:50:47.340 [inf][ectory_task/trajectory_task.py] Executing trajectory on joint_trajectory: 82 points, duration=8.080s
+02:50:55.434 [inf][ectory_task/trajectory_task.py] Trajectory completed task_name=joint_trajectory

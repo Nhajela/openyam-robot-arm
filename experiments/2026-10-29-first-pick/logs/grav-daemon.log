@@ -1,0 +1,28 @@
+02:46:20.677 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-29 08:16:20 INFO DimosBackend connected: DimOS REAL (armctl_openyam_damiao) on 224.0.0.123:7449, coordinator pid 7419, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-29 08:16:20 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'armctl_openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 7419, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'gravity': {'openyam': {'adapter': 'armctl_openyam_damiao', 'scale': {'j1': 1.0, 'j2': 1.0, 'j3': 1.0, 'j4': 0.83, 'j5': 1.0, 'j6': 1.0}, 'urdf': None, 'applied': True, 'note': None}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-29 08:16:20 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-29 08:16:20 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-29 08:16:20 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-29 08:16:27 INFO [c1 script] hello name='j4-hold-test' from 127.0.0.1
+2026-10-29 08:16:27 INFO [c1 script] acquire (auto-approved)
+2026-10-29 08:16:27 INFO [c1 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 08:16:27 INFO DimosBackend: move_joints#1 -> DimOS trajectory 51 points (from 501 samples), 5.00 s
+2026-10-29 08:16:27 INFO [c1 script] do move_joints -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.00 s
+2026-10-29 08:16:34 INFO [c1 script] done move_joints (max error 0.0378 rad)
+2026-10-29 08:17:34 INFO DimosBackend: move_joints#2 -> DimOS trajectory 22 points (from 198 samples), 1.97 s
+2026-10-29 08:17:34 INFO [c1 script] do move_joints -> [0.0, 0.5, 0.8, -0.3, 0.0, 0.0] in 1.97 s
+2026-10-29 08:17:37 INFO [c1 script] done move_joints (max error 0.0382 rad)
+2026-10-29 08:18:37 INFO DimosBackend: move_joints#3 -> DimOS trajectory 38 points (from 362 samples), 3.61 s
+2026-10-29 08:18:37 INFO [c1 script] do move_joints -> [0.0, 0.5, 0.8, 0.3, 0.0, 0.0] in 3.61 s
+2026-10-29 08:18:43 INFO [c1 script] done move_joints (max error 0.0363 rad)
+2026-10-29 08:19:43 INFO DimosBackend: move_joints#4 -> DimOS trajectory 27 points (from 252 samples), 2.51 s
+2026-10-29 08:19:43 INFO [c1 script] do move_joints -> [0.0, 0.5, 0.8, 0.7, 0.0, 0.0] in 2.51 s
+2026-10-29 08:19:47 INFO [c1 script] done move_joints (max error 0.0314 rad)
+2026-10-29 08:20:47 INFO DimosBackend: home#5 -> DimOS trajectory 82 points (from 809 samples), 8.08 s
+2026-10-29 08:20:47 INFO [c1 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.08 s
+2026-10-29 08:20:56 INFO [c1 script] done home (max error 0.0231 rad)
+2026-10-29 08:20:57 INFO lease revoked by c1 script (release) (was c1 script); stopped
+2026-10-29 08:20:57 INFO [c1 script] disconnected
+2026-10-29 08:21:00 INFO [c2 script] hello name='systems-check' from 127.0.0.1
+2026-10-29 08:21:01 INFO [c2 script] disconnected
