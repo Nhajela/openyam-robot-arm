@@ -60,18 +60,52 @@ class BoardSpec:
     tag_ids: tuple = (2, 3, 4)
     tag_mm: float = 40.0
     extra: dict = field(default_factory=dict)
+    # kind "tags": a printed page of ArUco tags at known positions used as the board (e.g. the
+    # 40 mm page of vision/targets/aruco_tags_A4.pdf). square_mm is then the tag side and
+    # tag_centers_mm the tag centres in page mm (x right, y down), both already at printed scale.
+    kind: str = "charuco"
+    tag_centers_mm: dict | None = None
+
+    def _tag_layout(self):
+        """(origin_mm, size_mm): bounding box of the tag grid in page mm."""
+        c = np.array(list(self.tag_centers_mm.values()), float)
+        half = self.square_mm / 2
+        lo, hi = c.min(0) - half, c.max(0) + half
+        return lo, hi - lo
+
+    def tag_corners(self) -> dict[int, np.ndarray]:
+        """id -> 4x3 board-frame corners (metres; x right, y down the page, z into it), in
+        OpenCV's marker corner order (TL, TR, BR, BL of the printed, upright tag)."""
+        lo, _ = self._tag_layout()
+        h = self.square_mm / 2
+        out = {}
+        for k, (cx, cy) in self.tag_centers_mm.items():
+            x, y = cx - lo[0], cy - lo[1]
+            out[int(k)] = np.array([[x - h, y - h, 0], [x + h, y - h, 0], [x + h, y + h, 0], [x - h, y + h, 0]]) / 1000
+        return out
 
     @property
     def size_m(self) -> tuple[float, float]:
+        if self.kind == "tags":
+            _, size = self._tag_layout()
+            return float(size[0]) / 1000, float(size[1]) / 1000
         return self.squares[0] * self.square_mm / 1000, self.squares[1] * self.square_mm / 1000
 
     def board(self):
+        if self.kind == "tags":
+            return None
         d = cv2.aruco.getPredefinedDictionary(getattr(cv2.aruco, self.dict_name))
         return cv2.aruco.CharucoBoard(tuple(self.squares), self.square_mm / 1000, self.marker_mm / 1000, d)
 
     def with_measured(self, square_mm: float | None = None, marker_mm: float | None = None) -> "BoardSpec":
         """Measured printed sizes (from the scale bar or the screen pixel pitch)."""
         s = BoardSpec(**{**self.__dict__})
+        if self.kind == "tags":
+            if square_mm:
+                k = square_mm / self.square_mm
+                s.square_mm = square_mm
+                s.tag_centers_mm = {i: [v[0] * k, v[1] * k] for i, v in self.tag_centers_mm.items()}
+            return s
         if square_mm:
             s.marker_mm = marker_mm or self.marker_mm * square_mm / self.square_mm
             s.square_mm = square_mm
@@ -97,6 +131,13 @@ class BoardSpec:
         if not p.exists():
             return cls()
         d = json.loads(p.read_text())
+        if d.get("kind") == "tags":
+            k = float(d.get("print_scale", 1.0))
+            spec = cls(d["dict"], (1, 1), float(d["tag_mm"]) * k, 0.0, d["dict"], tuple(int(i) for i in d["centers_mm"]),
+                       float(d["tag_mm"]) * k, kind="tags",
+                       tag_centers_mm={int(i): [c[0] * k, c[1] * k] for i, c in d["centers_mm"].items()})
+            sq = os.environ.get("WRISTCAM_SQUARE_MM")
+            return spec.with_measured(float(sq)) if sq else spec
         spec = cls(d["dict"], tuple(d["squares"]), d["square_mm"], d["marker_mm"], d.get("tag_dict", "DICT_4X4_50"),
                    tuple(d.get("tag_ids", (2, 3, 4))), d.get("tag_mm", 40.0))
         # WRISTCAM_SQUARE_MM: the MEASURED printed square (a print that was scaled; marker scales with it)
@@ -116,6 +157,15 @@ class BoardDetector:
     def __init__(self, spec: BoardSpec | None = None):
         self.spec = spec or BoardSpec.load()
         self.board = self.spec.board()
+        if self.spec.kind == "tags":
+            dp = cv2.aruco.DetectorParameters()
+            dp.adaptiveThreshWinSizeMin, dp.adaptiveThreshWinSizeMax, dp.adaptiveThreshWinSizeStep = 3, 53, 4
+            dp.minMarkerPerimeterRate = 0.01
+            dp.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
+            d = cv2.aruco.getPredefinedDictionary(getattr(cv2.aruco, self.spec.dict_name))
+            self.tag_det = cv2.aruco.ArucoDetector(d, dp)
+            self.corners_by_id = self.spec.tag_corners()
+            return
         cp = cv2.aruco.CharucoParameters()
         cp.minMarkers = 1
         cp.tryRefineMarkers = True
@@ -133,6 +183,24 @@ class BoardDetector:
         """-> (obj Nx3 board metres, img Nx2 px, ids N) or None. ``mask`` (255 = usable) drops
         corners hidden by the jaws."""
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
+        if self.spec.kind == "tags":
+            corners, ids, _ = self.tag_det.detectMarkers(gray)
+            if ids is None:
+                return None
+            obj, px, pid = [], [], []
+            for c, i in zip(corners, ids.ravel()):
+                if int(i) in self.corners_by_id:
+                    obj.append(self.corners_by_id[int(i)]); px.append(c.reshape(4, 2)); pid += [int(i) * 4 + k for k in range(4)]
+            if not obj:
+                return None
+            obj, cc, ci = np.vstack(obj), np.vstack(px).astype(np.float64), np.array(pid)
+            if mask is not None:
+                h, w = mask.shape
+                u = np.clip(cc[:, 0].round().astype(int), 0, w - 1)
+                v = np.clip(cc[:, 1].round().astype(int), 0, h - 1)
+                keep = mask[v, u] > 0
+                obj, cc, ci = obj[keep], cc[keep], ci[keep]
+            return (obj, cc, ci) if len(ci) >= 4 else None
         cc, ci, _, _ = self.det.detectBoard(gray)
         if ci is None or len(ci) < 4:
             return None

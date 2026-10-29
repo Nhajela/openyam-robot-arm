@@ -93,6 +93,8 @@ def board_points_base(center_xyz, spec: BoardSpec, yaw: float = 0.0, outer_only:
     w, h = spec.size_m
     if outer_only:
         P = np.array([[-w / 2, -h / 2, 0], [w / 2, -h / 2, 0], [w / 2, h / 2, 0], [-w / 2, h / 2, 0]])
+    elif getattr(spec, "kind", "charuco") == "tags":
+        P = np.vstack(list(spec.tag_corners().values())) * np.array([1, -1, -1]) + np.array([-w / 2, h / 2, 0])
     else:
         sq = spec.square_mm / 1000
         xs = (np.arange(1, spec.squares[0]) * sq) - w / 2
