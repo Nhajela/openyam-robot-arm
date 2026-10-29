@@ -100,7 +100,7 @@ def plan_from_frame(frame, q, wc: Workcell, cam, T_tip_cam, finder, cfg: GraspCo
             continue
         why = check_step(q_prev, qq, kin.MIN_TIP_Z)
         out["look_poses"].append({"height": round(hu, 3), "q": [round(float(x), 4) for x in qq],
-                                  "tip": kin.tip(qq).round(4).tolist(), "check": why or "ok"})
+                                  "tip": kin.tip(qq, kin.vision_correction()).round(4).tolist(), "check": why or "ok"})
         q_prev = qq
     if not wc.calibrated:
         out["notes"].append("workcell NOT calibrated: T_base_table is the placeholder (run handeye solve --write-workcell)")

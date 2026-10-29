@@ -1,0 +1,37 @@
+
+[he2, nominal FK] PARK: 12.16 px, spread 6.59 mm / 1.26 deg, t_tc (-74.5, 0.9, 41.3) mm, axis 45.0 deg from fingers, table origin (0.425, -0.020, -0.020), board scale x1.082±0.010
+   FAIL  reprojection 12.16 px (< 3)
+   FAIL  board-pose spread 6.59 mm (< 6)
+   FAIL  board-pose spread 1.26 deg (< 1)
+   PASS  table origin z -0.020 m vs expected -0.020 (|diff| < 0.02)
+   PASS  optical axis 15.1 deg from the nominal 60 deg mounting (< 25)
+   PASS  camera 8.5 cm from the tip (< 15)
+   FAIL  board scale vs arm kinematics x1.082 (|x-1| < 0.05; PnP distances disagree with FK if not)
+
+[he1, nominal FK] RWHE-SHAH+refined: 5.63 px, spread 5.92 mm / 1.44 deg, t_tc (-80.5, 9.1, 50.3) mm, axis 44.7 deg from fingers, table origin (0.106, -0.465, -0.031), board scale x1.105±0.012
+   FAIL  reprojection 5.63 px (< 3)
+   PASS  board-pose spread 5.92 mm (< 6)
+   FAIL  board-pose spread 1.44 deg (< 1)
+   FAIL  table origin z -0.031 m vs expected +0.000 (|diff| < 0.02)
+   PASS  optical axis 15.3 deg from the nominal 60 deg mounting (< 25)
+   PASS  camera 9.5 cm from the tip (< 15)
+   FAIL  board scale vs arm kinematics x1.105 (|x-1| < 0.05; PnP distances disagree with FK if not)
+
+[he2, corrected FK] HORAUD: 4.39 px, spread 3.31 mm / 0.67 deg, t_tc (-79.7, 2.5, 37.8) mm, axis 45.0 deg from fingers, table origin (0.414, -0.016, -0.031), board scale x0.995±0.003
+   FAIL  reprojection 4.39 px (< 3)
+   PASS  board-pose spread 3.31 mm (< 6)
+   PASS  board-pose spread 0.67 deg (< 1)
+   PASS  table origin z -0.031 m vs expected -0.020 (|diff| < 0.02)
+   PASS  optical axis 15.1 deg from the nominal 60 deg mounting (< 25)
+   PASS  camera 8.8 cm from the tip (< 15)
+   PASS  board scale vs arm kinematics x0.995 (|x-1| < 0.05; PnP distances disagree with FK if not)
+
+[he1, corrected FK] RWHE-SHAH+refined: 3.16 px, spread 3.87 mm / 1.00 deg, t_tc (-76.5, 7.3, 41.8) mm, axis 44.8 deg from fingers, table origin (0.112, -0.438, -0.051), board scale x1.011±0.004
+   FAIL  reprojection 3.16 px (< 3)
+   PASS  board-pose spread 3.87 mm (< 6)
+   FAIL  board-pose spread 1.00 deg (< 1)
+   FAIL  table origin z -0.051 m vs expected +0.000 (|diff| < 0.02)
+   PASS  optical axis 15.2 deg from the nominal 60 deg mounting (< 25)
+   PASS  camera 8.7 cm from the tip (< 15)
+   PASS  board scale vs arm kinematics x1.011 (|x-1| < 0.05; PnP distances disagree with FK if not)
+wrote experiments/2026-10-29-kin-calib/handeye_he2_kincorr.json

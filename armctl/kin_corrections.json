@@ -1,0 +1,84 @@
+{
+ "enabled": true,
+ "applies_to": "vision / grasp planning only (armctl.kin.fk_vision, kin.ik(corr=kin.vision_correction())). Commanded joint targets stay in DimOS joint space; envelope, table-clearance safety checks, choreography and DimOS itself use the nominal yam.urdf.",
+ "correction": {
+  "joint_offsets": [
+   0.0,
+   0.0,
+   -0.01376,
+   -0.04102,
+   -0.02394,
+   0.0
+  ],
+  "origin_deltas": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "tip_delta": [
+   0,
+   0,
+   0
+  ],
+  "compliance": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "source": "experiments/2026-10-29-kin-calib (model M1b, kincal.py)"
+ },
+ "meaning": "q_model = q_dimos + joint_offsets (rad). j1 and j6 offsets are unobservable from a fixed board (absorbed by the table pose and T_tip_cam) and stay 0; j2 is only weakly observable (needs a wide j1 spread) and is left 0.",
+ "sigma_formal_rad": [
+  null,
+  null,
+  0.00139,
+  0.00161,
+  0.00161,
+  null
+ ],
+ "systematic_note": "d5 is the same in both datasets (-23.9 / -24.2 mrad); d4 moves -41 .. -55 mrad depending on whether d2/d3 are fitted and between datasets (-33 he1 / -55 he2): treat d4 as +-10 mrad.",
+ "fit": {
+  "data": [
+   "interfaces/wristcam/data/he1 (12 views, 28 Oct, ChArUco, scale free)",
+   "interfaces/wristcam/data/he2 (15 views, 29 Oct, 25 mm tags, ruler scale 0.96)"
+  ],
+  "lens": "interfaces/wristcam/calib/wristcam.json (fisheye, RMS 0.79 px)",
+  "rms_px_before": 8.86,
+  "rms_px_after": 3.57,
+  "loo_rms_px_before": 10.19,
+  "loo_rms_px_after": 4.43,
+  "loo_board_origin_rms_mm_before": 8.1,
+  "loo_board_origin_rms_mm_after": 4.3,
+  "date": "2026-10-29"
+ }
+}

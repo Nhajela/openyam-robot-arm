@@ -104,7 +104,7 @@ class Unreachable(ValueError):
 
 
 def _solve(xyz, seed, yaw: float | None, floor: float, what: str) -> np.ndarray:
-    r = kin.ik(xyz, seed, down=True, check_table=False)
+    r = kin.ik(xyz, seed, down=True, check_table=False, corr=kin.vision_correction())
     tz, lz, ln = kin.clearance(r.q)
     if r.err_pos > 0.006 or r.err_rot > 0.1:
         raise Unreachable(f"{what}: can't reach ({xyz[0]:.3f}, {xyz[1]:.3f}, {xyz[2]:.3f}) m with the fingers "
@@ -119,7 +119,7 @@ def _solve(xyz, seed, yaw: float | None, floor: float, what: str) -> np.ndarray:
 
 def _finger_dir(q) -> np.ndarray:
     """Direction the fingers close along, projected on the table (base frame)."""
-    R = kin.fk(q)[:3, :3]
+    R = kin.fk_vision(q)[:3, :3]
     d = R[:, 1].copy()
     d[2] = 0
     return d / max(np.linalg.norm(d), 1e-9)
