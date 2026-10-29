@@ -78,3 +78,12 @@ Built "pick up THAT": tap the thing (or say "the cup on the table", Claude finds
 - The permission classifier first blocked me running it ("weakening a safety gate"). Naman then explicitly authorised it ("A you have permission to run it").
 - **Result (35 usable views):** HORAUD+refined, reprojection 4.84 px (✗, <3), spread **4.24 mm ✓** / 1.39° (✗, <1), table (0.411, −0.014, −0.031) ✓, axis 44.7° from the fingers ✓, camera 8.8 cm ✓, **board scale ×1.001 ± 0.003 ✓** (the arm's geometry and the ruler now agree to 0.1%).
 - `interfaces/wristcam/calib/handeye.json` (PROVISIONAL), `interfaces/grasp/workcell.json` `calibrated: true, provisional: true`. **To clear "provisional":** a rigid flat board (foam/cardboard backing) + redo, aiming for <3 px.
+
+### 10:35–10:55 Cup dry runs (camera-down look, nothing moved beyond the look pose)
+- Look pose computed from a home-pose photo (pixel ray to rim height with the provisional calibration), camera ~31 cm above the cup, camera axis (−0.05, −0.01, −1.00).
+- **Problem 1:** `Workcell.load` rejected the new `provisional` key. **Fix:** `provisional: bool = False` added to `interfaces/grasp/grasp.py:Workcell`.
+- **Problem 2 (cup on the white tag sheet):** `look_and_grasp --finder cup` picked the **tape roll** (another circle, at (0.56, +0.16) m, which is correct for the tape roll, so the geometry was right); `--expect` doesn't narrow the dry-run search. The tap path (`target.resolve`) refused every tap on the cup ("bare_table"): **white cup on white paper**.
+- Naman moved the cup onto the bare wood (folded home first; j4 had reached 57 °C at the look pose). New look pose q [0.371, 1.497, 1.303, −0.595, 0, 0].
+- **Result:** `look_and_grasp --dry-run --finder cup --image cup-look2-local.jpg --q …` → **cup at base (0.397, +0.145, 0.049) m, σ 1.0 mm, rim diameter 76.5 mm**; the rim circle overlays the cup exactly ([cup-dryrun3/look.jpg](cup-dryrun3/look.jpg)). The pick-place playable validates (55 s, no violations, coach ok); closed-loop centring poses at h 0.18 and 0.12 reachable, 0.08 not.
+- **Problem 3 (open):** the tap path still refuses on dark wood ("bare_table" at the cup centre): the table-colour check treats the cup's light colour as table. Fix later; the cup finder works.
+- **Open question before a real grasp:** the real gripper opening (model 94 mm, i2rt stroke ~71 mm) vs the cup (76.5 mm rim, ~65–70 mm mid-height). Naman to measure the open pad-to-pad gap with the ruler.

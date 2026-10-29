@@ -48,6 +48,7 @@ WORKCELL = HERE / "workcell.json"
 class Workcell:
     T_base_table: list = field(default_factory=lambda: [[1, 0, 0, 0.30], [0, 1, 0, 0.0], [0, 0, 1, 0.0], [0, 0, 0, 1]])
     calibrated: bool = False
+    provisional: bool = False     # calibrated by an operator decision despite failed precision gates (handeye --accept-provisional)
     max_width: float = 0.094      # m, finger opening at grip 1 (2 x 0.04695 URDF stroke)
     tip_to_pad: float = 0.0       # m, how far the pads' centre sits above gripper_tip
     travel_z: float = 0.14        # m above the table for moves between pick and place
