@@ -8,6 +8,7 @@
 // stay in the dock on every view.
 
 import { openChess, chessMessage, chessInvolves } from './chess.js';
+import { openPick, pickMessage } from './pick.js';
 
 const RATE_MS = 66;                 // ~15 Hz while a control is held
 const TILT_DEAD = 3, TILT_FULL = 25; // degrees from the saved start pose (same as tilt.html)
@@ -62,6 +63,10 @@ const MODES = [
     on: (f) => !!f.chess,
     how: ['Move a piece on the real board with your hand.', 'Hit the big <b>clock</b> button: the cameras see your move.',
       'The arm picks up its piece and plays its reply.'], go: "Let's play" },
+  { id: 'pick', emoji: '🤏', title: 'Pick it up', pitch: 'Tap a thing on the table, the arm grabs it', tag: 'Skill', hue: 'red',
+    on: (f) => !!f.pick,
+    how: ['Tap <b>Look</b>: the arm points its camera at the table.', 'Tap the thing you want, or say it: "the cup on the table".',
+      'Check the outline, tap <b>Pick this</b>, and watch it home in and grab it.'], go: "Let's look" },
 ];
 const modeById = (id) => MODES.find((m) => m.id === id);
 
@@ -189,6 +194,8 @@ function handle(m) {
       renderSeq(m); break;
     case 'chess':
       chessMessage(m); $('chessLobbyCard').hidden = !chessInvolves(); break;
+    case 'pick': case 'pick.frame':
+      pickMessage(m); break;
     case 'pong': break;
   }
 }
@@ -818,6 +825,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 // ------------------------------------------------------------------ start
 show('lobby');
 for (const id of ['chessTurn', 'chessLobby']) openChess($(id), { send, toast });
+openPick($('pickTurn'), { send, toast });
 applyFeatures();
 connect();
 // debugging / tests / screenshots

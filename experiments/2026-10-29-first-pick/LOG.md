@@ -35,3 +35,8 @@ Real coordinator `--kp j4=22 --kd j4=2 --gravity-scale j4=0.83`, adapter **`armc
 - **Result:** the worst-case j4 error is ~0.02 rad (≈2–3 mm at the tip), 4–5× better than the default; **j4 peaked at 37 °C** (Tue 62 °C).
 - **Insight:** light poses now go slightly negative, matching the agent's affine fit (τ_true ≈ s·τ_model + c; friction/offset). A lower scale would trade heavy-pose error for more light-pose overshoot. **0.83 is a good single value.**
 - **Decision:** the real-arm start line is now `--kp j4=22 --kd j4=2 --gravity-scale j4=0.83` (HANDOVER updated).
+
+### 2026-10-29 (sim only) Tap to pick / say what to pick
+Built "pick up THAT": tap the thing (or say "the cup on the table", Claude finds it) on a still wrist-camera frame, and the closed-loop engine homes in on it and picks it up. It's open play's new **Pick it up** mode. Simulation and tests only: nothing ran on the arm. Write-up, results and what it needs from the real arm: [TAP-TO-PICK.md](TAP-TO-PICK.md).
+- **Insight:** the silhouette alone can't give an object's height. A prism fit (top face = footprint) can: synthetic tap → box 1.4 mm, cup 0.4 mm.
+- **Fix:** the engine refused short objects (approach and lift-clear below the 0.08 m tip guard). Fixed in `engine.py`; the cup tests are unchanged.

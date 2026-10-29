@@ -447,7 +447,8 @@ class ColorBlobFinder:
 # --------------------------------------------------------------------------- Claude vision seam
 @dataclass
 class ClaudeVisionFinder:
-    """Seam for a Claude-vision finder (not implemented: no API calls from this module).
+    """Seam for a Claude-vision finder (not implemented: no API calls from this module). The
+    implemented prompt -> pixel path is ``interfaces.wristcam.target.ClaudeLocator`` (tap-to-pick).
 
     Intended implementation: encode ``frame`` (JPEG, maybe with the image centre marked), ask a
     Claude vision model for the pixel (u, v) of the object described by ``prompt`` (and its rough

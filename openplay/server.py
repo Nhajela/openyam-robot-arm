@@ -66,7 +66,7 @@ MOTION_OPS = {"stream", "move", "say", "grip", "ready", "home", "stop", "pose.sa
 DISCRETE = {"move", "ready", "home", "pose.goto", "seq.play", "grab"}  # (say joins the busy slot once authored)
 CHESS_OPS = {"chess.new", "chess.accept", "chess.clock", "chess.pick", "chess.move", "chess.resign"}
 CHESS_SENSORS = ("fake", "camera")
-EVENT_KINDS = ("move", "say", "seq", "grab", "chess")
+EVENT_KINDS = ("move", "say", "seq", "grab", "chess", "pick")
 LOOPBACK = {"127.0.0.1", "::1", "localhost", "testclient"}
 
 PLACEHOLDER = """<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
@@ -184,7 +184,8 @@ class OpenPlay:
                  join_url: str = "", urdf_dir: Path = DEFAULT_URDF_DIR, events_log: Path | None = EVENTS_LOG,
                  lin_mps: float = LIN_MPS, ang_rps: float = ANG_RPS, joint_rps: float = JOINT_RPS,
                  workcell: Path | None = None, chess_sensor: Any = "fake", chess_clock_s: float = 600.0,
-                 chess_cameras: list[str] | None = None, chess_calib: str | None = None):
+                 chess_cameras: list[str] | None = None, chess_calib: str | None = None,
+                 pick_opts: dict | None = None):
         self.lobby = Lobby(turn_s=turn_s)
         self.arm = ArmBridge(daemon_url, on_event=self._arm_event, lin_mps=lin_mps, ang_rps=ang_rps,
                              joint_rps=joint_rps)
@@ -216,6 +217,14 @@ class OpenPlay:
         self._tasks: list[asyncio.Task] = []
         self._qr: bytes | None = None
         self._n = 0
+        self.pick = None                             # "Pick it up" (openplay/pick_play.py)
+        try:
+            from openplay.pick_play import PickStation
+
+            self.pick = PickStation(self, **(pick_opts or {}))
+        except Exception as e:
+            log.warning("pick it up unavailable: %s: %s", type(e).__name__, e)
+        self.features["pick"] = self.pick is not None
 
     # ------------------------------------------------------------------ lifecycle
     async def start(self) -> None:
@@ -479,6 +488,8 @@ class OpenPlay:
         p = self.pending
         if p and p["pid"] == pid and not p["future"].done():
             p["future"].set_result((False, why))
+        if self.pick is not None:
+            self.pick.cancel(pid, why)
 
     def _arm_event(self, kind: str, data: dict) -> None:
         if kind == "connected":
@@ -541,6 +552,8 @@ class OpenPlay:
             return self._pose_edit(pid, op, m)
         if op in CHESS_OPS:
             return await self._chess_msg(c, pid, op, m)
+        if op.startswith("pick.") and self.pick is not None:   # openplay/pick_play.py
+            return await self.pick.phone(c, pid, op, m)
         if op not in MOTION_OPS:
             return self.refuse(c, f"unknown op {op!r}")
         if op == "stream" and _zero_stream(m):
@@ -626,6 +639,8 @@ class OpenPlay:
             c.send(a)
         if self.features.get("chess"):
             c.send(self.chess_msg(pid))
+        if self.pick is not None:
+            self.pick.hello(c, pid)
         self.push_lobby()
 
     def _detach(self, c: Conn) -> None:
@@ -1387,6 +1402,8 @@ class OpenPlay:
             self.push_config()
         elif op in ("chess.clock", "chess.fixed", "chess.reset"):
             return await self._chess_operator(c, op, m)
+        elif op.startswith("pick.") and self.pick is not None:   # openplay/pick_play.py
+            return await self.pick.display(c, op, m)
         elif op in ("estop", "estop_reset"):
             try:
                 await (self.arm.estop_on() if op == "estop" else self.arm.estop_reset())
@@ -1412,6 +1429,8 @@ class OpenPlay:
             c.send(d)
         if self.features.get("chess"):
             c.send(self.chess_msg(None, display=True))
+        if self.pick is not None:
+            self.pick.display_joined(c)
         c.send({"op": "config", "auto_play": self.auto_play, "paused": self.lobby.paused, "turn_s": self.lobby.turn_s})
         for e in self.recent:
             c.send(e)

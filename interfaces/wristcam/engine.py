@@ -215,6 +215,10 @@ class GraspEngine:
             h -= 0.01
         return None, h
 
+    def _table_z(self, z_base: float) -> float:
+        """A base-frame height as a table-frame height (the table is ~level)."""
+        return float(z_base - np.asarray(self.wc.T_base_table, float)[2, 3])
+
     def _cam_above_tip(self, q) -> float:
         T = kin.fk(q)
         return float((T[:3, :3] @ self.T_tip_cam[:3, 3])[2])
@@ -332,7 +336,8 @@ class GraspEngine:
     def _grasp_geometry(self):
         c, wc = self.cfg, self.wc
         z_grasp = max(wc.min_tip_z, c.height * 0.6 - wc.tip_to_pad)
-        z_above = c.height + c.approach_clear
+        # never approach below the general table guard (short objects: descend from there)
+        z_above = max(c.height + c.approach_clear, self._table_z(kin.MIN_TIP_Z + 0.008))
         width = self.measured_width if (self.measured_width and abs(self.measured_width - c.width) < 0.25 * c.width) else c.width
         g_open = wc.grip_for(width + wc.open_margin)
         g_closed = wc.grip_for(max(0.0, width - wc.squeeze))
@@ -348,6 +353,15 @@ class GraspEngine:
             self.reason = f"approach pose over table {self.est.round(3).tolist()} unreachable"
             return "failed"
         self.grip_to(g_open, "open before the approach")
+        if self._check(self.arm.q(), q, kin.MIN_TIP_Z, quiet=True):
+            # the joint-space path from the camera pose sags below the table guard (short
+            # objects): turn the fingers down higher up first, then go straight down
+            for dz in (0.04, 0.08):
+                q_hi = self.tip_over(self.est, z_above + dz)
+                if q_hi is not None and not self._check(self.arm.q(), q_hi, kin.MIN_TIP_Z, quiet=True):
+                    self.move(q_hi, f"fingers down {dz * 100:.0f} cm above the approach height", slow=True)
+                    q = self.tip_over(self.est, z_above, seed=q_hi)
+                    break
         self.move(q, f"tip {z_above:.3f} m (table) over the object, fingers open {g_open:.2f}", slow=True)
         return "descend"
 
@@ -448,7 +462,7 @@ class GraspEngine:
         q_down = self.tip_over(xy, z_rel)
         self.move(q_down, "down to release", floor=wc.min_tip_z, slow=True)
         self.grip_to(g_open, "release")
-        q_lift = self.tip_over(xy, c.height + c.approach_clear)
+        q_lift = self.tip_over(xy, self._grasp_geometry()[1])   # clear of the object and of the table guard
         self.move(q_lift, "lift clear of the object", floor=wc.min_tip_z, slow=True)
         self.log("decision", decision="placed", grasp_offset_z=grasp_off)
         return "ready"

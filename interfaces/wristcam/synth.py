@@ -8,9 +8,9 @@ jaws drawn into the lower image corners (they move with the camera).
 
 ``SimArm`` is the fake arm the closed-loop engine is tested against: joint moves are instant
 (and checked against the envelope), the camera renders from FK(q) * T_tip_cam_true, closing the
-gripper on a cup stalls at the cup's width (that is how ``grasp.holding`` detects a grasp), a
-held cup moves with the tip, opening drops it. Fingers that would hit the cup are recorded in
-``world.collisions``.
+gripper on a cup (or on a box, at its width across the fingers) stalls there (that is how
+``grasp.holding`` detects a grasp), a held object moves with the tip, opening drops it. Fingers
+that would hit a cup or a box are recorded in ``world.collisions``.
 
     .venv/bin/python -m interfaces.wristcam.synth --out /tmp/wristcam_synth    # demo frames
 """
@@ -327,7 +327,7 @@ class SimArm:
         self._q = np.array(envm.POSES["ready"] if q0 is None else q0, float)
         self._grip = 0.0
         self.max_width = max_width
-        self.held: tuple | None = None   # (cup, offset table xyz from tip)
+        self.held: tuple | None = None   # (cup or box, offset table xyz from tip)
         self.rng = np.random.default_rng(seed)
         self.joint_noise = joint_noise
         self.miss_first = miss_first
@@ -369,6 +369,15 @@ class SimArm:
         return [T[:3, 3] + half * fdir, T[:3, 3] - half * fdir]
 
     def _check_collision(self, T):
+        for box in self.world.boxes:
+            if T[2, 3] >= box.z0 + box.size[2]:
+                continue
+            for f in self._finger_points(T):
+                lx, ly = _box_local(box, f[0], f[1])
+                if abs(lx) < box.size[0] / 2 + 0.003 and abs(ly) < box.size[1] / 2 + 0.003:
+                    self.world.collisions.append({"q": self._q.round(4).tolist(), "box": list(box.xy),
+                                                  "finger_local": [round(float(lx), 4), round(float(ly), 4)],
+                                                  "tip_z": round(float(T[2, 3]), 4)})
         for cup in self.world.cups:
             if T[2, 3] >= cup.z0 + cup.height:
                 continue
@@ -393,17 +402,39 @@ class SimArm:
                     self._grip = stall + self.rng.normal(0, 0.004)
                     self.held = (cup, np.array([cup.xy[0] - T[0, 3], cup.xy[1] - T[1, 3], cup.z0 - T[2, 3]]))
                     return
+            fdir = T[:3, 1]
+            for box in self.world.boxes:
+                lx, ly = _box_local(box, T[0, 3], T[1, 3])
+                zrel = T[2, 3] - box.z0
+                a = np.arctan2(fdir[1], fdir[0]) - box.yaw
+                width = abs(box.size[0] * np.cos(a)) + abs(box.size[1] * np.sin(a))   # across the fingers
+                stall = width / self.max_width
+                if (abs(lx) < 0.35 * box.size[0] and abs(ly) < 0.35 * box.size[1] and 0.005 < zrel < box.size[2] - 0.003
+                        and g < stall <= 1.0):
+                    if self.miss_first:
+                        self.miss_first = False
+                        break
+                    self._grip = stall + self.rng.normal(0, 0.004)
+                    self.held = (box, np.array([box.xy[0] - T[0, 3], box.xy[1] - T[1, 3], box.z0 - T[2, 3]]))
+                    return
             self._grip = g
             return
         if g > self._grip and self.held:      # opening: drop it where it is
-            cup, _ = self.held
-            cup.z0 = 0.0
+            obj, _ = self.held
+            obj.z0 = 0.0
             self.held = None
         self._grip = g
 
     def frame(self) -> np.ndarray:
         self.n_frames += 1
         return self.world.render(self.cam, kin.fk(self._q) @ self.T_tip_cam, seed=self.n_frames, ss=self.ss)
+
+
+def _box_local(box: Box, x: float, y: float) -> tuple[float, float]:
+    """Table-frame (x, y) in the box's own frame (centre, axes along its sides)."""
+    c, s = np.cos(box.yaw), np.sin(box.yaw)
+    dx, dy = x - box.xy[0], y - box.xy[1]
+    return c * dx + s * dy, -s * dx + c * dy
 
 
 def demo_world() -> World:

@@ -5,6 +5,7 @@
 // otherwise a self-contained canvas rendering from kin.js (works offline).
 import * as K from './kin.js';
 import { chessDisplay } from './display_chess.js';
+import { pickDisplay } from './display_pick.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -55,6 +56,7 @@ function handle(m) {
     case 'pending': onPending(Object.prototype.hasOwnProperty.call(m, 'pending') ? m.pending : (m.id != null ? m : null)); break;
     case 'config': onConfig(m); break;
     case 'chess': chessDisplay(m, send); break;
+    case 'pick': case 'pick.frame': pickDisplay(m, send); break;
     case 'refused': case 'error':
       addProblem(m.reason || m.text || m.op, 'warn'); toast('Server: ' + (m.reason || m.text || m.op)); break;
     default: break;
