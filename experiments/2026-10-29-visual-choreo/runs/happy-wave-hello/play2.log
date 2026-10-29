@@ -1,0 +1,3 @@
+validate: True []
+REQUESTED: press Play in the console (http://127.0.0.1:8090) for fable-happy-wave-hello
+done: {'op': 'done', 'id': 6, 'cmd': 'playable:fable-happy-wave-hello'}

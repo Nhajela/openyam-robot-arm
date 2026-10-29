@@ -50,3 +50,10 @@ usage pass 0: cache write 7,429 in, 2,319 out (1,583 thinking); pass 1: cache re
 
 ### Offline tests
 `.venv/bin/python -m pytest -q armctl/tests openplay/tests interfaces/tests` → `474 passed, 1 xfailed in 286.92s` (new: 5 render tests, 12 visual-author tests with a fake client, 4 Say-it visual-mode tests; no network, no camera, the e2e test uses its mock daemon on 8591/8550/8551).
+
+### 10:00–10:12 First Fable choreography on the real arm: "a happy wave hello to the people at the table"
+`set -a; . ./.env; ANTHROPIC_API_KEY=$CLAUDE_API_KEY .venv/bin/python -m armctl.llm_author "a happy wave hello to the people at the table" --visual --passes 3 --model claude-fable-5-1 --caps default --sheets-dir experiments/2026-10-29-visual-choreo/runs/happy-wave-hello --out playables/fable-happy-wave-hello.json`
+- Router: camera = yes (rules: "refers to a person"); a console snapshot was included (kept local).
+- 3 calls, 103 s, stopped "satisfied". Scores 4/4/4/4 (readability, silhouette, energy, timing), safety margin 5 → 3 → 4. Pass 1 critique: "three wrist nods… a bit timid… pure up-down" → added j5 side-to-side so the waves sweep across the audience's view (10/12/7 cm), eased peak velocity 97% → ~80% of cap. Final: valid, 18.8 s, max |vel| ≤ 0.27 rad/s. ([runs/happy-wave-hello/CHANGELOG.md](runs/happy-wave-hello/CHANGELOG.md), sheets in `runs/happy-wave-hello/final/`)
+- **Real arm** (coordinator `--kp j4=22 --kd j4=2 --gravity-scale j4=0.83`, daemon 0.3 caps): [play_on_arm.py](play_on_arm.py) validates (ok), goes to ready and requests Play. **Problem:** the first request timed out (180 s) because the console's Play button wasn't found. **Fix:** a 600 s window, and Naman confirmed from the terminal: `curl -X POST http://127.0.0.1:8091/playable/confirm -d '{"name": "fable-happy-wave-hello"}'`. Played 19.27 s as a 199-point DimOS trajectory, **done, max error 0.0234 rad**, no refusals or faults. Folded home after (j4 53 °C after a long wait at ready).
+- **Idea:** surface pending-play confirmation more visibly (open-play display rail or a phone "Play?" for the operator), and keep the arm folded while waiting.
