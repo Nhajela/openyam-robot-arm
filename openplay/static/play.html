@@ -10,6 +10,7 @@
 <title>Play with the robot arm</title>
 <link rel="stylesheet" href="/static/play.css">
 <link rel="stylesheet" href="/static/chess.css">
+<link rel="stylesheet" href="/static/pick.css">
 <script type="module" src="/static/play.js"></script>
 </head>
 <body>
@@ -282,6 +283,11 @@
       <div class="panel" id="panel-chess" hidden>
         <p class="lead">A real board on the table. Move a piece by hand, then hit the clock: the cameras see your move and the arm plays its reply.</p>
         <div id="chessTurn" data-role="turn"></div>
+      </div>
+
+      <!-- pick it up (openplay/static/pick.js) -->
+      <div class="panel" id="panel-pick" hidden>
+        <div id="pickTurn"></div>
       </div>
     </div>
   </main>

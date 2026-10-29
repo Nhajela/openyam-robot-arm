@@ -1,0 +1,34 @@
+/* Open play "Pick it up" (pick.js on the phone, display_pick.js on the laptop) */
+.pick { display: flex; flex-direction: column; gap: .7rem; }
+.pk-status { font-size: 1.05rem; line-height: 1.35; }
+.pk-status.err { color: #ffb4a8; }
+.pk-status.ok { color: #9be7a2; font-weight: 600; }
+.pk-refusal { background: #4a2a12; color: #ffd9a8; border-radius: .6rem; padding: .6rem .8rem; }
+.pk-wrap { position: relative; width: 100%; border-radius: .7rem; overflow: hidden; background: #111; touch-action: manipulation; }
+.pk-img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
+.pk-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pk-outline { fill: rgba(80, 230, 120, .22); stroke: #50e678; stroke-width: .006; vector-effect: non-scaling-stroke; }
+.pk-outline.bad { fill: rgba(255, 120, 90, .22); stroke: #ff785a; }
+.pk-pt { fill: #fff; stroke: #50e678; stroke-width: .004; }
+.pk-tap { fill: none; stroke: #ffd84a; stroke-width: .006; }
+.pk-cand { fill: rgba(255, 216, 74, .35); stroke: #ffd84a; stroke-width: .005; }
+.pk-cand-n { font: bold .035px system-ui; fill: #111; text-anchor: middle; }
+.pk-ask { display: flex; gap: .4rem; }
+.pk-text { flex: 1; min-width: 0; font-size: 1rem; padding: .6rem .7rem; border-radius: .6rem; border: 1px solid #555; background: #1b1b1f; color: inherit; }
+.pk-mic.on { background: #c0392b; }
+.pk-confirm { display: flex; gap: .6rem; }
+.pk-confirm .big { flex: 1; }
+.pk-progress { margin: 0; padding-left: 1.4rem; line-height: 1.6; }
+.pk-progress li:last-child { font-weight: 600; }
+
+/* laptop display panel */
+#pickPanel { position: absolute; z-index: 5; right: 1.6rem; top: 4.2rem; width: 30rem; max-width: 46vw;
+  background: rgba(16, 18, 24, .92); border-radius: 1rem; padding: 1rem; color: #eee; box-shadow: 0 .5rem 2rem rgba(0,0,0,.5); }
+#pickPanel[hidden] { display: none; }
+#pickPanel .dp-k { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+#pickPanel .dp-who { font-size: 1.2rem; font-weight: 600; margin: .2rem 0 .5rem; }
+#pickPanel .dp-state { font-size: 1.1rem; margin: .5rem 0; }
+#pickPanel .dp-state.err { color: #ffb4a8; }
+#pickPanel .dp-row { display: flex; gap: .5rem; align-items: center; justify-content: space-between; font-size: .9rem; opacity: .85; }
+#pickPanel ol { margin: .3rem 0 0; padding-left: 1.3rem; font-size: .95rem; line-height: 1.5; }
+#pickPanel ol li:last-child { font-weight: 600; }

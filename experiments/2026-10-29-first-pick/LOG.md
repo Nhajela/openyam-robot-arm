@@ -43,3 +43,8 @@ Real coordinator `--kp j4=22 --kd j4=2 --gravity-scale j4=0.83`, adapter **`armc
 - **Decision (Naman):** "we can print more sheets": tape one checkerboard **permanently**, flat, off to the side of the work area (arm's left, ~30–40 cm out) as the reference for today's hand-eye and future re-checks; the table centre stays free for objects. Reprints must use the same printer settings (this print came out at ~22.4 mm/square, not 30).
 - Naman asked to power the arm off to move it by hand and check its reach: daemon + coordinator stopped, `disable_all` (all disabled, no faults; j4 rotor 43 °C after the gravity test). Back near home after (j1 +0.075).
 - **Problem:** at home the wrist camera's auto-exposure (`auto_exposure=3`, aperture priority) blew the sunlit table out to white. **Fix:** manual exposure with `v4l2-ctl -d /dev/video0 -c auto_exposure=1 -c exposure_time_absolute=110 -c gain=60` (exposure 60 → mean 53/255, auto → nearly all clipped). Set again after a camera reconnect or reboot; tune per lighting.
+
+### 2026-10-29 (sim only) Tap to pick / say what to pick
+Built "pick up THAT": tap the thing (or say "the cup on the table", Claude finds it) on a still wrist-camera frame, and the closed-loop engine homes in on it and picks it up. It's open play's new **Pick it up** mode. Simulation and tests only: nothing ran on the arm. Write-up, results and what it needs from the real arm: [TAP-TO-PICK.md](TAP-TO-PICK.md).
+- **Insight:** the silhouette alone can't give an object's height. A prism fit (top face = footprint) can: synthetic tap → box 1.4 mm, cup 0.4 mm.
+- **Fix:** the engine refused short objects (approach and lift-clear below the 0.08 m tip guard). Fixed in `engine.py`; the cup tests are unchanged.

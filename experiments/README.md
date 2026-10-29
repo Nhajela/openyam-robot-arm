@@ -37,7 +37,7 @@ Interfaces and interactions worth trying. Add yours, and say who to talk to.
 - **armctl wrapper on top of DimOS**: home(), ready(), named poses, slow joint moves, limit-aware jogging. Never leaves a soft-limit box inside the URDF limits. (Naman)
 - Go-home / named poses from a script (`openyam-planner-coordinator` + `Arm` SDK).
 - **Programs over one protocol** (see ARMCTL-SPEC § Programs): phone tilt, phone joystick, English → playable motion sequences (dance, wave, nod), keyboard, console. Switchable, one control lease. (Naman)
-- Natural-language control: an agent that turns "pick up the cup" into arm actions.
+- Natural-language control: an agent that turns "pick up the cup" into arm actions. **First version built (sim):** open play "Pick it up" (tap or say the object, the wrist camera homes in): `experiments/2026-10-29-first-pick/TAP-TO-PICK.md`. Next: a place target ("put it in the bowl"), two-view height.
 - Gamepad or phone teleop instead of the keyboard.
 - Record and replay demonstrations (teach by moving the arm by hand with torque off, then play it back). Recording → playable and the timeline editor exist now (`interfaces/timeline/`); teach-by-hand needs a torque-off state stream from `DimosBackend`.
 - **Spline ease** for playables (smooth through keyframes, stops only at the ends): recorded moves become stop-and-go and about 2× longer with `cubic`. Needs spec 1.1 in the lab and the playground together. (Naman)

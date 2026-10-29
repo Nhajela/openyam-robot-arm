@@ -53,7 +53,7 @@ Every phone message may carry two optional fields for the event log (see "Event 
 
 | op | fields |
 |---|---|
-| `welcome` | `pid, name, moves: [{name, title, emoji, duration_s, blurb}], spots: [{name, title}], turn_s, features: {say, grab, tilt, joystick, poses, chess}, speeds: {lin_mps, ang_rps, joint_rps}` |
+| `welcome` | `pid, name, moves: [{name, title, emoji, duration_s, blurb}], spots: [{name, title}], turn_s, features: {say, grab, tilt, joystick, poses, chess, pick}, speeds: {lin_mps, ang_rps, joint_rps}` |
 | `lobby` | `queue: [{name, you}]`, `position` (1-based, null if not queued), `active: {name, remaining_s} \| null`, `you_active: bool`, `eta_s` (null if unknown). Sent on every change and once a second while a turn is running |
 | `turn` | `remaining_s`: your turn started (and once a second during it; `warning: true` in the last 30 s) |
 | `turn_end` | `reason`: `time` \| `left` \| `idle` \| `skipped` \| `operator` |
@@ -132,6 +132,44 @@ The game's moves are accepted only while the active player is one of its players
 2. `chess.clock`: snapshot, rank the legal moves. One confident move → applied ("You played Nf3" on phone and display). Several close (always for a promotion) → `candidates`. Nothing → `unseen` and the clock runs again (press again, or tap the move).
 3. Engine game: the arm's clock runs while it thinks and moves; with auto-play off the operator approves once per move (a capture is two pick and places, one approval). The playables end at `ready`, clear of the board; then a new reference snapshot and the human's clock.
 4. A move that stops half-way (STOP, E-STOP, turn end) is recorded and `attention` asks for a human to finish it by hand; a denied move sets `attention` and the operator's Board fixed retries it.
+
+## Pick it up (tap or say a thing on the table, the arm picks it up)
+
+`openplay/pick_play.py` (server), `static/pick.js` (phone), `static/display_pick.js` (display); vision and the closed loop are `interfaces/wristcam/target.py` + `engine.py`. `welcome.features.pick` is true when the module loads. The mode is **refused** with `camera not calibrated yet (…)` unless `interfaces/grasp/workcell.json` has `calibrated: true` and `interfaces/wristcam/calib/handeye.json` and `wristcam.json` exist (the `pick` message's `refusal` says so before anyone taps). Frames come from the lab console (`$VISION_DASHBOARD_URL`, default `http://127.0.0.1:8090/camera.jpg`).
+
+### Phone → server (active player only)
+
+| op | fields | meaning |
+|---|---|---|
+| `pick.look` | | move the camera over the table (`look_xy`, `look_h` in `interfaces/wristcam/pick_config.json`, defaults table (0, −0.15), 0.25 m), operator-approved with auto-play off; then a still frame and the joint angles it was taken at (the arm must be still across the grab) |
+| `pick.tap` | `frame` (the still's id), `x`, `y` (0..1 across the still) | "this one": the server finds the object's region and its footprint/height on the table → `pick` with `stage: target`. Refused (`error`, picture kept) on the jaws, bare table, off the table, out of reach, cut off at the picture's edge |
+| `pick.ask` | `frame`, `text` (≤ 200 chars) | "the cup on the table": Claude (vision, `$WRISTCAM_PICK_MODEL`, default `claude-opus-5-5`, needs `ANTHROPIC_API_KEY`) points at it → same as a tap. Not found → `text` says why; ambiguous or unsure → `candidates` to tap |
+| `pick.confirm` | `target` (the target's `id`) | "Pick this": operator approval (auto-play off), then the closed loop. Refused if the target has a `refusal` (too wide / flat / tall) |
+| `pick.cancel` | | "Not that": forget the target, keep the picture |
+
+`stop` aborts a running pick at the engine's next step (the arm is stopped at once, as for any action) and keeps the picture; a turn end forgets it.
+
+### Server → phone and display
+
+- `pick.frame` `{kind: "still" | "live", id, w, h, jpeg}`: `jpeg` is a `data:image/jpeg;base64,…` URL (≤ 960 px wide). `still` is the picture to tap (phone and display); `live` frames are the engine's looks while it picks (display only).
+- `pick` `{stage, text, error, refusal, frame, target, candidates, progress, result, engine_state}` on every change; the display's copy adds `who`.
+  - `stage`: `idle` → `moving` (to the look pose) → `frame` (tap or say) → `finding` → `target` ("Pick this?") → `picking` → `done` | `failed`.
+  - `target`: `{id, label, kind (object | cup), xy_table, height, size [long, short] (m), yaw_table, width_mm, height_mm, height_known, sigma_xy, refusal, outline [[x, y] 0..1], point [x, y] 0..1, footprint_table}`.
+  - `candidates`: `[{x, y, label}]` (0..1) from Claude when it isn't sure.
+  - `progress`: `[{t, text}]` ("👀 Looking for it", "🎯 Centring over it", "🔎 Moving closer", "⬇️ Going down", "✊ Grabbing", "🎉 Lifted it!", "😅 Missed: trying again", "📦 Putting it back", …).
+  - `result`: `{ok, lifted, reason, trace, observations}` once the pick ends.
+
+### Display → server (operator)
+
+| op | meaning |
+|---|---|
+| `pick.cancel` | abort the running pick (the arm stops) or close the panel |
+
+### Flow and safety
+
+1. Look: one `move_joints` (0.25 rad/s) to a camera-down pose over the table, approved like a playable (`pending` with two keyframes).
+2. Tap / prompt: nothing moves. The server shows the outline it found and the size; the player confirms.
+3. Pick: one operator approval, then `GraspEngine` with the tapped target's tracker: re-centre → closer (0.18 / 0.12 / 0.08 m above the top) → fingers open, down in 2 cm steps → close across the narrow side → lift 8 cm → verify (grip stalled + no longer on the table) → miss: retry once → put it back where it was → ready. Every motion is a daemon `move_joints` / `gripper` (envelope, speed caps ≤ 0.3 rad/s, lease, E-STOP) and is checked by the engine first (soft box, table guard, camera above the object).
 
 ## Server rules
 
