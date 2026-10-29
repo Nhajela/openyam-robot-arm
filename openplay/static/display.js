@@ -71,6 +71,12 @@ function onHello(m) {
   renderBackend();
   $('qrImg').src = '/qr.png?v=' + Date.now();
   $('joinUrl').textContent = m.join_url || '';
+  if (m.learn_url) {                 // second QR: the public explainer (GitHub Pages)
+    $('learnImg').src = '/learn-qr.png?v=' + Date.now();
+    $('learnCard').hidden = false;
+  } else {
+    $('learnCard').hidden = true;
+  }
   buildJoints();
   if (m.urdf) tryThree();
   renderLobby();

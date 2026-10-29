@@ -169,6 +169,8 @@ async def _scenario(stack) -> None:
     assert code == 200 and json.loads(body)["url"] == f"https://127.0.0.1:{PHONE_PORT}/?k={KEY}"
     code, body, h = _get(f"http://127.0.0.1:{LOCAL_PORT}/qr.png")
     assert code == 200 and body[:8] == b"\x89PNG\r\n\x1a\n"
+    code, body, _ = _get(f"http://127.0.0.1:{LOCAL_PORT}/learn-qr.png")      # the explainer's QR (public URL)
+    assert code == 200 and body[:8] == b"\x89PNG\r\n\x1a\n"
     assert _get(f"http://127.0.0.1:{LOCAL_PORT}/")[0] == 200
     assert _get(f"https://127.0.0.1:{PHONE_PORT}/", SSL_CTX)[0] == 403
     code, _, h = _get(f"https://127.0.0.1:{PHONE_PORT}/?k={KEY}", SSL_CTX)
@@ -181,6 +183,7 @@ async def _scenario(stack) -> None:
     disp = await Client.connect(f"ws://127.0.0.1:{LOCAL_PORT}/display/ws", "display")
     hello = await disp.wait("hello", lambda m: m.get("backend") == "mock", timeout=15)
     assert hello["join_url"].endswith(f"?k={KEY}") and hello["turn_s"] == TURN_S
+    assert hello["learn_url"].startswith("https://") and "/learn/" in hello["learn_url"]
     assert hello["envelope"] and "ready" in hello["poses"]
     hello = await disp.wait("hello", lambda m: m["lease"] is True and m["daemon"] == "connected", timeout=15)
     if hello["urdf"]:

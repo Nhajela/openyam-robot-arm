@@ -60,6 +60,8 @@ STATIC = HERE / "static"
 EVENTS_LOG = HERE / "logs" / "events.jsonl"
 DEFAULT_URDF_DIR = Path.home() / ".local/share/dimos/repo/data/yam_description"  # as dashboard/server.py
 COOKIE = "op_key"
+# public explainer for visitors who want to know more (the playground repo's GitHub Pages site, site/learn/)
+LEARN_URL = "https://nhajela.github.io/openyam-playground/learn/"
 PID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 MAX_MSG = 8192
 MAX_POSES = 12
@@ -212,7 +214,7 @@ def playable_info(playable: dict) -> tuple[float, list]:
 # --------------------------------------------------------------------------
 class OpenPlay:
     def __init__(self, *, daemon_url: str = DEFAULT_URL, turn_s: float = 600.0, auto_play: str = "auto",
-                 join_url: str = "", urdf_dir: Path = DEFAULT_URDF_DIR, events_log: Path | None = EVENTS_LOG,
+                 join_url: str = "", learn_url: str | None = None, urdf_dir: Path = DEFAULT_URDF_DIR, events_log: Path | None = EVENTS_LOG,
                  lin_mps: float = LIN_MPS, ang_rps: float = ANG_RPS, joint_rps: float = JOINT_RPS,
                  workcell: Path | None = None, chess_sensor: Any = "fake", chess_clock_s: float = 600.0,
                  chess_cameras: list[str] | None = None, chess_calib: str | None = None,
@@ -231,6 +233,8 @@ class OpenPlay:
         self._relay_t: dict[str, float] = {}          # pid -> last relayed daemon stream refusal
         self.auto_play_mode = auto_play            # on | off | auto (on for mock, off otherwise)
         self.join_url = join_url
+        self.learn_url = LEARN_URL if learn_url is None else learn_url   # "" = no learn QR
+        self._learn_qr: bytes | None = None
         self.urdf_dir = Path(urdf_dir)
         self.events_log = events_log
         self.features, self.moves, self.spots = probe_features()
@@ -400,11 +404,24 @@ class OpenPlay:
 
     def display_hello(self) -> dict:
         h = self.arm.hello
-        return {"op": "hello", "join_url": self.join_url, "backend": self.arm.backend, "adapter": self.arm.adapter,
+        return {"op": "hello", "join_url": self.join_url, "learn_url": self.learn_url, "backend": self.arm.backend, "adapter": self.arm.adapter,
                 "turn_s": self.lobby.turn_s, "auto_play": self.auto_play, "paused": self.lobby.paused,
                 "moves": self.moves, "spots": self.spots, "envelope": h.get("envelope"),
                 "poses": h.get("poses"), "urdf": (self.urdf_dir / "i2rt" / "yam.urdf").is_file(),
                 "lease": self.arm.has_lease, "daemon": self.daemon_health()}
+
+    def learn_qr_png(self) -> bytes | None:
+        """QR for the public explainer (GitHub Pages): works on mobile data, no lab Wi-Fi."""
+        if self._learn_qr is None and self.learn_url:
+            try:
+                import qrcode
+
+                buf = io.BytesIO()
+                qrcode.make(self.learn_url, border=2).save(buf, format="PNG")
+                self._learn_qr = buf.getvalue()
+            except Exception as e:
+                log.warning("learn QR: %s", e)
+        return self._learn_qr
 
     def qr_png(self) -> bytes | None:
         if self._qr is None:
@@ -1680,6 +1697,14 @@ class OpenPlay:
                 raise HTTPException(404, "no QR (qrcode/PIL missing)")
             return Response(png, media_type="image/png", headers={"Cache-Control": "no-store"})
 
+        @app.get("/learn-qr.png")
+        def learn_qr(request: Request):
+            loopback(request.client.host if request.client else None)
+            png = self.learn_qr_png()
+            if png is None:
+                raise HTTPException(404, "no learn QR (--learn-url '' or qrcode/PIL missing)")
+            return Response(png, media_type="image/png", headers={"Cache-Control": "no-store"})
+
         @app.get("/api/join")
         def join(request: Request):
             loopback(request.client.host if request.client else None)
@@ -1919,6 +1944,7 @@ async def serve(args) -> None:
     events = Path(args.events_log) if args.events_log else None
     trace = EL.default_path() if args.trace_log == "auto" else (Path(args.trace_log) if args.trace_log else None)
     op = OpenPlay(daemon_url=args.daemon, turn_s=args.turn, auto_play=args.auto_play, join_url=join_url,
+                  learn_url=args.learn_url,
                   urdf_dir=Path(args.urdf_dir), events_log=events, lin_mps=args.lin_mps,
                   ang_rps=args.ang_rps, joint_rps=args.joint_rps, chess_sensor=args.chess_sensor,
                   chess_cameras=args.chess_camera, chess_calib=args.chess_calib, trace_log=trace,
@@ -1966,6 +1992,8 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--daemon", default=DEFAULT_URL, help="armctl daemon WebSocket")
     ap.add_argument("--phone-host", default="0.0.0.0", help="phone listener bind address")
     ap.add_argument("--phone-port", type=int, default=8450)
+    ap.add_argument("--learn-url", default=LEARN_URL,
+                    help="public explainer shown as a second QR on the display ('' hides it)")
     ap.add_argument("--local-port", type=int, default=8451, help="display + operator listener (127.0.0.1)")
     ap.add_argument("--key", default=None, help="room key (default: random per start)")
     ap.add_argument("--turn", type=float, default=600.0, help="turn length, s")
