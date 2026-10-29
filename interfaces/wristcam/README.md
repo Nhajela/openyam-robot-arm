@@ -12,6 +12,8 @@ The wide-angle "USB CAMERA 4K" module sits between the gripper fingers and looks
 | `engine.py` | The closed loop as a state machine with a JSON-lines log: search, centre-and-approach, descend with re-alignment, close, verify, retry, place. `DaemonArm` runs it on the real arm through the armctl daemon. |
 | `look_and_grasp.py` | CLI: `--dry-run` (default), `--simulate`, `--execute`. |
 | `target.py` | "Pick up **that**": a tap or a prompt on a still frame → `Target` (table xy, height, footprint, grasp width/yaw, outline) → `SeededFinder` that tracks it through the engine's closed loop. `ClaudeLocator` (prompt → pixel, Claude vision, mockable). See [below](#tap-or-say-what-to-pick-targetpy). Used by open play's "Pick it up" mode. |
+| `detect.py` | **Pick up anything you name:** one seam for open-vocabulary detectors (`Det2D`: box, mask, label, score, track id). `YoloeDetector` (DimOS's YOLO-E, GPU on the laptop), `ClaudeBoxDetector` (Claude box + GrabCut, fallback), `SynthDetector` (tests). See [below](#pick-up-anything-you-name-detectpy-pick_anythingpy). |
+| `pick_anything.py` | CLI: `--simulate`, `--bench N` (detector speed, nothing moves), detect-only on a frame or the live camera, `--execute`. |
 | `synth.py` | Ray-cast synthetic wrist camera (any lens model) over a table with the sheet, tags, cups and boxes, plus `SimArm` (fake arm whose gripper stalls on a cup or a box). Used by the tests. |
 
 ## How it finds a cup
@@ -152,3 +154,21 @@ Use a cup like workcell `objects.cup` (6 cm, 8 cm tall), on the arm's right (tab
 3. Gripper: how measured grip relates to finger opening (assumed linear, 0..0.094 m), the stall reading on a cup, and `tip_to_pad`.
 4. The cup's real rim height and diameter, and whether its rim contrasts with the table (a white cup on the white sheet won't).
 5. FK accuracy at the look poses: the hand-eye residual shows it.
+
+## Pick up anything you name (`detect.py`, `pick_anything.py`)
+
+A hand-built finder per object doesn't scale, and the tap path's GrabCut failed on the real table (white cup on white paper, light cup on dark wood). Open-vocabulary segmentation is a solved problem, so the mask now comes from a detector, and everything after it is the tap path's geometry and engine, unchanged:
+
+1. `detector.detect(frame, ["the tape roll"])` → masks. YOLO-E through DimOS (`dimos.perception.detection.detectors.yoloe`, the same weights DimOS's perception uses) or Ultralytics. Masks are filled from `masks.xy` polygons, which are already in frame pixels, not by resizing `masks.data` (that ignores the letterbox).
+2. `target.resolve_prompt` → `target_from_mask` for each detection (footprint + height on the table plane, grasp across the narrow side, refusals). It returns the best graspable match, plus every candidate and why it was or wasn't chosen. With no prompt, it lists everything on the table.
+3. `run_pick(..., finder=DetectorFinder(target, detector, prompt))`: the engine's closed loop re-detects the object by name at every look, and falls back to the template tracker when the detector misses.
+
+```sh
+.venv/bin/python -m interfaces.wristcam.pick_anything --simulate --prompt "blue box" --out /tmp/pick-anything   # no models
+.venv/bin/python -m interfaces.wristcam.pick_anything --bench 30 --prompt "cup,marker,tape,box"                  # laptop GPU, nothing moves
+.venv/bin/python -m interfaces.wristcam.pick_anything --source dashboard --prompt "marker"                       # detect only
+.venv/bin/python -m interfaces.wristcam.pick_anything --source dashboard --prompt "marker" --execute             # REAL ARM, y/N per motion
+```
+
+`interfaces.follow.run --prompt "marker"` follows a named object with the same detector. Results and next steps: [experiments/2026-10-29-pick-anything/LOG.md](../../experiments/2026-10-29-pick-anything/LOG.md).
+

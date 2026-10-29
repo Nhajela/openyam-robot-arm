@@ -10,6 +10,19 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ---
 
+## 2026-10-29 (midday, 11:40–12:40 IST): reuse report, pick up anything, explainer QR (serenity; no arm)
+
+- ✅ **Reuse report** ([experiments/2026-10-29-reuse/REPORT.md](experiments/2026-10-29-reuse/REPORT.md)). DimOS already ships three things: YOLO-E open-vocabulary detection, a CSRT + PID follower (for drones) and an agentic pick-and-place (xArm + depth only). Nobody has published RGB-only YAM picking. Replace our hand-built finders; keep armctl, calibration and the arm-side limits.
+- 🧪 **Pick up anything you name** ([experiments/2026-10-29-pick-anything/LOG.md](experiments/2026-10-29-pick-anything/LOG.md)): a detector seam (YOLO-E via DimOS, Claude fallback), `resolve_prompt`, `DetectorFinder` and the `pick_anything` CLI. Synthetic: names the blue box among three objects and picks it. Real YOLO-E not run yet: it runs on the laptop's GPU.
+- 🧪 `interfaces.follow.run --prompt X`: follow a named object.
+- 🧪 **Open play:** a second, quieter QR on the display ("How does it work?") → the public explainer at `nhajela.github.io/openyam-playground/learn/` (`--learn-url`).
+- **Fix:** GrabCut is now seeded (`cv2.setRNGSeed(0)`), so tap segmentation is reproducible. A tap-to-pick test had been failing depending on test order.
+
+### Next
+1. ⏳ Laptop: `pick_anything --bench` on the GPU, detect-only on the live camera, then `--execute` on a foam block (HANDOVER §0c).
+
+---
+
 ## 2026-10-29 (late morning, 10:55–11:40 IST): follow, tracking + visual servoing (serenity; no arm)
 
 **Where:** serenity, repo `.venv` (Python 3.12.3, OpenCV 5.0.0, no DimOS), on top of `e5a64ec`. Notebook: [experiments/2026-10-29-follow/LOG.md](experiments/2026-10-29-follow/LOG.md). Code: [`interfaces/follow/`](interfaces/follow/README.md).

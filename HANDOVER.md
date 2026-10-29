@@ -12,6 +12,13 @@ The starting point for a local session on the lab laptop with the real arm. It s
 - **Known issues:** the tap path (`target.resolve`) refuses taps on the cup ("bare_table"); a white cup on white paper isn't segmented; `look_and_grasp --expect` doesn't narrow the dry-run search (it found the tape roll).
 - **Next idea (Naman):** continuous object tracking + visual-servo following. **Built in the cloud on 29 Oct (11:00–11:30, serenity, sim only): see §0b.**
 
+## 0c. Pick up anything you name (built 29 Oct, sim only; detector runs on the laptop GPU)
+- **Code:** `interfaces/wristcam/detect.py` (YOLO-E via DimOS, Claude fallback), `target.resolve_prompt` / `DetectorFinder`, CLI `interfaces/wristcam/pick_anything.py`. Notebook: [`experiments/2026-10-29-pick-anything/LOG.md`](experiments/2026-10-29-pick-anything/LOG.md). Why: [`experiments/2026-10-29-reuse/REPORT.md`](experiments/2026-10-29-reuse/REPORT.md) (DimOS already ships detection; reuse it).
+- **First steps on the laptop:**
+  1. `.venv/bin/python -m interfaces.wristcam.pick_anything --bench 30 --prompt "cup,marker,tape,box"`. Nothing moves. The YOLO-E weights download on first use. Check that the GPU is used (`"device": "cuda"`).
+  2. Detect only on the live camera (`--source dashboard --prompt "marker"`): check `look.jpg` (masks, footprint, closing line) against reality.
+  3. `--execute` on a foam block or a marker. Every motion asks y/N.
+
 ## 0b. Follow: track an object and keep the camera over it (built 29 Oct, sim only)
 - **Code:** [`interfaces/follow/`](interfaces/follow/README.md). Notebook: [`experiments/2026-10-29-follow/LOG.md`](experiments/2026-10-29-follow/LOG.md).
 - **What it does:** two-rate tracking. A fast patch tracker (~7 ms/frame) is re-anchored by `CupFinder` in a thread (~1 Hz), fused by a Kalman filter with capture-time stamps. The arm streams joint velocities at 30 Hz through the daemon's deadman to keep the camera 0.15 m over the cup, looking down. It sends nothing when the track is lost or frames/state are stale.
@@ -150,6 +157,7 @@ Then test with two real phones on the Wi-Fi:
 
 ## 8. Next (after the first hardware session)
 
+- 🧪 **Pick up anything** (§0c): YOLO-E bench on the GPU, then detect-only, then a real pick. After that, chess pieces (a small named object on a known square).
 - 🧪 **Follow** (`interfaces/follow/`, §0b): real-arm dry run, then following. Next to build: the servoed descent into a grasp (lower `follow_h` while correcting, then the engine's CLOSE/LIFT/VERIFY), a tap seed via `target.SeededFinder`, and a second camera in the same filter.
 
 - Chess mode in open play: built in the mock (real board + phone chess clock + display panel; `--chess-sensor fake|camera`; refused on the real arm until `workcell.json` is calibrated). Next: the board camera (`interfaces/chess_vision/camera.py`), then calibration (`CHESS.md` §5).
