@@ -1,0 +1,47 @@
+15 views planned; frames + joint angles go to interfaces/wristcam/data/he2
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE hand-eye view 1/15: joints by up to 0.782 rad (j2); tip -> (0.265, 0.035, 0.159) m; q=[0.3098, 0.7816, 0.193, 0.3163, 0.3566, 0.366]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 1: saved view_00.png
+
+>>> MOVE hand-eye view 2/15: joints by up to 0.597 rad (j2); tip -> (0.340, 0.012, 0.111) m; q=[0.0989, 1.3495, 0.4226, 0.4265, 0.1631, 0.4526]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 2: saved view_01.png
+
+>>> MOVE hand-eye view 3/15: joints by up to 0.631 rad (j5); tip -> (0.384, -0.062, 0.094) m; q=[-0.3142, 1.6438, 0.8073, 0.0338, -0.4539, 0.2522]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 3: saved view_02.png
+
+>>> MOVE hand-eye view 4/15: joints by up to 0.287 rad (j4); tip -> (0.415, -0.020, 0.101) m; q=[-0.104, 1.7288, 1.0473, -0.2438, -0.1728, 0.4518]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 4: saved view_03.png
+
+>>> MOVE hand-eye view 5/15: joints by up to 0.193 rad (j5); tip -> (0.385, -0.036, 0.115) m; q=[-0.23, 1.6181, 0.9533, -0.2529, -0.4005, 0.2922]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 5: saved view_04.png
+
+>>> MOVE hand-eye view 6/15: joints by up to 0.488 rad (j4); tip -> (0.433, -0.021, 0.105) m; q=[-0.0704, 1.9333, 1.4539, -0.7286, -0.0725, 0.5317]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 6: saved view_05.png
+
+>>> MOVE hand-eye view 7/15: joints by up to 0.473 rad (j4); tip -> (0.427, 0.009, 0.081) m; q=[0.0561, 1.8167, 1.0931, -0.2417, 0.1126, 0.516]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/handeye.py", line 688, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/handeye.py", line 683, in main
+    r = {"plan": cmd_plan, "collect": cmd_collect, "solve": cmd_solve}[a.cmd](a)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/handeye.py", line 595, in cmd_collect
+    arm.move_joints(v["q"], label=f"hand-eye view {i + 1}/{len(views)}")
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 556, in move_joints
+    self._run(self.client.do("move_joints", q=q, speed=min(speed or self.speed, 0.3), timeout=120))
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 512, in _run
+    return self.loop.run_until_complete(coro)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/client.py", line 149, in do
+    return await self._wait_op("done", mid, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/client.py", line 124, in _wait_op
+    raise Refused(m.get("reason", "refused"))
+interfaces.client.Refused: move_joints did not reach target: j2 error 0.055 rad > 0.05; stopped

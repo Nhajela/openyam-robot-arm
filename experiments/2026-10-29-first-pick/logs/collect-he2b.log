@@ -1,0 +1,33 @@
+15 views planned; frames + joint angles go to interfaces/wristcam/data/he2
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE hand-eye view 7/15: joints by up to 0.055 rad (j2); tip -> (0.427, 0.009, 0.081) m; q=[0.0561, 1.8167, 1.0931, -0.2417, 0.1126, 0.516]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 7: arrived short (move_joints did not reach target: j2 error 0.055 rad > 0.05; stopped); using the measured pose
+  view 7: saved view_06.png
+
+>>> MOVE hand-eye view 8/15: joints by up to 0.478 rad (j5); tip -> (0.400, 0.093, 0.114) m; q=[0.4074, 1.877, 1.3393, -0.6928, 0.5708, 0.2665]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 8: saved view_07.png
+
+>>> MOVE hand-eye view 9/15: joints by up to 0.510 rad (j6); tip -> (0.454, 0.047, 0.161) m; q=[0.1804, 1.9699, 1.6992, -0.8952, 0.2622, -0.2374]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 9: saved view_08.png
+
+>>> MOVE hand-eye view 10/15: joints by up to 0.367 rad (j6); tip -> (0.440, -0.002, 0.159) m; q=[0.0312, 1.7656, 1.3553, -0.5487, 0.1156, -0.5915]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 10: saved view_09.png
+
+>>> MOVE hand-eye view 11/15: joints by up to 0.580 rad (j3); tip -> (0.384, -0.000, 0.146) m; q=[0.0655, 1.4549, 0.798, -0.0047, 0.1892, -0.3369]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 11: saved view_10.png
+
+>>> MOVE hand-eye view 12/15: joints by up to 0.149 rad (j4); tip -> (0.374, 0.020, 0.089) m; q=[0.1608, 1.572, 0.6883, 0.1428, 0.3033, -0.3864]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 12: saved view_11.png
+
+>>> MOVE hand-eye view 13/15: joints by up to 0.472 rad (j5); tip -> (0.359, -0.006, 0.110) m; q=[-0.084, 1.4401, 0.5008, 0.4173, -0.1812, -0.5182]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 13: saved view_12.png
+
+>>> MOVE hand-eye view 14/15: joints by up to 0.321 rad (j2); tip -> (0.309, -0.020, 0.131) m; q=[-0.2002, 1.1441, 0.3343, 0.3705, -0.3115, -0.5171]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 14: saved view_13.png
+
+>>> MOVE hand-eye view 15/15: joints by up to 1.001 rad (j4); tip -> (0.377, -0.105, 0.136) m; q=[-0.4818, 1.7467, 1.2193, -0.6224, -0.6454, -0.5286]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts:   view 15: saved view_14.png
+
+>>> MOVE to ready
+    type y + Enter to do it, anything else aborts: done: 15 views in interfaces/wristcam/data/he2. Next: intrinsics solve --dir interfaces/wristcam/data/he2; handeye solve --dir interfaces/wristcam/data/he2

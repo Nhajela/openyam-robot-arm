@@ -1,0 +1,82 @@
+{
+  "T_base_table": [
+    [
+      1,
+      0,
+      0,
+      0.3
+    ],
+    [
+      0,
+      1,
+      0,
+      0.0
+    ],
+    [
+      0,
+      0,
+      1,
+      0.0
+    ],
+    [
+      0,
+      0,
+      0,
+      1
+    ]
+  ],
+  "calibrated": false,
+  "max_width": 0.094,
+  "tip_to_pad": 0.0,
+  "travel_z": 0.14,
+  "approach_z": 0.08,
+  "min_tip_z": 0.01,
+  "open_margin": 0.02,
+  "squeeze": 0.01,
+  "notes": "placeholder: T_base_table not calibrated",
+  "chess": {
+    "center": [
+      0.0,
+      0.0
+    ],
+    "square": 0.035
+  },
+  "spots": {
+    "A": {
+      "title": "Spot A (left)",
+      "xyz": [
+        0.0,
+        0.12,
+        0.0
+      ]
+    },
+    "B": {
+      "title": "Spot B (right)",
+      "xyz": [
+        0.0,
+        -0.12,
+        0.0
+      ]
+    },
+    "C": {
+      "title": "Spot C (centre)",
+      "xyz": [
+        0.08,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "objects": {
+    "block": {
+      "title": "foam block (4 cm cube)",
+      "height": 0.04,
+      "width": 0.04
+    },
+    "cup": {
+      "title": "paper cup (6 cm across, 8 cm tall)",
+      "height": 0.08,
+      "width": 0.06
+    }
+  }
+}

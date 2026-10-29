@@ -1,0 +1,300 @@
+{
+ "T_tip_cam": [
+  [
+   -0.023848,
+   0.716243,
+   0.697443,
+   -0.077583
+  ],
+  [
+   0.999385,
+   -0.000866,
+   0.035062,
+   -0.001684
+  ],
+  [
+   0.025717,
+   0.697851,
+   -0.715782,
+   0.040723
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "T_base_board": [
+  [
+   0.123524,
+   -0.991139,
+   0.048842,
+   0.456776
+  ],
+  [
+   -0.99234,
+   -0.123296,
+   0.007672,
+   0.069642
+  ],
+  [
+   -0.001582,
+   -0.049416,
+   -0.998777,
+   -0.026012
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "T_base_table": [
+  [
+   0.123524,
+   0.991139,
+   -0.048842,
+   0.414418
+  ],
+  [
+   -0.99234,
+   0.123296,
+   -0.007672,
+   -0.012988
+  ],
+  [
+   -0.001582,
+   0.049416,
+   0.998777,
+   -0.028718
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "method": "HORAUD+refined",
+ "methods": {
+  "TSAI": {
+   "spread_mm": 6.13,
+   "spread_deg": 1.719,
+   "t_mm": [
+    -73.9,
+    -1.4,
+    36.7
+   ],
+   "axis_vs_nominal_deg": 14.7,
+   "prior": "ok"
+  },
+  "PARK": {
+   "spread_mm": 5.09,
+   "spread_deg": 1.62,
+   "t_mm": [
+    -72.9,
+    -0.0,
+    40.2
+   ],
+   "axis_vs_nominal_deg": 15.9,
+   "prior": "ok"
+  },
+  "HORAUD": {
+   "spread_mm": 5.09,
+   "spread_deg": 1.62,
+   "t_mm": [
+    -72.9,
+    -0.1,
+    40.2
+   ],
+   "axis_vs_nominal_deg": 15.9,
+   "prior": "ok"
+  },
+  "ANDREFF": {
+   "spread_mm": 34.2,
+   "spread_deg": 1.621,
+   "t_mm": [
+    -23.3,
+    15.2,
+    -31.2
+   ],
+   "axis_vs_nominal_deg": 15.7,
+   "prior": "ok"
+  },
+  "DANIILIDIS": {
+   "spread_mm": 5.4,
+   "spread_deg": 1.709,
+   "t_mm": [
+    -78.4,
+    -0.1,
+    37.2
+   ],
+   "axis_vs_nominal_deg": 15.0,
+   "prior": "ok"
+  },
+  "RWHE-SHAH": {
+   "spread_mm": 6.18,
+   "spread_deg": 1.62,
+   "t_mm": [
+    -88.9,
+    -0.3,
+    41.5
+   ],
+   "axis_vs_nominal_deg": 15.9,
+   "prior": "ok"
+  },
+  "RWHE-LI": {
+   "spread_mm": 21.13,
+   "spread_deg": 1.62,
+   "t_mm": [
+    -102.2,
+    -16.0,
+    91.2
+   ],
+   "axis_vs_nominal_deg": 15.9,
+   "prior": "ok"
+  }
+ },
+ "rms_px": 5.287,
+ "per_view_px": [
+  1.602,
+  2.292,
+  2.008,
+  2.563,
+  5.536,
+  9.319,
+  5.013,
+  10.699,
+  4.18,
+  3.524,
+  9.937,
+  3.707,
+  4.977,
+  2.12,
+  6.04,
+  2.545,
+  2.621,
+  4.984,
+  2.196,
+  3.506
+ ],
+ "n_views": 20,
+ "spread_mm": 4.66,
+ "spread_deg": 1.62,
+ "solved_at": "2026-10-29T10:16:56",
+ "prior": "ok",
+ "kin_correction": {
+  "joint_offsets": [
+   0.0,
+   0.0,
+   -0.01376,
+   -0.04102,
+   -0.02394,
+   0.0
+  ],
+  "origin_deltas": [
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ]
+  ],
+  "tip_delta": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "compliance": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "source": "experiments/2026-10-29-kin-calib (model M1b, kincal.py)"
+ },
+ "board_scale_fit": {
+  "factor": 0.985,
+  "sigma": 0.0056,
+  "square_mm": 23.62
+ },
+ "gates": [
+  {
+   "name": "reprojection",
+   "ok": false,
+   "value": 5.287,
+   "limit": 3.0,
+   "text": "reprojection 5.29 px (< 3)"
+  },
+  {
+   "name": "spread_mm",
+   "ok": true,
+   "value": 4.661,
+   "limit": 6.0,
+   "text": "board-pose spread 4.66 mm (< 6)"
+  },
+  {
+   "name": "spread_deg",
+   "ok": false,
+   "value": 1.62,
+   "limit": 1.0,
+   "text": "board-pose spread 1.62 deg (< 1)"
+  },
+  {
+   "name": "table_z",
+   "ok": true,
+   "value": 0.0087,
+   "limit": 0.02,
+   "text": "table origin z -0.029 m vs expected -0.020 (|diff| < 0.02)"
+  },
+  {
+   "name": "optical_axis",
+   "ok": true,
+   "value": 15.8679,
+   "limit": 25.0,
+   "text": "optical axis 15.9 deg from the nominal 60 deg mounting (< 25)"
+  },
+  {
+   "name": "camera_distance",
+   "ok": true,
+   "value": 0.0876,
+   "limit": 0.15,
+   "text": "camera 8.8 cm from the tip (< 15)"
+  },
+  {
+   "name": "board_scale",
+   "ok": true,
+   "value": 0.015,
+   "limit": 0.05,
+   "text": "board scale vs arm kinematics x0.985 (|x-1| < 0.05; PnP distances disagree with FK if not)"
+  }
+ ]
+}

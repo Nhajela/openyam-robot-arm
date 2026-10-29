@@ -1,0 +1,204 @@
+03:55:17.173 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-29 09:25:17 INFO DimosBackend connected: DimOS REAL (armctl_openyam_damiao) on 224.0.0.123:7449, coordinator pid 32224, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-29 09:25:17 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'armctl_openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 32224, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'gravity': {'openyam': {'adapter': 'armctl_openyam_damiao', 'scale': {'j1': 1.0, 'j2': 1.0, 'j3': 1.0, 'j4': 0.83, 'j5': 1.0, 'j6': 1.0}, 'urdf': None, 'applied': True, 'note': None}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-29 09:25:17 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-29 09:25:17 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-29 09:25:17 INFO daemon up: backend=dimos auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-29 09:25:31 INFO [c1 wristcam-handeye] hello name='wristcam-handeye' from 127.0.0.1
+2026-10-29 09:25:31 INFO [c1 wristcam-handeye] acquire (auto-approved)
+2026-10-29 09:25:31 INFO [c1 wristcam-handeye] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 09:25:31 INFO DimosBackend: move_joints#1 -> DimOS trajectory 60 points (from 588 samples), 5.87 s
+2026-10-29 09:25:31 INFO [c1 wristcam-handeye] do move_joints -> [0.31, 0.782, 0.193, 0.316, 0.357, 0.366] in 5.87 s
+2026-10-29 09:25:38 INFO [c1 wristcam-handeye] done move_joints (max error 0.0288 rad)
+2026-10-29 09:25:41 INFO DimosBackend: move_joints#2 -> DimOS trajectory 46 points (from 449 samples), 4.48 s
+2026-10-29 09:25:41 INFO [c1 wristcam-handeye] do move_joints -> [0.099, 1.35, 0.423, 0.426, 0.163, 0.453] in 4.48 s
+2026-10-29 09:25:47 INFO [c1 wristcam-handeye] done move_joints (max error 0.0257 rad)
+2026-10-29 09:25:49 INFO DimosBackend: move_joints#3 -> DimOS trajectory 49 points (from 475 samples), 4.74 s
+2026-10-29 09:25:49 INFO [c1 wristcam-handeye] do move_joints -> [-0.314, 1.644, 0.807, 0.034, -0.454, 0.252] in 4.74 s
+2026-10-29 09:25:55 INFO [c1 wristcam-handeye] done move_joints (max error 0.0211 rad)
+2026-10-29 09:25:57 INFO DimosBackend: move_joints#4 -> DimOS trajectory 23 points (from 217 samples), 2.16 s
+2026-10-29 09:25:57 INFO [c1 wristcam-handeye] do move_joints -> [-0.104, 1.729, 1.047, -0.244, -0.173, 0.452] in 2.16 s
+2026-10-29 09:26:00 INFO [c1 wristcam-handeye] done move_joints (max error 0.0345 rad)
+2026-10-29 09:26:02 INFO DimosBackend: move_joints#5 -> DimOS trajectory 17 points (from 146 samples), 1.45 s
+2026-10-29 09:26:02 INFO [c1 wristcam-handeye] do move_joints -> [-0.23, 1.618, 0.953, -0.253, -0.4, 0.292] in 1.45 s
+2026-10-29 09:26:05 INFO [c1 wristcam-handeye] done move_joints (max error 0.0419 rad)
+2026-10-29 09:26:07 INFO DimosBackend: move_joints#6 -> DimOS trajectory 38 points (from 367 samples), 3.66 s
+2026-10-29 09:26:07 INFO [c1 wristcam-handeye] do move_joints -> [-0.07, 1.933, 1.454, -0.729, -0.073, 0.532] in 3.66 s
+2026-10-29 09:26:12 INFO [c1 wristcam-handeye] done move_joints (max error 0.0299 rad)
+2026-10-29 09:26:14 INFO DimosBackend: move_joints#7 -> DimOS trajectory 37 points (from 356 samples), 3.55 s
+2026-10-29 09:26:14 INFO [c1 wristcam-handeye] do move_joints -> [0.056, 1.817, 1.093, -0.242, 0.113, 0.516] in 3.55 s
+2026-10-29 09:26:19 INFO [c1 wristcam-handeye] REFUSED move_joints: move_joints did not reach target: j2 error 0.055 rad > 0.05; stopped
+2026-10-29 09:26:19 INFO lease revoked by c1 wristcam-handeye (release) (was c1 wristcam-handeye); stopped
+2026-10-29 09:26:19 INFO [c1 wristcam-handeye] disconnected
+2026-10-29 09:26:28 INFO [c2 script] hello name='systems-check' from 127.0.0.1
+2026-10-29 09:26:28 INFO [c2 script] disconnected
+2026-10-29 09:26:54 INFO [c3 wristcam-handeye] hello name='wristcam-handeye' from 127.0.0.1
+2026-10-29 09:26:54 INFO [c3 wristcam-handeye] acquire (auto-approved)
+2026-10-29 09:26:54 INFO [c3 wristcam-handeye] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 09:26:54 INFO DimosBackend: move_joints#8 -> DimOS trajectory 9 points (from 58 samples), 0.57 s
+2026-10-29 09:26:54 INFO [c3 wristcam-handeye] do move_joints -> [0.056, 1.817, 1.093, -0.242, 0.113, 0.516] in 0.57 s
+2026-10-29 09:26:56 INFO [c3 wristcam-handeye] REFUSED move_joints: move_joints did not reach target: j2 error 0.055 rad > 0.05; stopped
+2026-10-29 09:26:58 INFO DimosBackend: move_joints#9 -> DimOS trajectory 37 points (from 360 samples), 3.59 s
+2026-10-29 09:26:58 INFO [c3 wristcam-handeye] do move_joints -> [0.407, 1.877, 1.339, -0.693, 0.571, 0.266] in 3.59 s
+2026-10-29 09:27:03 INFO [c3 wristcam-handeye] done move_joints (max error 0.0264 rad)
+2026-10-29 09:27:05 INFO DimosBackend: move_joints#10 -> DimOS trajectory 40 points (from 385 samples), 3.84 s
+2026-10-29 09:27:05 INFO [c3 wristcam-handeye] do move_joints -> [0.18, 1.97, 1.699, -0.895, 0.262, -0.237] in 3.84 s
+2026-10-29 09:27:11 INFO [c3 wristcam-handeye] done move_joints (max error 0.0386 rad)
+2026-10-29 09:27:12 INFO DimosBackend: move_joints#11 -> DimOS trajectory 29 points (from 276 samples), 2.75 s
+2026-10-29 09:27:12 INFO [c3 wristcam-handeye] do move_joints -> [0.031, 1.766, 1.355, -0.549, 0.116, -0.592] in 2.75 s
+2026-10-29 09:27:17 INFO [c3 wristcam-handeye] done move_joints (max error 0.0485 rad)
+2026-10-29 09:27:19 INFO DimosBackend: move_joints#12 -> DimOS trajectory 45 points (from 436 samples), 4.35 s
+2026-10-29 09:27:19 INFO [c3 wristcam-handeye] do move_joints -> [0.066, 1.455, 0.798, -0.005, 0.189, -0.337] in 4.35 s
+2026-10-29 09:27:24 INFO [c3 wristcam-handeye] done move_joints (max error 0.0304 rad)
+2026-10-29 09:27:26 INFO DimosBackend: move_joints#13 -> DimOS trajectory 15 points (from 113 samples), 1.12 s
+2026-10-29 09:27:26 INFO [c3 wristcam-handeye] do move_joints -> [0.161, 1.572, 0.688, 0.143, 0.303, -0.386] in 1.12 s
+2026-10-29 09:27:29 INFO [c3 wristcam-handeye] done move_joints (max error 0.0203 rad)
+2026-10-29 09:27:31 INFO DimosBackend: move_joints#14 -> DimOS trajectory 37 points (from 356 samples), 3.55 s
+2026-10-29 09:27:31 INFO [c3 wristcam-handeye] do move_joints -> [-0.084, 1.44, 0.501, 0.417, -0.181, -0.518] in 3.55 s
+2026-10-29 09:27:36 INFO [c3 wristcam-handeye] done move_joints (max error 0.0250 rad)
+2026-10-29 09:27:38 INFO DimosBackend: move_joints#15 -> DimOS trajectory 26 points (from 242 samples), 2.41 s
+2026-10-29 09:27:38 INFO [c3 wristcam-handeye] do move_joints -> [-0.2, 1.144, 0.334, 0.37, -0.312, -0.517] in 2.41 s
+2026-10-29 09:27:42 INFO [c3 wristcam-handeye] done move_joints (max error 0.0221 rad)
+2026-10-29 09:27:44 INFO DimosBackend: move_joints#16 -> DimOS trajectory 77 points (from 752 samples), 7.51 s
+2026-10-29 09:27:44 INFO [c3 wristcam-handeye] do move_joints -> [-0.482, 1.747, 1.219, -0.622, -0.645, -0.529] in 7.51 s
+2026-10-29 09:27:53 INFO [c3 wristcam-handeye] done move_joints (max error 0.0297 rad)
+2026-10-29 09:27:55 INFO DimosBackend: ready#17 -> DimOS trajectory 79 points (from 773 samples), 7.72 s
+2026-10-29 09:27:55 INFO [c3 wristcam-handeye] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 7.72 s
+2026-10-29 09:28:04 INFO [c3 wristcam-handeye] done ready (max error 0.0227 rad)
+2026-10-29 09:28:04 INFO lease revoked by c3 wristcam-handeye (release) (was c3 wristcam-handeye); stopped
+2026-10-29 09:28:04 INFO [c3 wristcam-handeye] disconnected
+2026-10-29 09:29:21 INFO [c4 script] hello name='systems-check' from 127.0.0.1
+2026-10-29 09:29:21 INFO [c4 script] acquire (auto-approved)
+2026-10-29 09:29:21 INFO [c4 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 09:29:22 INFO DimosBackend: home#18 -> DimOS trajectory 84 points (from 826 samples), 8.25 s
+2026-10-29 09:29:22 INFO [c4 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.25 s
+2026-10-29 09:29:31 INFO [c4 script] done home (max error 0.0231 rad)
+2026-10-29 09:29:32 INFO lease revoked by c4 script (release) (was c4 script); stopped
+2026-10-29 09:29:32 INFO [c4 script] disconnected
+2026-10-29 10:05:39 INFO [c5 script] hello name='fable-play' from 127.0.0.1
+2026-10-29 10:05:39 INFO [c5 script] acquire (auto-approved)
+2026-10-29 10:05:39 INFO [c5 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 10:05:39 INFO [c5 script] playable.validate 'fable-happy-wave-hello': ok
+2026-10-29 10:05:39 INFO DimosBackend: ready#19 -> DimOS trajectory 50 points (from 487 samples), 4.86 s
+2026-10-29 10:05:39 INFO [c5 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.86 s
+2026-10-29 10:05:46 INFO [c5 script] done ready (max error 0.0378 rad)
+2026-10-29 10:05:46 INFO [c5 script] playable.validate 'fable-happy-wave-hello': ok
+2026-10-29 10:05:46 INFO [c5 script] playable.play 'fable-happy-wave-hello' (18.8 s): waiting for operator confirmation
+2026-10-29 10:08:46 INFO lease revoked by c5 script (release) (was c5 script); stopped
+2026-10-29 10:08:46 INFO [c5 script] disconnected
+2026-10-29 10:08:50 INFO [c6 script] hello name='systems-check' from 127.0.0.1
+2026-10-29 10:08:50 INFO [c6 script] disconnected
+2026-10-29 10:09:09 INFO [c7 script] hello name='fable-play' from 127.0.0.1
+2026-10-29 10:09:09 INFO [c7 script] acquire (auto-approved)
+2026-10-29 10:09:09 INFO [c7 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 10:09:09 INFO [c7 script] playable.validate 'fable-happy-wave-hello': ok
+2026-10-29 10:09:09 INFO DimosBackend: ready#20 -> DimOS trajectory 8 points (from 53 samples), 0.52 s
+2026-10-29 10:09:09 INFO [c7 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.52 s
+2026-10-29 10:09:11 INFO [c7 script] done ready (max error 0.0378 rad)
+2026-10-29 10:09:11 INFO [c7 script] playable.validate 'fable-happy-wave-hello': ok
+2026-10-29 10:09:11 INFO [c7 script] playable.play 'fable-happy-wave-hello' (18.8 s): waiting for operator confirmation
+2026-10-29 10:10:57 INFO DimosBackend: playable:fable-happy-wave-hello#21 -> DimOS trajectory 199 points (from 1928 samples), 19.27 s
+2026-10-29 10:10:57 INFO [c7 script] playable 'fable-happy-wave-hello' confirmed by console: playing 19.3 s
+2026-10-29 10:11:18 INFO [c7 script] done playable:fable-happy-wave-hello (max error 0.0234 rad)
+2026-10-29 10:11:18 INFO lease revoked by c7 script (release) (was c7 script); stopped
+2026-10-29 10:11:18 INFO [c7 script] disconnected
+2026-10-29 10:11:23 INFO [c8 script] hello name='systems-check' from 127.0.0.1
+2026-10-29 10:11:23 INFO [c8 script] disconnected
+2026-10-29 10:11:39 INFO [c9 script] hello name='systems-check' from 127.0.0.1
+2026-10-29 10:11:39 INFO [c9 script] acquire (auto-approved)
+2026-10-29 10:11:39 INFO [c9 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 10:11:39 INFO DimosBackend: home#22 -> DimOS trajectory 84 points (from 829 samples), 8.28 s
+2026-10-29 10:11:39 INFO [c9 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.28 s
+2026-10-29 10:11:49 INFO [c9 script] done home (max error 0.0223 rad)
+2026-10-29 10:11:49 INFO lease revoked by c9 script (release) (was c9 script); stopped
+2026-10-29 10:11:49 INFO [c9 script] disconnected
+2026-10-29 10:13:48 INFO [c10 wristcam-handeye] hello name='wristcam-handeye' from 127.0.0.1
+2026-10-29 10:13:48 INFO [c10 wristcam-handeye] acquire (auto-approved)
+2026-10-29 10:13:48 INFO [c10 wristcam-handeye] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 10:13:48 INFO DimosBackend: move_joints#23 -> DimOS trajectory 95 points (from 938 samples), 9.37 s
+2026-10-29 10:13:48 INFO [c10 wristcam-handeye] do move_joints -> [-0.286, 1.249, 0.391, 0.539, -0.378, 0.236] in 9.37 s
+2026-10-29 10:13:59 INFO [c10 wristcam-handeye] done move_joints (max error 0.0258 rad)
+2026-10-29 10:14:01 INFO DimosBackend: move_joints#24 -> DimOS trajectory 26 points (from 243 samples), 2.42 s
+2026-10-29 10:14:01 INFO [c10 wristcam-handeye] do move_joints -> [-0.194, 1.494, 0.643, 0.213, -0.406, 0.338] in 2.42 s
+2026-10-29 10:14:05 INFO [c10 wristcam-handeye] done move_joints (max error 0.0290 rad)
+2026-10-29 10:14:07 INFO DimosBackend: move_joints#25 -> DimOS trajectory 17 points (from 146 samples), 1.45 s
+2026-10-29 10:14:07 INFO [c10 wristcam-handeye] do move_joints -> [-0.154, 1.288, 0.575, 0.199, -0.305, 0.386] in 1.45 s
+2026-10-29 10:14:10 INFO [c10 wristcam-handeye] done move_joints (max error 0.0329 rad)
+2026-10-29 10:14:12 INFO DimosBackend: move_joints#26 -> DimOS trajectory 36 points (from 347 samples), 3.46 s
+2026-10-29 10:14:12 INFO [c10 wristcam-handeye] do move_joints -> [0.103, 1.54, 0.683, 0.325, 0.123, 0.504] in 3.46 s
+2026-10-29 10:14:17 INFO [c10 wristcam-handeye] done move_joints (max error 0.0246 rad)
+2026-10-29 10:14:18 INFO DimosBackend: move_joints#27 -> DimOS trajectory 17 points (from 138 samples), 1.37 s
+2026-10-29 10:14:18 INFO [c10 wristcam-handeye] do move_joints -> [0.186, 1.648, 0.63, 0.507, 0.284, 0.326] in 1.37 s
+2026-10-29 10:14:21 INFO [c10 wristcam-handeye] done move_joints (max error 0.0230 rad)
+2026-10-29 10:14:23 INFO DimosBackend: move_joints#28 -> DimOS trajectory 36 points (from 346 samples), 3.45 s
+2026-10-29 10:14:23 INFO [c10 wristcam-handeye] do move_joints -> [0.532, 1.464, 0.575, 0.299, 0.721, 0.218] in 3.45 s
+2026-10-29 10:14:28 INFO [c10 wristcam-handeye] done move_joints (max error 0.0250 rad)
+2026-10-29 10:14:30 INFO DimosBackend: move_joints#29 -> DimOS trajectory 34 points (from 330 samples), 3.29 s
+2026-10-29 10:14:30 INFO [c10 wristcam-handeye] do move_joints -> [0.216, 1.371, 0.576, 0.29, 0.344, -0.21] in 3.29 s
+2026-10-29 10:14:35 INFO [c10 wristcam-handeye] done move_joints (max error 0.0322 rad)
+2026-10-29 10:14:37 INFO DimosBackend: move_joints#30 -> DimOS trajectory 15 points (from 120 samples), 1.19 s
+2026-10-29 10:14:37 INFO [c10 wristcam-handeye] do move_joints -> [0.376, 1.551, 0.644, 0.221, 0.534, -0.292] in 1.19 s
+2026-10-29 10:14:39 INFO [c10 wristcam-handeye] done move_joints (max error 0.0232 rad)
+2026-10-29 10:14:41 INFO DimosBackend: move_joints#31 -> DimOS trajectory 24 points (from 222 samples), 2.21 s
+2026-10-29 10:14:41 INFO [c10 wristcam-handeye] do move_joints -> [0.188, 1.603, 0.874, -0.062, 0.28, -0.246] in 2.21 s
+2026-10-29 10:14:45 INFO [c10 wristcam-handeye] done move_joints (max error 0.0357 rad)
+2026-10-29 10:14:47 INFO DimosBackend: move_joints#32 -> DimOS trajectory 30 points (from 285 samples), 2.84 s
+2026-10-29 10:14:47 INFO [c10 wristcam-handeye] do move_joints -> [0.024, 1.712, 1.202, -0.426, -0.003, -0.36] in 2.84 s
+2026-10-29 10:14:51 INFO [c10 wristcam-handeye] done move_joints (max error 0.0317 rad)
+2026-10-29 10:14:53 INFO DimosBackend: move_joints#33 -> DimOS trajectory 17 points (from 141 samples), 1.40 s
+2026-10-29 10:14:53 INFO [c10 wristcam-handeye] do move_joints -> [0.018, 1.888, 1.356, -0.475, 0.056, -0.206] in 1.40 s
+2026-10-29 10:14:56 INFO [c10 wristcam-handeye] done move_joints (max error 0.0267 rad)
+2026-10-29 10:14:58 INFO DimosBackend: move_joints#34 -> DimOS trajectory 18 points (from 163 samples), 1.62 s
+2026-10-29 10:14:58 INFO [c10 wristcam-handeye] do move_joints -> [0.18, 1.929, 1.464, -0.577, 0.257, -0.439] in 1.62 s
+2026-10-29 10:15:01 INFO [c10 wristcam-handeye] done move_joints (max error 0.0364 rad)
+2026-10-29 10:15:03 INFO DimosBackend: move_joints#35 -> DimOS trajectory 28 points (from 266 samples), 2.65 s
+2026-10-29 10:15:03 INFO [c10 wristcam-handeye] do move_joints -> [-0.063, 2.116, 1.706, -0.842, -0.096, -0.544] in 2.65 s
+2026-10-29 10:15:07 INFO [c10 wristcam-handeye] done move_joints (max error 0.0336 rad)
+2026-10-29 10:15:09 INFO DimosBackend: move_joints#36 -> DimOS trajectory 33 points (from 313 samples), 3.12 s
+2026-10-29 10:15:09 INFO [c10 wristcam-handeye] do move_joints -> [-0.234, 1.687, 1.318, -0.552, -0.305, -0.179] in 3.12 s
+2026-10-29 10:15:14 INFO [c10 wristcam-handeye] REFUSED move_joints: move_joints did not reach target: j2 error 0.054 rad > 0.05; stopped
+2026-10-29 10:15:16 INFO DimosBackend: move_joints#37 -> DimOS trajectory 26 points (from 247 samples), 2.46 s
+2026-10-29 10:15:16 INFO [c10 wristcam-handeye] do move_joints -> [-0.478, 1.564, 1.175, -0.496, -0.622, -0.439] in 2.46 s
+2026-10-29 10:15:20 INFO [c10 wristcam-handeye] done move_joints (max error 0.0390 rad)
+2026-10-29 10:15:21 INFO DimosBackend: move_joints#38 -> DimOS trajectory 49 points (from 474 samples), 4.73 s
+2026-10-29 10:15:21 INFO [c10 wristcam-handeye] do move_joints -> [-0.311, 1.685, 1.163, -0.317, -0.49, 0.222] in 4.73 s
+2026-10-29 10:15:28 INFO [c10 wristcam-handeye] done move_joints (max error 0.0336 rad)
+2026-10-29 10:15:30 INFO DimosBackend: move_joints#39 -> DimOS trajectory 23 points (from 217 samples), 2.16 s
+2026-10-29 10:15:30 INFO [c10 wristcam-handeye] do move_joints -> [-0.151, 1.726, 0.951, -0.033, -0.332, 0.266] in 2.16 s
+2026-10-29 10:15:33 INFO [c10 wristcam-handeye] done move_joints (max error 0.0328 rad)
+2026-10-29 10:15:35 INFO DimosBackend: move_joints#40 -> DimOS trajectory 26 points (from 246 samples), 2.45 s
+2026-10-29 10:15:35 INFO [c10 wristcam-handeye] do move_joints -> [-0.106, 1.682, 1.186, -0.365, -0.125, 0.317] in 2.45 s
+2026-10-29 10:15:39 INFO [c10 wristcam-handeye] done move_joints (max error 0.0299 rad)
+2026-10-29 10:15:41 INFO DimosBackend: move_joints#41 -> DimOS trajectory 21 points (from 197 samples), 1.96 s
+2026-10-29 10:15:41 INFO [c10 wristcam-handeye] do move_joints -> [0.118, 1.763, 1.392, -0.563, 0.107, 0.29] in 1.96 s
+2026-10-29 10:15:45 INFO [c10 wristcam-handeye] done move_joints (max error 0.0322 rad)
+2026-10-29 10:15:46 INFO DimosBackend: move_joints#42 -> DimOS trajectory 25 points (from 236 samples), 2.35 s
+2026-10-29 10:15:46 INFO [c10 wristcam-handeye] do move_joints -> [0.087, 2.062, 1.588, -0.764, 0.092, 0.319] in 2.35 s
+2026-10-29 10:15:50 INFO [c10 wristcam-handeye] done move_joints (max error 0.0300 rad)
+2026-10-29 10:15:52 INFO DimosBackend: move_joints#43 -> DimOS trajectory 42 points (from 411 samples), 4.10 s
+2026-10-29 10:15:52 INFO [c10 wristcam-handeye] do move_joints -> [0.14, 1.676, 1.025, -0.202, 0.167, 0.587] in 4.10 s
+2026-10-29 10:15:58 INFO [c10 wristcam-handeye] done move_joints (max error 0.0491 rad)
+2026-10-29 10:16:00 INFO DimosBackend: move_joints#44 -> DimOS trajectory 60 points (from 583 samples), 5.82 s
+2026-10-29 10:16:00 INFO [c10 wristcam-handeye] do move_joints -> [0.012, 1.48, 0.457, 0.574, -0.08, -0.158] in 5.82 s
+2026-10-29 10:16:07 INFO [c10 wristcam-handeye] done move_joints (max error 0.0239 rad)
+2026-10-29 10:16:09 INFO DimosBackend: move_joints#45 -> DimOS trajectory 24 points (from 226 samples), 2.25 s
+2026-10-29 10:16:09 INFO [c10 wristcam-handeye] do move_joints -> [0.149, 1.388, 0.408, 0.603, 0.156, -0.444] in 2.25 s
+2026-10-29 10:16:13 INFO [c10 wristcam-handeye] done move_joints (max error 0.0250 rad)
+2026-10-29 10:16:15 INFO DimosBackend: move_joints#46 -> DimOS trajectory 47 points (from 457 samples), 4.56 s
+2026-10-29 10:16:15 INFO [c10 wristcam-handeye] do move_joints -> [-0.239, 1.553, 0.538, 0.554, -0.463, -0.453] in 4.56 s
+2026-10-29 10:16:21 INFO [c10 wristcam-handeye] done move_joints (max error 0.0192 rad)
+2026-10-29 10:16:23 INFO DimosBackend: ready#47 -> DimOS trajectory 66 points (from 651 samples), 6.50 s
+2026-10-29 10:16:23 INFO [c10 wristcam-handeye] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 6.50 s
+2026-10-29 10:16:31 INFO [c10 wristcam-handeye] done ready (max error 0.0292 rad)
+2026-10-29 10:16:31 INFO lease revoked by c10 wristcam-handeye (release) (was c10 wristcam-handeye); stopped
+2026-10-29 10:16:31 INFO [c10 wristcam-handeye] disconnected
+2026-10-29 10:16:36 INFO [c11 script] hello name='systems-check' from 127.0.0.1
+2026-10-29 10:16:36 INFO [c11 script] disconnected
+2026-10-29 10:16:44 INFO [c12 script] hello name='systems-check' from 127.0.0.1
+2026-10-29 10:16:44 INFO [c12 script] acquire (auto-approved)
+2026-10-29 10:16:44 INFO [c12 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-29 10:16:44 INFO DimosBackend: home#48 -> DimOS trajectory 81 points (from 796 samples), 7.95 s
+2026-10-29 10:16:44 INFO [c12 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 7.95 s
+2026-10-29 10:16:53 INFO [c12 script] done home (max error 0.0219 rad)
+2026-10-29 10:16:54 INFO lease revoked by c12 script (release) (was c12 script); stopped
+2026-10-29 10:16:54 INFO [c12 script] disconnected
