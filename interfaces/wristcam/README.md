@@ -39,6 +39,15 @@ Every motion is a single `move_joints` that the daemon validates (soft box, spee
 
 **Reach:** with the fingers exactly down, the tip only reaches z ≈ 0.21 m (j4 hits its soft limit). The camera sits about 6 cm above the tip (to be measured by hand-eye), so the highest straight-down look is about 0.27 m above the table. Higher or wider views have to be tilted, and `plan_views` uses tilts for variety.
 
+### Watching a run (`viz.py`)
+
+```bash
+.venv/bin/python -m interfaces.wristcam.viz experiments/2026-10-29-first-pick           # picker over every run under it, newest first
+.venv/bin/python -m interfaces.wristcam.viz --latest-under interfaces/wristcam/runs   # follow whichever run is newest (start before the run)
+```
+
+Open http://127.0.0.1:8097/ (`--port` to change; 8090/8091 are refused). The page polls `run.jsonl` every 0.5 s, so it is live during a run and a replay afterwards. It shows the latest frame with a detection overlay (box and outline projected from the logged q and camera model, a `cup σ1.1mm 85mm` tag, the image-centre crosshair and the pixel-error line, a HUD with state and decision; ← → step through the observations), the state strip, the estimate (table/base xy, σ, measured width), px error and estimate change per look against their tolerances, the last decision, the last (or in-flight) move with its biggest joint change, a top-down table map (expected spot, search views, detections sized by σ, estimate, place spot, tip path, board outline, direction to the base) and the event log. Read-only: it only reads files and binds 127.0.0.1.
+
 ## Tap or say what to pick (`target.py`)
 
 The engine above needs a finder for a *known* object (the cup). `target.py` makes "whatever the player tapped" work in the same loop. Open play's **Pick it up** mode (`openplay/pick_play.py`) is the front end; the library is usable on its own.

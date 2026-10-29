@@ -413,6 +413,7 @@ class ColorBlobFinder:
     hsv_hi: tuple = (85, 255, 255)
     plane_height: float = 0.0
     min_area_m2: float = 4e-4
+    size_range: tuple | None = None   # (min, max) m of the blob's sides; None: any size
 
     def find(self, frame, view: View, hint: Hint | None = None) -> Detection | None:
         center = half = None
@@ -428,8 +429,19 @@ class ColorBlobFinder:
         n, lab, stats, cents = cv2.connectedComponentsWithStats(m)
         if n <= 1:
             return None
-        k = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
         res = grid["res"]
+        areas = stats[1:, cv2.CC_STAT_AREA].astype(float)
+        if self.size_range is not None:
+            # largest blob of the object's size only (2026-10-29: an orange rug at the frame edge
+            # out-sized the ball and the search went to the rug)
+            lo, hi = self.size_range
+            for i in range(1, n):
+                side = cv2.minAreaRect(np.c_[np.nonzero(lab == i)[::-1]].astype(np.float32))[1]
+                if not (lo <= min(side) * res and max(side) * res <= hi):
+                    areas[i - 1] = -1
+            if areas.max() < 0:
+                return None
+        k = 1 + int(np.argmax(areas))
         area = stats[k, cv2.CC_STAT_AREA] * res * res
         if area < self.min_area_m2:
             return None

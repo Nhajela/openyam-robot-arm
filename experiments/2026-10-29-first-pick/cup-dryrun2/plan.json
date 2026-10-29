@@ -1,0 +1,45 @@
+{
+ "q_frame": [
+  -0.0185,
+  1.4795,
+  1.2644,
+  -0.5835,
+  -0.0124,
+  -0.0139
+ ],
+ "detection": {
+  "kind": "cup",
+  "xyz_base": [
+   0.56046,
+   0.15722,
+   0.05538
+  ],
+  "xyz_table": [
+   -0.15203,
+   0.17236,
+   0.08
+  ],
+  "yaw_table": 0.0,
+  "diameter": 0.06712976383038499,
+  "height": 0.08,
+  "sigma_xy": 0.00424,
+  "pixel": [
+   365.35837,
+   52.39515
+  ],
+  "score": 0.7437049332124331,
+  "id": null,
+  "extra": {
+   "coverage": 0.75,
+   "inliers": 199,
+   "fit_rms_mm": 0.393,
+   "ortho_res_mm": 0.788,
+   "oblique": 0.825
+  }
+ },
+ "validation": null,
+ "look_poses": [],
+ "notes": [
+  "pick_place: above pick: can't reach (0.564, 0.158, 0.128) m with the fingers down (tip 64 mm from target)"
+ ]
+}

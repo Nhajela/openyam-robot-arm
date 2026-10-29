@@ -187,6 +187,12 @@ def main(argv=None):
     ap.add_argument("--handeye", default=str(DEFAULT_HANDEYE))
     ap.add_argument("--out", default=None)
     ap.add_argument("--settle", type=float, default=1.0, help="execute: seconds to settle before each frame")
+    ap.add_argument("--ring-std", type=float, default=None, help="cup finder: max grey spread of the band next to the rim (default 22)")
+    ap.add_argument("--hsv", default=None, help="blob finder: h,s,v,h,s,v colour range (OpenCV HSV; orange 3,120,100,22,255,255)")
+    ap.add_argument("--open-margin", type=float, default=None, help="open this much wider than the object (m; workcell default 0.02)")
+    ap.add_argument("--realign-max", type=float, default=None, help="descent: largest offset re-aligned on the way down (m; default 0.008)")
+    ap.add_argument("--min-tip-z", type=float, default=None, help="lowest fingertip height above the calibrated table (m; workcell default)")
+    ap.add_argument("--no-grip-check", action="store_true", help="don't judge holding from the grip reading (it echoes the target on DimOS); camera verify only")
     ap.add_argument("--miss-first", action="store_true", help="simulate: the first grasp misses")
     a = ap.parse_args(argv)
     out = Path(a.out) if a.out else RUNS / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -198,15 +204,31 @@ def main(argv=None):
         return 0 if res["ok"] else 1
 
     wc = Workcell.load()
+    if a.min_tip_z is not None:
+        wc.min_tip_z = a.min_tip_z   # 2026-10-29: 0.01 put the fingertips on the table (provisional table z + j2 sag)
+    if a.open_margin is not None:
+        wc.open_margin = a.open_margin   # more finger clearance for the descent's alignment check
     raw = json.loads((Path(__file__).resolve().parents[1] / "grasp" / "workcell.json").read_text())
     width, height = object_dims(raw, a.object)
     cfg = GraspConfig(obj=a.object, width=width, height=height, grasp_frac=a.grasp_frac, expected_table=tuple(_floats(a.expect, 2)),
                       place_table=tuple(_floats(a.place, 2)), settle_s=a.settle if a.execute else 0.0)
+    cfg.grip_check = not a.no_grip_check
+    if a.realign_max is not None:
+        cfg.realign_max = a.realign_max
     cam, T_tc, notes = load_view_inputs(a.calib, a.handeye)
     for n in notes:
         print("note:", n)
     kind = a.finder or ("cup" if a.object == "cup" else "tags")
-    finder = make_finder(kind, **({"obj": a.object} if kind == "cup" else {}))
+    fkw = {"obj": a.object} if kind == "cup" else {}
+    if kind == "cup" and a.ring_std is not None:
+        fkw["max_ring_std"] = a.ring_std   # 2026-10-29: real cup by the tag sheet scored 23.8 against 22
+    if kind == "blob":
+        if a.hsv:
+            hsv = [int(v) for v in a.hsv.split(",")]
+            fkw.update(hsv_lo=tuple(hsv[:3]), hsv_hi=tuple(hsv[3:]))
+        fkw["plane_height"] = height / 2   # blob centre on the object's mid-height plane (a ball's equator)
+        fkw["size_range"] = (0.5 * width, 1.6 * width)
+    finder = make_finder(kind, **fkw)
 
     if a.execute:
         if notes:
@@ -215,6 +237,10 @@ def main(argv=None):
             sys.exit("refusing --execute: workcell.json is not calibrated (handeye solve --write-workcell)")
         from .engine import DaemonArm
         with DaemonArm(source=a.source, program="wristcam-grasp", speed=cfg.speed) as arm:
+            # From folded home (j2/j3 inside the soft margin) every planned look fails the path
+            # check, so start from ready (2026-10-29: all 5 search views "unreachable" from home).
+            if np.any(arm.q()[1:3] < 0.1):
+                arm.ready()
             eng = GraspEngine(arm, finder, cam, T_tc, wc, cfg, log_path=out / "run.jsonl", frames_dir=out / "frames")
             res = eng.run()
         print(json.dumps(res, indent=1, default=float))

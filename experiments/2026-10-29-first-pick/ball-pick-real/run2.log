@@ -1,0 +1,25 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE to ready
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 1.085 rad (j2); tip -> (0.378, -0.045, 0.104) m; q=[-0.1174, 1.5473, 0.8145, -0.004, 0.0277, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.855 rad (j1); tip -> (0.293, 0.271, 0.102) m; q=[0.746, 1.6232, 0.8809, 0.0061, 0.0276, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.027 rad (j3); tip -> (0.293, 0.271, 0.102) m; q=[0.7462, 1.623, 0.8805, 0.0065, 0.0276, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: {
+ "ok": false,
+ "reason": "object lost twice in a row while centring",
+ "trace": [
+  "search",
+  "center",
+  "failed"
+ ],
+ "estimate_table": [
+  -0.30811,
+  -0.05425
+ ],
+ "observations": 3,
+ "measured_width": null
+}
+log: experiments/2026-10-29-first-pick/ball-pick-real/run2/run.jsonl

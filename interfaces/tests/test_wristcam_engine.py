@@ -60,9 +60,8 @@ def test_gives_up_when_nothing_there(tmp_path):
     assert res["trace"][-1] == "failed"
 
 
-@pytest.mark.xfail(strict=True, reason="KNOWN (28 Oct): with the calibration sheet still on the table, the "
-                   "camera-down search view (real 60 deg mounting) sees a ~6 cm circle on the sheet as a cup. "
-                   "Remove the sheet before grasping; fix: reject rims overlapping detected ChArUco markers.")
+# Was a strict xfail until 29 Oct (a ~6 cm circle on the sheet read as a cup); search views now only
+# look near their own spot (Hint), which also keeps the board's circle out.
 def test_gives_up_with_only_the_board_there(tmp_path):
     world = synth.World()
     wc = Workcell(T_base_table=world.T_base_table.tolist(), calibrated=True)

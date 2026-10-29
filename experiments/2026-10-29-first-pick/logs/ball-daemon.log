@@ -1,0 +1,859 @@
+09:09:15.444 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-29 14:39:15 INFO DimosBackend connected: DimOS REAL (armctl_openyam_damiao) on 224.0.0.123:7449, coordinator pid 23987, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-29 14:39:15 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'armctl_openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 23987, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'gravity': {'openyam': {'adapter': 'armctl_openyam_damiao', 'scale': {'j1': 1.0, 'j2': 1.0, 'j3': 1.0, 'j4': 0.83, 'j5': 1.0, 'j6': 1.0}, 'urdf': None, 'applied': True, 'note': None}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-29 14:39:15 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-29 14:39:15 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-29 14:39:15 INFO daemon up: backend=dimos auto_approve=False soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-29 14:39:30 INFO [c1 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:39:30 INFO [c1 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:39:30 INFO [c1 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:39:38 INFO DimosBackend: ready#1 -> DimOS trajectory 51 points (from 499 samples), 4.98 s
+2026-10-29 14:39:38 INFO [c1 wristcam-grasp] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.98 s
+2026-10-29 14:39:45 INFO [c1 wristcam-grasp] done ready (max error 0.0378 rad)
+2026-10-29 14:39:59 INFO DimosBackend: move_joints#2 -> DimOS trajectory 78 points (from 767 samples), 7.66 s
+2026-10-29 14:39:59 INFO [c1 wristcam-grasp] do move_joints -> [-0.103, 1.483, 0.752, -0.005, 0.028, 0.0] in 7.66 s
+2026-10-29 14:40:09 INFO [c1 wristcam-grasp] done move_joints (max error 0.0206 rad)
+2026-10-29 14:40:27 INFO DimosBackend: move_joints#3 -> DimOS trajectory 10 points (from 63 samples), 0.62 s
+2026-10-29 14:40:27 INFO [c1 wristcam-grasp] do move_joints -> [-0.112, 1.532, 0.797, -0.001, 0.028, 0.0] in 0.62 s
+2026-10-29 14:40:29 INFO [c1 wristcam-grasp] done move_joints (max error 0.0244 rad)
+2026-10-29 14:40:44 INFO DimosBackend: move_joints#4 -> DimOS trajectory 7 points (from 42 samples), 0.41 s
+2026-10-29 14:40:44 INFO [c1 wristcam-grasp] do move_joints -> [-0.111, 1.537, 0.802, -0.001, 0.028, 0.0] in 0.41 s
+2026-10-29 14:40:46 INFO [c1 wristcam-grasp] done move_joints (max error 0.0290 rad)
+2026-10-29 14:40:55 INFO [c1 wristcam-grasp] do gripper 0.55
+2026-10-29 14:41:04 INFO DimosBackend: move_joints#5 -> DimOS trajectory 177 points (from 1761 samples), 17.60 s
+2026-10-29 14:41:04 INFO [c1 wristcam-grasp] do move_joints -> [-0.131, 2.098, 1.701, -1.115, 0.028, 0.0] in 17.60 s
+2026-10-29 14:41:23 INFO [c1 wristcam-grasp] done move_joints (max error 0.0314 rad)
+2026-10-29 14:41:31 INFO DimosBackend: move_joints#6 -> DimOS trajectory 7 points (from 53 samples), 0.52 s
+2026-10-29 14:41:31 INFO [c1 wristcam-grasp] do move_joints -> [-0.128, 2.099, 1.702, -1.116, 0.028, 0.0] in 0.52 s
+2026-10-29 14:41:33 INFO [c1 wristcam-grasp] done move_joints (max error 0.0330 rad)
+2026-10-29 14:41:54 INFO lease revoked by c1 wristcam-grasp (release) (was c1 wristcam-grasp); stopped
+2026-10-29 14:41:54 INFO [c1 wristcam-grasp] disconnected
+2026-10-29 14:42:20 INFO [c2 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:42:20 INFO [c2 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:42:21 INFO [c2 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:42:29 INFO DimosBackend: move_joints#7 -> DimOS trajectory 84 points (from 831 samples), 8.30 s
+2026-10-29 14:42:29 INFO [c2 wristcam-grasp] do move_joints -> [-0.109, 1.538, 0.803, -0.002, 0.028, 0.0] in 8.30 s
+2026-10-29 14:42:38 INFO [c2 wristcam-grasp] done move_joints (max error 0.0435 rad)
+2026-10-29 14:42:51 INFO DimosBackend: move_joints#8 -> DimOS trajectory 9 points (from 57 samples), 0.56 s
+2026-10-29 14:42:51 INFO [c2 wristcam-grasp] do move_joints -> [-0.111, 1.527, 0.792, -0.001, 0.028, 0.0] in 0.56 s
+2026-10-29 14:42:54 INFO [c2 wristcam-grasp] done move_joints (max error 0.0371 rad)
+2026-10-29 14:43:08 INFO DimosBackend: move_joints#9 -> DimOS trajectory 8 points (from 48 samples), 0.47 s
+2026-10-29 14:43:08 INFO [c2 wristcam-grasp] do move_joints -> [-0.111, 1.527, 0.792, -0.001, 0.028, 0.0] in 0.47 s
+2026-10-29 14:43:10 INFO [c2 wristcam-grasp] done move_joints (max error 0.0368 rad)
+2026-10-29 14:43:20 INFO [c2 wristcam-grasp] do gripper 0.73
+2026-10-29 14:43:29 INFO DimosBackend: move_joints#10 -> DimOS trajectory 175 points (from 1738 samples), 17.37 s
+2026-10-29 14:43:29 INFO [c2 wristcam-grasp] do move_joints -> [-0.131, 2.09, 1.687, -1.111, 0.028, 0.0] in 17.37 s
+2026-10-29 14:43:48 INFO [c2 wristcam-grasp] done move_joints (max error 0.0336 rad)
+2026-10-29 14:44:02 INFO DimosBackend: move_joints#11 -> DimOS trajectory 9 points (from 73 samples), 0.72 s
+2026-10-29 14:44:02 INFO [c2 wristcam-grasp] do move_joints -> [-0.128, 2.122, 1.659, -1.053, 0.028, 0.0] in 0.72 s
+2026-10-29 14:44:05 INFO [c2 wristcam-grasp] done move_joints (max error 0.0139 rad)
+2026-10-29 14:44:16 INFO DimosBackend: move_joints#12 -> DimOS trajectory 12 points (from 106 samples), 1.05 s
+2026-10-29 14:44:16 INFO [c2 wristcam-grasp] do move_joints -> [-0.127, 2.146, 1.618, -0.99, 0.027, 0.0] in 1.05 s
+2026-10-29 14:44:19 INFO [c2 wristcam-grasp] done move_joints (max error 0.0139 rad)
+2026-10-29 14:44:28 INFO DimosBackend: move_joints#13 -> DimOS trajectory 12 points (from 110 samples), 1.09 s
+2026-10-29 14:44:28 INFO [c2 wristcam-grasp] do move_joints -> [-0.128, 2.17, 1.573, -0.922, 0.027, 0.0] in 1.09 s
+2026-10-29 14:44:31 INFO [c2 wristcam-grasp] done move_joints (max error 0.0177 rad)
+2026-10-29 14:44:41 INFO DimosBackend: move_joints#14 -> DimOS trajectory 13 points (from 114 samples), 1.13 s
+2026-10-29 14:44:41 INFO [c2 wristcam-grasp] do move_joints -> [-0.128, 2.197, 1.531, -0.854, 0.027, 0.0] in 1.13 s
+2026-10-29 14:44:44 INFO [c2 wristcam-grasp] done move_joints (max error 0.0229 rad)
+2026-10-29 14:44:52 INFO DimosBackend: move_joints#15 -> DimOS trajectory 14 points (from 129 samples), 1.28 s
+2026-10-29 14:44:52 INFO [c2 wristcam-grasp] do move_joints -> [-0.127, 2.229, 1.497, -0.788, 0.027, 0.0] in 1.28 s
+2026-10-29 14:44:55 INFO [c2 wristcam-grasp] REFUSED move_joints: move_joints did not reach target: j2 error 0.053 rad > 0.05; stopped
+2026-10-29 14:44:55 INFO lease revoked by c2 wristcam-grasp (release) (was c2 wristcam-grasp); stopped
+2026-10-29 14:44:55 INFO [c2 wristcam-grasp] disconnected
+2026-10-29 14:45:27 INFO [c3 grip-lift] hello name='grip-lift' from 127.0.0.1
+2026-10-29 14:45:27 INFO [c3 grip-lift] acquire: waiting for operator approval
+2026-10-29 14:45:27 INFO [c3 grip-lift] lease granted by console (previous: none; stopped first)
+2026-10-29 14:45:27 INFO [c3 grip-lift] do gripper 0.27
+2026-10-29 14:45:30 INFO DimosBackend: move_joints#16 -> DimOS trajectory 44 points (from 425 samples), 4.24 s
+2026-10-29 14:45:30 INFO [c3 grip-lift] do move_joints -> [-0.128, 2.099, 1.702, -1.116, 0.028, 0.0] in 4.24 s
+2026-10-29 14:45:35 INFO [c3 grip-lift] REFUSED move_joints: move_joints did not reach target: j2 error 0.074 rad > 0.05; stopped
+2026-10-29 14:45:35 INFO lease revoked by c3 grip-lift (release) (was c3 grip-lift); stopped
+2026-10-29 14:45:35 INFO [c3 grip-lift] disconnected
+2026-10-29 14:46:12 INFO [c4 cup-park] hello name='cup-park ready' from 127.0.0.1
+2026-10-29 14:46:12 INFO [c4 cup-park] acquire: waiting for operator approval
+2026-10-29 14:46:12 INFO [c4 cup-park] lease granted by console (previous: none; stopped first)
+2026-10-29 14:46:12 INFO DimosBackend: ready#17 -> DimOS trajectory 106 points (from 1047 samples), 10.46 s
+2026-10-29 14:46:12 INFO [c4 cup-park] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 10.46 s
+2026-10-29 14:46:24 INFO [c4 cup-park] done ready (max error 0.0143 rad)
+2026-10-29 14:46:24 INFO lease revoked by c4 cup-park (release) (was c4 cup-park); stopped
+2026-10-29 14:46:24 INFO [c4 cup-park] disconnected
+2026-10-29 14:47:46 INFO [c5 release-home] hello name='release-home' from 127.0.0.1
+2026-10-29 14:47:46 INFO [c5 release-home] acquire: waiting for operator approval
+2026-10-29 14:47:46 INFO [c5 release-home] lease granted by console (previous: none; stopped first)
+2026-10-29 14:47:46 INFO [c5 release-home] do gripper 1.00
+2026-10-29 14:47:49 INFO DimosBackend: home#18 -> DimOS trajectory 84 points (from 823 samples), 8.22 s
+2026-10-29 14:47:49 INFO [c5 release-home] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 8.22 s
+2026-10-29 14:47:59 INFO [c5 release-home] done home (max error 0.0219 rad)
+2026-10-29 14:47:59 INFO lease revoked by c5 release-home (release) (was c5 release-home); stopped
+2026-10-29 14:47:59 INFO [c5 release-home] disconnected
+09:20:01.892 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-29 14:50:02 INFO DimosBackend connected: DimOS REAL (armctl_openyam_damiao) on 224.0.0.123:7449, coordinator pid 31254, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-29 14:50:02 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'armctl_openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 31254, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'gravity': {'openyam': {'adapter': 'armctl_openyam_damiao', 'scale': {'j1': 1.0, 'j2': 1.0, 'j3': 1.0, 'j4': 0.83, 'j5': 1.0, 'j6': 1.0}, 'urdf': None, 'applied': True, 'note': None}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-29 14:50:02 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-29 14:50:02 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-29 14:50:02 INFO daemon up: backend=dimos auto_approve=False soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-29 14:50:38 INFO [c1 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:50:38 INFO [c1 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:50:38 INFO [c1 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:50:38 INFO DimosBackend: ready#1 -> DimOS trajectory 51 points (from 498 samples), 4.97 s
+2026-10-29 14:50:38 INFO [c1 wristcam-grasp] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.97 s
+2026-10-29 14:50:45 INFO [c1 wristcam-grasp] done ready (max error 0.0378 rad)
+2026-10-29 14:50:45 INFO DimosBackend: move_joints#2 -> DimOS trajectory 32 points (from 308 samples), 3.07 s
+2026-10-29 14:50:45 INFO [c1 wristcam-grasp] do move_joints -> [0.358, 0.871, 0.379, -0.243, 0.027, 0.0] in 3.07 s
+2026-10-29 14:50:50 INFO [c1 wristcam-grasp] done move_joints (max error 0.0233 rad)
+2026-10-29 14:50:52 INFO DimosBackend: move_joints#3 -> DimOS trajectory 11 points (from 75 samples), 0.74 s
+2026-10-29 14:50:52 INFO [c1 wristcam-grasp] do move_joints -> [0.382, 0.944, 0.402, -0.194, 0.027, 0.0] in 0.74 s
+2026-10-29 14:50:54 INFO [c1 wristcam-grasp] done move_joints (max error 0.0167 rad)
+2026-10-29 14:50:57 INFO DimosBackend: move_joints#4 -> DimOS trajectory 5 points (from 30 samples), 0.29 s
+2026-10-29 14:50:57 INFO [c1 wristcam-grasp] do move_joints -> [0.379, 0.935, 0.398, -0.199, 0.027, 0.0] in 0.29 s
+2026-10-29 14:50:59 INFO [c1 wristcam-grasp] done move_joints (max error 0.0139 rad)
+2026-10-29 14:51:00 INFO [c1 wristcam-grasp] do gripper 0.73
+2026-10-29 14:51:02 INFO DimosBackend: move_joints#5 -> DimOS trajectory 119 points (from 1177 samples), 11.76 s
+2026-10-29 14:51:02 INFO [c1 wristcam-grasp] do move_joints -> [0.357, 1.636, 1.073, -0.951, 0.028, 0.0] in 11.76 s
+2026-10-29 14:51:16 INFO [c1 wristcam-grasp] done move_joints (max error 0.0280 rad)
+2026-10-29 14:51:18 INFO DimosBackend: move_joints#6 -> DimOS trajectory 11 points (from 95 samples), 0.94 s
+2026-10-29 14:51:18 INFO [c1 wristcam-grasp] do move_joints -> [0.354, 1.664, 1.023, -0.876, 0.028, 0.0] in 0.94 s
+2026-10-29 14:51:20 INFO [c1 wristcam-grasp] done move_joints (max error 0.0149 rad)
+2026-10-29 14:51:22 INFO DimosBackend: move_joints#7 -> DimOS trajectory 14 points (from 130 samples), 1.29 s
+2026-10-29 14:51:22 INFO [c1 wristcam-grasp] do move_joints -> [0.352, 1.7, 0.978, -0.797, 0.027, 0.0] in 1.29 s
+2026-10-29 14:51:24 INFO [c1 wristcam-grasp] done move_joints (max error 0.0135 rad)
+2026-10-29 14:51:26 INFO DimosBackend: move_joints#8 -> DimOS trajectory 15 points (from 138 samples), 1.37 s
+2026-10-29 14:51:26 INFO [c1 wristcam-grasp] do move_joints -> [0.352, 1.741, 0.935, -0.712, 0.027, 0.0] in 1.37 s
+2026-10-29 14:51:29 INFO [c1 wristcam-grasp] done move_joints (max error 0.0139 rad)
+2026-10-29 14:51:31 INFO DimosBackend: move_joints#9 -> DimOS trajectory 16 points (from 143 samples), 1.42 s
+2026-10-29 14:51:31 INFO [c1 wristcam-grasp] do move_joints -> [0.351, 1.787, 0.894, -0.626, 0.027, 0.0] in 1.42 s
+2026-10-29 14:51:34 INFO [c1 wristcam-grasp] done move_joints (max error 0.0320 rad)
+2026-10-29 14:51:35 INFO DimosBackend: move_joints#10 -> DimOS trajectory 13 points (from 120 samples), 1.19 s
+2026-10-29 14:51:35 INFO [c1 wristcam-grasp] do move_joints -> [0.348, 1.81, 0.874, -0.582, 0.028, 0.0] in 1.19 s
+2026-10-29 14:51:38 INFO [c1 wristcam-grasp] done move_joints (max error 0.0475 rad)
+2026-10-29 14:51:38 INFO [c1 wristcam-grasp] do gripper 0.27
+2026-10-29 14:51:40 INFO [c1 wristcam-grasp] do gripper 0.73
+2026-10-29 14:51:42 INFO DimosBackend: move_joints#11 -> DimOS trajectory 65 points (from 635 samples), 6.34 s
+2026-10-29 14:51:42 INFO [c1 wristcam-grasp] do move_joints -> [0.364, 1.622, 1.141, -1.033, 0.028, 0.0] in 6.34 s
+2026-10-29 14:51:50 INFO [c1 wristcam-grasp] done move_joints (max error 0.0404 rad)
+2026-10-29 14:51:57 INFO DimosBackend: move_joints#12 -> DimOS trajectory 61 points (from 597 samples), 5.96 s
+2026-10-29 14:51:57 INFO [c1 wristcam-grasp] do move_joints -> [0.367, 0.894, 0.387, -0.228, 0.029, 0.0] in 5.96 s
+2026-10-29 14:52:05 INFO [c1 wristcam-grasp] done move_joints (max error 0.0180 rad)
+2026-10-29 14:52:06 INFO DimosBackend: move_joints#13 -> DimOS trajectory 7 points (from 43 samples), 0.42 s
+2026-10-29 14:52:06 INFO [c1 wristcam-grasp] do move_joints -> [0.373, 0.931, 0.397, -0.202, 0.027, 0.0] in 0.42 s
+2026-10-29 14:52:08 INFO [c1 wristcam-grasp] done move_joints (max error 0.0188 rad)
+2026-10-29 14:52:10 INFO [c1 wristcam-grasp] do gripper 0.73
+2026-10-29 14:52:12 INFO DimosBackend: move_joints#14 -> DimOS trajectory 118 points (from 1165 samples), 11.64 s
+2026-10-29 14:52:12 INFO [c1 wristcam-grasp] do move_joints -> [0.35, 1.627, 1.063, -0.95, 0.028, 0.0] in 11.64 s
+2026-10-29 14:52:25 INFO [c1 wristcam-grasp] done move_joints (max error 0.0305 rad)
+2026-10-29 14:52:27 INFO DimosBackend: move_joints#15 -> DimOS trajectory 11 points (from 96 samples), 0.95 s
+2026-10-29 14:52:27 INFO [c1 wristcam-grasp] do move_joints -> [0.342, 1.666, 1.024, -0.875, 0.028, 0.0] in 0.95 s
+2026-10-29 14:52:30 INFO [c1 wristcam-grasp] done move_joints (max error 0.0135 rad)
+2026-10-29 14:52:31 INFO DimosBackend: move_joints#16 -> DimOS trajectory 14 points (from 130 samples), 1.29 s
+2026-10-29 14:52:31 INFO [c1 wristcam-grasp] do move_joints -> [0.342, 1.702, 0.981, -0.796, 0.028, 0.0] in 1.29 s
+2026-10-29 14:52:34 INFO [c1 wristcam-grasp] done move_joints (max error 0.0135 rad)
+2026-10-29 14:52:36 INFO DimosBackend: move_joints#17 -> DimOS trajectory 15 points (from 137 samples), 1.36 s
+2026-10-29 14:52:36 INFO [c1 wristcam-grasp] do move_joints -> [0.343, 1.743, 0.938, -0.713, 0.028, 0.0] in 1.36 s
+2026-10-29 14:52:38 INFO [c1 wristcam-grasp] done move_joints (max error 0.0135 rad)
+2026-10-29 14:52:40 INFO DimosBackend: move_joints#18 -> DimOS trajectory 16 points (from 142 samples), 1.41 s
+2026-10-29 14:52:40 INFO [c1 wristcam-grasp] do move_joints -> [0.342, 1.789, 0.897, -0.626, 0.028, 0.0] in 1.41 s
+2026-10-29 14:52:43 INFO [c1 wristcam-grasp] done move_joints (max error 0.0240 rad)
+2026-10-29 14:53:18 INFO [c1 wristcam-grasp] disconnected
+2026-10-29 14:53:18 INFO [c1 wristcam-grasp] lease holder disconnected: stopped, lease free
+2026-10-29 14:54:01 INFO [c2 cup-park] hello name='cup-park home' from 127.0.0.1
+2026-10-29 14:54:01 INFO [c2 cup-park] acquire: waiting for operator approval
+2026-10-29 14:54:01 INFO [c2 cup-park] lease granted by console (previous: none; stopped first)
+2026-10-29 14:54:02 INFO DimosBackend: home#19 -> DimOS trajectory 144 points (from 1422 samples), 14.21 s
+2026-10-29 14:54:02 INFO [c2 cup-park] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 14.21 s
+2026-10-29 14:54:17 INFO [c2 cup-park] done home (max error 0.0219 rad)
+2026-10-29 14:54:17 INFO lease revoked by c2 cup-park (release) (was c2 cup-park); stopped
+2026-10-29 14:54:17 INFO [c2 cup-park] disconnected
+2026-10-29 14:54:35 INFO [c3 openplay] hello name='open play' from 127.0.0.1
+2026-10-29 14:54:35 INFO [c3 openplay] acquire: waiting for operator approval
+2026-10-29 14:54:49 INFO [c3 openplay] lease granted by console (previous: none; stopped first)
+2026-10-29 14:56:20 INFO DimosBackend: ready#20 -> DimOS trajectory 50 points (from 488 samples), 4.87 s
+2026-10-29 14:56:20 INFO [c3 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.87 s
+2026-10-29 14:56:27 INFO [c3 openplay] done ready (max error 0.0378 rad)
+2026-10-29 14:56:36 INFO [c3 openplay] playable.validate 'celebrate': ok
+2026-10-29 14:56:36 INFO [c3 openplay] playable.validate 'celebrate': ok
+2026-10-29 14:56:36 INFO [c3 openplay] playable.play 'celebrate' (33.0 s): waiting for operator confirmation
+2026-10-29 14:56:36 INFO DimosBackend: playable:celebrate#21 -> DimOS trajectory 339 points (from 3343 samples), 33.42 s
+2026-10-29 14:56:36 INFO [c3 openplay] playable 'celebrate' confirmed by console: playing 33.4 s
+2026-10-29 14:57:11 INFO [c3 openplay] done playable:celebrate (max error 0.0203 rad)
+2026-10-29 14:57:13 INFO [c3 openplay] do stop
+2026-10-29 14:57:17 INFO [c3 openplay] playable.validate 'gripper-clap': ok
+2026-10-29 14:57:17 INFO [c3 openplay] playable.validate 'gripper-clap': ok
+2026-10-29 14:57:17 INFO [c3 openplay] playable.play 'gripper-clap' (20.4 s): waiting for operator confirmation
+2026-10-29 14:57:17 INFO DimosBackend: playable:gripper-clap#22 -> DimOS trajectory 252 points (from 2074 samples), 20.73 s
+2026-10-29 14:57:17 INFO [c3 openplay] playable 'gripper-clap' confirmed by console: playing 20.7 s
+2026-10-29 14:57:40 INFO [c3 openplay] done playable:gripper-clap (max error 0.0192 rad)
+2026-10-29 14:57:40 INFO [c3 openplay] do stop
+2026-10-29 14:57:42 INFO [c3 openplay] do stop
+2026-10-29 14:58:17 INFO [c3 openplay] playable.validate 'wave-hello': ok
+2026-10-29 14:58:17 INFO [c3 openplay] playable.validate 'wave-hello': ok
+2026-10-29 14:58:17 INFO [c3 openplay] playable.play 'wave-hello' (12.4 s): waiting for operator confirmation
+2026-10-29 14:58:18 INFO DimosBackend: playable:wave-hello#23 -> DimOS trajectory 142 points (from 1275 samples), 12.74 s
+2026-10-29 14:58:18 INFO [c3 openplay] playable 'wave-hello' confirmed by console: playing 12.7 s
+2026-10-29 14:58:32 INFO [c3 openplay] done playable:wave-hello (max error 0.0204 rad)
+2026-10-29 14:59:06 INFO [c3 openplay] do stop
+2026-10-29 14:59:06 INFO lease revoked by c3 openplay (release) (was c3 openplay); stopped
+2026-10-29 14:59:06 INFO [c3 openplay] disconnected
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_sansio_impl.py", line 409, in run_asgi
+    result = await self.app(self.scope, self.receive, self.send)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1216, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2791, in app
+    await route.handle(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 356, in handle
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 191, in app
+    await wrap_app_handling_exceptions(app, session)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 188, in app
+    await func(session)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 829, in app
+    await dependant.call(**solved_result.values)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 999, in ws_endpoint
+    text = await ws.receive_text()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/websockets.py", line 124, in receive_text
+    raise WebSocketDisconnected('WebSocket is not connected. Need to call "accept" first.')
+starlette.websockets.WebSocketDisconnected: WebSocket is not connected. Need to call "accept" first.
+2026-10-29 14:59:09 INFO [c4 openplay] hello name='open play' from 127.0.0.1
+2026-10-29 14:59:09 INFO [c4 openplay] acquire: waiting for operator approval
+2026-10-29 14:59:10 INFO [c4 openplay] lease granted by console (previous: none; stopped first)
+2026-10-29 15:00:24 INFO [c4 openplay] playable.validate 'disco-dance': ok
+2026-10-29 15:00:51 INFO [c4 openplay] playable.validate 'disco-dance': ok
+2026-10-29 15:00:51 INFO [c4 openplay] playable.play 'disco-dance' (13.2 s): waiting for operator confirmation
+2026-10-29 15:00:51 INFO DimosBackend: playable:disco-dance#24 -> DimOS trajectory 146 points (from 1356 samples), 13.55 s
+2026-10-29 15:00:51 INFO [c4 openplay] playable 'disco-dance' confirmed by console: playing 13.6 s
+2026-10-29 15:01:06 INFO [c4 openplay] done playable:disco-dance (max error 0.0204 rad)
+2026-10-29 15:02:17 INFO [c4 openplay] playable.validate 'pick-up-purple-plushie': ok
+2026-10-29 15:02:17 INFO [c4 openplay] playable.validate 'pick-up-purple-plushie': ok
+2026-10-29 15:02:17 INFO [c4 openplay] playable.play 'pick-up-purple-plushie' (14.2 s): waiting for operator confirmation
+2026-10-29 15:02:17 INFO DimosBackend: playable:pick-up-purple-plushie#25 -> DimOS trajectory 148 points (from 1456 samples), 14.55 s
+2026-10-29 15:02:17 INFO [c4 openplay] playable 'pick-up-purple-plushie' confirmed by console: playing 14.6 s
+2026-10-29 15:02:33 INFO [c4 openplay] done playable:pick-up-purple-plushie (max error 0.0192 rad)
+2026-10-29 15:02:55 INFO DimosBackend: ready#26 -> DimOS trajectory 6 points (from 35 samples), 0.34 s
+2026-10-29 15:02:55 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.34 s
+2026-10-29 15:02:57 INFO [c4 openplay] done ready (max error 0.0306 rad)
+2026-10-29 15:02:59 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:00 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:05 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:05 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:06 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:08 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:08 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:12 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:15 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:16 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:17 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:18 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:19 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:20 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:20 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:22 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:22 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:23 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:25 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:25 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:25 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:26 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:28 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:28 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:29 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:29 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:31 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:33 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:34 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:35 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:35 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:38 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:46 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:46 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:48 INFO [c4 openplay] do gripper 0.15
+2026-10-29 15:03:48 INFO [c4 openplay] do gripper 0.85
+2026-10-29 15:03:49 INFO [c4 openplay] do gripper 1.00
+2026-10-29 15:03:49 INFO [c4 openplay] do gripper 0.95
+2026-10-29 15:03:49 INFO [c4 openplay] do gripper 0.40
+2026-10-29 15:03:50 INFO [c4 openplay] do gripper 0.35
+2026-10-29 15:03:50 INFO [c4 openplay] do gripper 0.80
+2026-10-29 15:03:50 INFO [c4 openplay] do gripper 0.70
+2026-10-29 15:03:50 INFO [c4 openplay] do gripper 0.40
+2026-10-29 15:03:51 INFO [c4 openplay] do gripper 0.80
+2026-10-29 15:03:51 INFO [c4 openplay] do gripper 1.00
+2026-10-29 15:03:54 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:54 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:55 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:56 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:03:58 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:03:59 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:00 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:01 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:01 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:02 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:02 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:03 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:04 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:05 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:06 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:06 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:08 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:08 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:09 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:09 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:10 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:10 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:11 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:12 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:13 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:13 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:14 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:14 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:15 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:16 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:16 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:17 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:19 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:19 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:22 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:22 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:23 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:24 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:25 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:26 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:29 INFO [c4 openplay] do gripper 0.00
+2026-10-29 15:04:33 INFO [c4 openplay] do gripper 1.00
+2026-10-29 15:04:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:36 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:37 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:38 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:39 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:39 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:40 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:41 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:43 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:43 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:44 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:45 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:46 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:46 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:48 INFO [c4 openplay] do gripper 0.80
+2026-10-29 15:04:49 INFO [c4 openplay] do gripper 0.55
+2026-10-29 15:04:51 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:52 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:04:52 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:04:56 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:05:20 INFO DimosBackend: ready#27 -> DimOS trajectory 61 points (from 597 samples), 5.96 s
+2026-10-29 15:05:20 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 5.96 s
+2026-10-29 15:05:28 INFO [c4 openplay] done ready (max error 0.0138 rad)
+2026-10-29 15:05:30 INFO [c4 openplay] do gripper 1.00
+2026-10-29 15:05:54 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:05 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:06 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:12 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:13 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:17 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:19 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:23 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:24 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:27 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:28 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:30 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:32 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:36 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:39 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:40 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:42 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:43 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:46 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:47 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:48 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:50 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:51 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:06:52 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:06:53 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:07:05 INFO [c4 openplay] do gripper 0.90
+2026-10-29 15:07:05 INFO [c4 openplay] do gripper 0.80
+2026-10-29 15:07:05 INFO [c4 openplay] do gripper 0.75
+2026-10-29 15:07:06 INFO [c4 openplay] do gripper 0.65
+2026-10-29 15:07:06 INFO [c4 openplay] do gripper 0.60
+2026-10-29 15:07:06 INFO [c4 openplay] do gripper 0.55
+2026-10-29 15:07:07 INFO [c4 openplay] do gripper 0.50
+2026-10-29 15:07:09 INFO [c4 openplay] do gripper 0.55
+2026-10-29 15:07:09 INFO [c4 openplay] do gripper 0.60
+2026-10-29 15:07:09 INFO [c4 openplay] do gripper 0.60
+2026-10-29 15:07:12 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:07:14 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:07:15 INFO [c4 openplay] do gripper 0.65
+2026-10-29 15:07:16 INFO [c4 openplay] do gripper 0.55
+2026-10-29 15:07:16 INFO [c4 openplay] do gripper 0.50
+2026-10-29 15:07:16 INFO [c4 openplay] do gripper 0.45
+2026-10-29 15:07:17 INFO [c4 openplay] do gripper 0.45
+2026-10-29 15:07:21 INFO [c4 openplay] do gripper 0.50
+2026-10-29 15:07:21 INFO [c4 openplay] do gripper 0.75
+2026-10-29 15:07:22 INFO [c4 openplay] do gripper 0.75
+2026-10-29 15:07:24 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:07:28 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:07:29 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:07:31 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:07:34 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:07:37 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:07:40 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:07:41 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:07:42 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:07:44 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:07:45 INFO [c4 openplay] do gripper 0.70
+2026-10-29 15:07:45 INFO [c4 openplay] do gripper 0.55
+2026-10-29 15:07:45 INFO [c4 openplay] do gripper 0.50
+2026-10-29 15:07:46 INFO [c4 openplay] do gripper 0.45
+2026-10-29 15:07:46 INFO [c4 openplay] do gripper 0.40
+2026-10-29 15:07:47 INFO [c4 openplay] do gripper 0.40
+2026-10-29 15:07:49 INFO [c4 openplay] do gripper 0.35
+2026-10-29 15:07:49 INFO [c4 openplay] do gripper 0.15
+2026-10-29 15:07:50 INFO [c4 openplay] do gripper 0.15
+2026-10-29 15:07:52 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:07:56 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:07:56 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:08:02 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:08:07 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:08:10 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:08:10 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:08:15 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:08:15 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:08:19 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:08:19 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:08:23 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:08:51 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:08:53 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:08:53 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:08:54 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:09:46 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:09:48 INFO [c4 openplay] do stop
+2026-10-29 15:09:48 INFO DimosBackend: ready#28 -> DimOS trajectory 73 points (from 713 samples), 7.12 s
+2026-10-29 15:09:48 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 7.12 s
+2026-10-29 15:09:56 INFO [c4 openplay] done ready (max error 0.0200 rad)
+2026-10-29 15:10:09 INFO DimosBackend: ready#29 -> DimOS trajectory 6 points (from 36 samples), 0.35 s
+2026-10-29 15:10:09 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.35 s
+2026-10-29 15:10:11 INFO [c4 openplay] done ready (max error 0.0298 rad)
+2026-10-29 15:10:19 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:25 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:26 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:28 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:29 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:33 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:33 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:36 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:37 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:38 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:41 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:41 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:45 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:46 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:47 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:47 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:49 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:50 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:51 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:52 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:10:54 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:10:59 INFO [c4 openplay] do gripper 0.30
+2026-10-29 15:10:59 INFO [c4 openplay] do gripper 0.40
+2026-10-29 15:11:00 INFO [c4 openplay] do gripper 0.40
+2026-10-29 15:11:04 INFO [c4 openplay] do stop
+2026-10-29 15:11:11 INFO [c4 openplay] do stop
+2026-10-29 15:11:18 INFO [c4 openplay] do stop
+2026-10-29 15:11:38 INFO [c4 openplay] do gripper 1.00
+2026-10-29 15:11:41 INFO DimosBackend: ready#30 -> DimOS trajectory 102 points (from 1003 samples), 10.02 s
+2026-10-29 15:11:41 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 10.02 s
+2026-10-29 15:11:53 INFO [c4 openplay] done ready (max error 0.0157 rad)
+2026-10-29 15:12:17 INFO [c4 openplay] playable.validate 'wave-hello': ok
+2026-10-29 15:12:17 INFO [c4 openplay] playable.validate 'wave-hello': ok
+2026-10-29 15:12:17 INFO [c4 openplay] playable.play 'wave-hello' (12.4 s): waiting for operator confirmation
+2026-10-29 15:12:17 INFO DimosBackend: playable:wave-hello#31 -> DimOS trajectory 142 points (from 1272 samples), 12.71 s
+2026-10-29 15:12:17 INFO [c4 openplay] playable 'wave-hello' confirmed by console: playing 12.7 s
+2026-10-29 15:12:31 INFO [c4 openplay] done playable:wave-hello (max error 0.0196 rad)
+2026-10-29 15:12:34 INFO [c4 openplay] playable.validate 'shake-no': ok
+2026-10-29 15:12:34 INFO [c4 openplay] playable.validate 'shake-no': ok
+2026-10-29 15:12:34 INFO [c4 openplay] playable.play 'shake-no' (20.7 s): waiting for operator confirmation
+2026-10-29 15:12:34 INFO DimosBackend: playable:shake-no#32 -> DimOS trajectory 225 points (from 2106 samples), 21.05 s
+2026-10-29 15:12:34 INFO [c4 openplay] playable 'shake-no' confirmed by console: playing 21.1 s
+2026-10-29 15:12:48 INFO [c4 openplay] do stop
+2026-10-29 15:13:28 INFO [c4 openplay] do stop
+2026-10-29 15:13:54 INFO [c4 openplay] playable.validate 'sway-like-a-tree': ok
+2026-10-29 15:13:54 INFO [c4 openplay] playable.validate 'sway-like-a-tree': ok
+2026-10-29 15:13:54 INFO [c4 openplay] playable.play 'sway-like-a-tree' (14.2 s): waiting for operator confirmation
+2026-10-29 15:13:54 INFO DimosBackend: playable:sway-like-a-tree#33 -> DimOS trajectory 162 points (from 1595 samples), 15.94 s
+2026-10-29 15:13:54 INFO [c4 openplay] playable 'sway-like-a-tree' confirmed by console: playing 15.9 s
+2026-10-29 15:14:12 INFO [c4 openplay] done playable:sway-like-a-tree (max error 0.0185 rad)
+2026-10-29 15:14:19 INFO DimosBackend: ready#34 -> DimOS trajectory 6 points (from 34 samples), 0.33 s
+2026-10-29 15:14:19 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.33 s
+2026-10-29 15:14:21 INFO [c4 openplay] done ready (max error 0.0317 rad)
+2026-10-29 15:14:28 INFO [c4 openplay] playable.validate 'happy-dance': ok
+2026-10-29 15:14:28 INFO [c4 openplay] playable.validate 'happy-dance': ok
+2026-10-29 15:14:28 INFO [c4 openplay] playable.play 'happy-dance' (12.1 s): waiting for operator confirmation
+2026-10-29 15:14:28 INFO DimosBackend: playable:happy-dance#35 -> DimOS trajectory 129 points (from 1254 samples), 12.53 s
+2026-10-29 15:14:28 INFO [c4 openplay] playable 'happy-dance' confirmed by console: playing 12.5 s
+2026-10-29 15:14:42 INFO [c4 openplay] done playable:happy-dance (max error 0.0231 rad)
+2026-10-29 15:14:45 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:14:46 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:14:46 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:14:56 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:14:56 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:14:56 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:14:57 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:15:01 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:15:02 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:15:05 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:15:06 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:15:11 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:15:16 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:15:30 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:15:35 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:15:37 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:15:38 INFO DimosBackend: home#36 -> DimOS trajectory 200 points (from 1985 samples), 19.84 s
+2026-10-29 15:15:38 INFO [c4 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 19.84 s
+2026-10-29 15:15:59 INFO [c4 openplay] done home (max error 0.0215 rad)
+2026-10-29 15:16:05 INFO [c4 openplay] do stop
+2026-10-29 15:16:05 INFO DimosBackend: ready#37 -> DimOS trajectory 50 points (from 488 samples), 4.87 s
+2026-10-29 15:16:05 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.87 s
+2026-10-29 15:16:11 INFO [c4 openplay] done ready (max error 0.0378 rad)
+2026-10-29 15:16:19 INFO DimosBackend: ready#38 -> DimOS trajectory 8 points (from 48 samples), 0.47 s
+2026-10-29 15:16:19 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.47 s
+2026-10-29 15:16:21 INFO [c4 openplay] done ready (max error 0.0409 rad)
+2026-10-29 15:16:25 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:25 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:25 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:27 INFO [c4 openplay] REFUSED stream: j1 would reach -0.618 < soft limit -0.600 (URDF -0.700 + margin 0.10) at -0.300 rad/s (now -0.570); j1 motion zeroed
+2026-10-29 15:16:28 INFO [c4 openplay] REFUSED stream: j1 would reach -0.635 < soft limit -0.600 (URDF -0.700 + margin 0.10) at -0.300 rad/s (now -0.587); j1 motion zeroed
+2026-10-29 15:16:30 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:30 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:32 INFO [c4 openplay] REFUSED stream: j3 would reach 0.077 < soft limit 0.100 (URDF 0.000 + margin 0.10) at -0.300 rad/s (now 0.125); j3 motion zeroed
+2026-10-29 15:16:33 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:34 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:35 INFO [c4 openplay] REFUSED stream: j2 would reach 0.075 < soft limit 0.100 (URDF 0.000 + margin 0.10) at -0.300 rad/s (now 0.123); j2 motion zeroed
+2026-10-29 15:16:35 WARNING DimosBackend: edge of reach: j2 near its limit (0.10 / 0.00): steer back (qd -0.174 rad/s); joint stream stopped
+2026-10-29 15:16:35 WARNING [c4 openplay] edge of reach: j2 near its limit (0.10 / 0.00): steer back
+2026-10-29 15:16:35 INFO [c4 openplay] REFUSED stream: edge of reach: j2 near its limit (0.10 / 0.00): steer back
+2026-10-29 15:16:35 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 WARNING DimosBackend: edge of reach: j2 near its limit (0.09 / 0.00): steer back (qd -0.019 rad/s); joint stream stopped
+2026-10-29 15:16:36 WARNING [c4 openplay] edge of reach: j2 near its limit (0.09 / 0.00): steer back
+2026-10-29 15:16:36 INFO [c4 openplay] REFUSED stream: edge of reach: j2 near its limit (0.09 / 0.00): steer back
+2026-10-29 15:16:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 WARNING DimosBackend: edge of reach: j2 near its limit (0.09 / 0.00): steer back (qd -0.053 rad/s); joint stream stopped
+2026-10-29 15:16:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 WARNING DimosBackend: edge of reach: j2 near its limit (0.08 / 0.00): steer back (qd -0.091 rad/s); joint stream stopped
+2026-10-29 15:16:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 WARNING DimosBackend: edge of reach: j2 near its limit (0.08 / 0.00): steer back (qd -0.015 rad/s); joint stream stopped
+2026-10-29 15:16:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 WARNING DimosBackend: edge of reach: j2 near its limit (0.08 / 0.00): steer back (qd -0.037 rad/s); joint stream stopped
+2026-10-29 15:16:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 WARNING DimosBackend: edge of reach: j2 near its limit (0.07 / 0.00): steer back (qd -0.083 rad/s); joint stream stopped
+2026-10-29 15:16:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 WARNING DimosBackend: edge of reach: j2 near its limit (0.07 / 0.00): steer back (qd -0.053 rad/s); joint stream stopped
+2026-10-29 15:16:36 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:36 WARNING DimosBackend: edge of reach: j2 near its limit (0.06 / 0.00): steer back (qd -0.090 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.05 / 0.00): steer back (qd -0.077 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.05 / 0.00): steer back (qd -0.053 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.04 / 0.00): steer back (qd -0.098 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.03 / 0.00): steer back (qd -0.060 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.03 / 0.00): steer back (qd -0.053 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.02 / 0.00): steer back (qd -0.061 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.02 / 0.00): steer back (qd -0.071 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.01 / 0.00): steer back (qd -0.076 rad/s); joint stream stopped
+2026-10-29 15:16:37 WARNING [c4 openplay] edge of reach: j2 near its limit (0.01 / 0.00): steer back
+2026-10-29 15:16:37 INFO [c4 openplay] REFUSED stream: edge of reach: j2 near its limit (0.01 / 0.00): steer back
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.01 / 0.00): steer back (qd -0.045 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.00 / 0.00): steer back (qd -0.096 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:37 WARNING DimosBackend: edge of reach: j2 near its limit (0.00 / 0.00): steer back (qd -0.044 rad/s); joint stream stopped
+2026-10-29 15:16:37 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:38 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:39 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:41 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:41 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:46 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:46 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:50 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:52 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:16:54 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:16:57 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:17:10 INFO DimosBackend: j2 back from its lower limit (0.120): edge latch cleared
+2026-10-29 15:17:17 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:17 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:17:18 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:18 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:17:19 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:19 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:17:20 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:20 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:17:21 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:21 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:17:23 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:23 INFO [c4 openplay] stream start (joint, ttl 300 ms)
+2026-10-29 15:17:25 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:35 INFO DimosBackend: ready#39 -> DimOS trajectory 28 points (from 269 samples), 2.68 s
+2026-10-29 15:17:35 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.68 s
+2026-10-29 15:17:39 INFO [c4 openplay] done ready (max error 0.0219 rad)
+2026-10-29 15:17:41 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:17:45 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.28 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:45 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:46 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:47 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:17:48 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:48 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:49 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:17:50 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:58 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:17:59 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:00 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] REFUSED stream: stream v: Cartesian streaming needs the arm unfolded (j2 0.27 < 0.3): DimOS's IK has no solution from the folded pose; send do ready first
+2026-10-29 15:18:01 INFO [c4 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-29 15:18:02 INFO [c4 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-29 15:18:05 INFO DimosBackend: home#40 -> DimOS trajectory 93 points (from 919 samples), 9.18 s
+2026-10-29 15:18:05 INFO [c4 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 9.18 s
+2026-10-29 15:18:15 INFO [c4 openplay] done home (max error 0.0204 rad)
+2026-10-29 15:18:18 INFO DimosBackend: ready#41 -> DimOS trajectory 50 points (from 489 samples), 4.88 s
+2026-10-29 15:18:18 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.88 s
+2026-10-29 15:18:24 INFO [c4 openplay] done ready (max error 0.0378 rad)
+2026-10-29 15:18:28 INFO [c4 openplay] playable.validate 'celebrate': ok
+2026-10-29 15:18:28 INFO [c4 openplay] playable.validate 'celebrate': ok
+2026-10-29 15:18:28 INFO [c4 openplay] playable.play 'celebrate' (33.0 s): waiting for operator confirmation
+2026-10-29 15:18:28 INFO DimosBackend: playable:celebrate#42 -> DimOS trajectory 339 points (from 3343 samples), 33.42 s
+2026-10-29 15:18:28 INFO [c4 openplay] playable 'celebrate' confirmed by console: playing 33.4 s
+2026-10-29 15:19:03 INFO [c4 openplay] done playable:celebrate (max error 0.0181 rad)
+2026-10-29 15:19:17 INFO [c4 openplay] playable.validate 'gripper-clap': ok
+2026-10-29 15:19:17 INFO [c4 openplay] playable.validate 'gripper-clap': ok
+2026-10-29 15:19:17 INFO [c4 openplay] playable.play 'gripper-clap' (20.4 s): waiting for operator confirmation
+2026-10-29 15:19:17 INFO DimosBackend: playable:gripper-clap#43 -> DimOS trajectory 252 points (from 2072 samples), 20.71 s
+2026-10-29 15:19:17 INFO [c4 openplay] playable 'gripper-clap' confirmed by console: playing 20.7 s
+2026-10-29 15:19:39 INFO [c4 openplay] done playable:gripper-clap (max error 0.0188 rad)
+2026-10-29 15:19:39 INFO [c4 openplay] do stop
+2026-10-29 15:19:42 INFO [c4 openplay] playable.validate 'conductor': ok
+2026-10-29 15:19:42 INFO [c4 openplay] playable.validate 'conductor': ok
+2026-10-29 15:19:42 INFO [c4 openplay] REFUSED playable.play: playable path leaves the envelope: j1 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over); j5 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over)
+2026-10-29 15:19:43 INFO [c4 openplay] playable.validate 'conductor': ok
+2026-10-29 15:19:43 INFO [c4 openplay] playable.validate 'conductor': ok
+2026-10-29 15:19:43 INFO [c4 openplay] REFUSED playable.play: playable path leaves the envelope: j1 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over); j5 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over)
+2026-10-29 15:19:48 INFO [c4 openplay] playable.validate 'conductor': ok
+2026-10-29 15:19:48 INFO [c4 openplay] playable.validate 'conductor': ok
+2026-10-29 15:19:48 INFO [c4 openplay] REFUSED playable.play: playable path leaves the envelope: j1 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over); j5 acceleration 1.100 rad/s^2 at t=7.86 s > cap 1.000 rad/s^2 (1 samples over)
+2026-10-29 15:19:53 INFO [c4 openplay] playable.validate 'peekaboo': ok
+2026-10-29 15:19:53 INFO [c4 openplay] playable.validate 'peekaboo': ok
+2026-10-29 15:19:53 INFO [c4 openplay] playable.play 'peekaboo' (28.5 s): waiting for operator confirmation
+2026-10-29 15:19:53 INFO DimosBackend: playable:peekaboo#44 -> DimOS trajectory 301 points (from 2880 samples), 28.79 s
+2026-10-29 15:19:53 INFO [c4 openplay] playable 'peekaboo' confirmed by console: playing 28.8 s
+2026-10-29 15:20:10 INFO [c4 openplay] do stop
+2026-10-29 15:20:11 INFO DimosBackend: home#45 -> DimOS trajectory 100 points (from 986 samples), 9.85 s
+2026-10-29 15:20:11 INFO [c4 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 9.85 s
+2026-10-29 15:20:22 INFO [c4 openplay] done home (max error 0.0204 rad)
+2026-10-29 15:20:23 INFO DimosBackend: home#46 -> DimOS trajectory 13 points (from 106 samples), 1.05 s
+2026-10-29 15:20:23 INFO [c4 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 1.05 s
+2026-10-29 15:20:24 INFO [c4 openplay] do stop
+2026-10-29 15:20:26 INFO DimosBackend: home#47 -> DimOS trajectory 13 points (from 106 samples), 1.05 s
+2026-10-29 15:20:26 INFO [c4 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 1.05 s
+2026-10-29 15:20:28 INFO [c4 openplay] done home (max error 0.0204 rad)
+2026-10-29 15:20:28 INFO DimosBackend: home#48 -> DimOS trajectory 13 points (from 106 samples), 1.05 s
+2026-10-29 15:20:28 INFO [c4 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 1.05 s
+2026-10-29 15:20:31 INFO [c4 openplay] done home (max error 0.0204 rad)
+2026-10-29 15:20:32 INFO [c4 openplay] do stop
+2026-10-29 15:20:35 INFO DimosBackend: ready#49 -> DimOS trajectory 50 points (from 489 samples), 4.88 s
+2026-10-29 15:20:35 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.88 s
+2026-10-29 15:20:42 INFO [c4 openplay] done ready (max error 0.0378 rad)
+2026-10-29 15:21:09 INFO [c4 openplay] playable.validate 'max-all-joints': ok
+2026-10-29 15:21:09 INFO [c4 openplay] playable.validate 'max-all-joints': ok
+2026-10-29 15:21:09 INFO [c4 openplay] playable.play 'max-all-joints' (24.3 s): waiting for operator confirmation
+2026-10-29 15:21:09 INFO DimosBackend: playable:max-all-joints#50 -> DimOS trajectory 251 points (from 2478 samples), 24.77 s
+2026-10-29 15:21:09 INFO [c4 openplay] playable 'max-all-joints' confirmed by console: playing 24.8 s
+2026-10-29 15:21:36 INFO [c4 openplay] done playable:max-all-joints (max error 0.0378 rad)
+2026-10-29 15:21:38 INFO [c4 openplay] do stop
+2026-10-29 15:21:38 INFO [c4 openplay] do stop
+2026-10-29 15:21:39 INFO DimosBackend: home#51 -> DimOS trajectory 81 points (from 797 samples), 7.96 s
+2026-10-29 15:21:39 INFO [c4 openplay] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 7.96 s
+2026-10-29 15:21:40 INFO [c4 openplay] do stop
+2026-10-29 15:21:40 INFO DimosBackend: ready#52 -> DimOS trajectory 15 points (from 113 samples), 1.12 s
+2026-10-29 15:21:40 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 1.12 s
+2026-10-29 15:21:43 INFO [c4 openplay] done ready (max error 0.0371 rad)
+2026-10-29 15:24:33 INFO [c4 openplay] do stop
+2026-10-29 15:24:33 INFO DimosBackend: ready#53 -> DimOS trajectory 8 points (from 48 samples), 0.47 s
+2026-10-29 15:24:33 INFO [c4 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.47 s
+2026-10-29 15:24:35 INFO [c4 openplay] done ready (max error 0.0417 rad)
+2026-10-29 15:24:37 INFO [c4 openplay] do stop
+2026-10-29 15:24:37 INFO lease revoked by c4 openplay (release) (was c4 openplay); stopped
+2026-10-29 15:24:37 INFO [c4 openplay] disconnected
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_sansio_impl.py", line 409, in run_asgi
+    result = await self.app(self.scope, self.receive, self.send)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1216, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2791, in app
+    await route.handle(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/routing.py", line 356, in handle
+    await self.app(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 191, in app
+    await wrap_app_handling_exceptions(app, session)(scope, receive, send)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 188, in app
+    await func(session)
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 829, in app
+    await dependant.call(**solved_result.values)
+  File "/home/naman/openyam-robot-arm/armctl/daemon.py", line 999, in ws_endpoint
+    text = await ws.receive_text()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/starlette/websockets.py", line 124, in receive_text
+    raise WebSocketDisconnected('WebSocket is not connected. Need to call "accept" first.')
+starlette.websockets.WebSocketDisconnected: WebSocket is not connected. Need to call "accept" first.
+2026-10-29 15:24:59 INFO [c5 cup-park] hello name='cup-park home' from 127.0.0.1
+2026-10-29 15:24:59 INFO [c5 cup-park] acquire: waiting for operator approval
+2026-10-29 15:25:00 INFO [c5 cup-park] lease granted by console (previous: none; stopped first)
+2026-10-29 15:25:00 INFO DimosBackend: home#54 -> DimOS trajectory 81 points (from 798 samples), 7.97 s
+2026-10-29 15:25:00 INFO [c5 cup-park] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 7.97 s
+2026-10-29 15:25:09 INFO [c5 cup-park] done home (max error 0.0204 rad)
+2026-10-29 15:25:09 INFO lease revoked by c5 cup-park (release) (was c5 cup-park); stopped
+2026-10-29 15:25:09 INFO [c5 cup-park] disconnected

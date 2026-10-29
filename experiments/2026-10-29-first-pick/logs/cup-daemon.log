@@ -1,0 +1,117 @@
+08:37:58.954 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+2026-10-29 14:07:59 INFO DimosBackend connected: DimOS REAL (armctl_openyam_damiao) on 224.0.0.123:7449, coordinator pid 10133, can can0; tasks {'eef_twist_arm': ('eef_twist', 10), 'joint_trajectory': ('trajectory', 20), 'openyam_gripper': ('gripper', 20)}
+2026-10-29 14:07:59 INFO DimosBackend armctl_info: {'launcher': 'armctl.dimos_coordinator/1', 'adapters': {'openyam': 'armctl_openyam_damiao'}, 'simulation': False, 'can_port': 'can0', 'tasks': {'eef_twist_arm': {'type': 'eef_twist', 'priority': 10, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'target_frame': 'gripper_tip', 'command_limit_margin': 0.1, 'max_joint_velocity_rad_s': 0.3, 'joint_velocity_limits_rad_s': {'yam_joint1': 0.3, 'yam_joint2': 0.3, 'yam_joint3': 0.3, 'yam_joint4': 0.3, 'yam_joint5': 0.3, 'yam_joint6': 0.3}, 'timeout': 0.3}}, 'joint_trajectory': {'type': 'trajectory', 'priority': 20, 'joints': ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6'], 'params': {'start_position_tolerance': 0.05, 'velocity_limits': {'yam_joint1': 0.5, 'yam_joint2': 0.5, 'yam_joint3': 0.5, 'yam_joint4': 0.5, 'yam_joint5': 0.5, 'yam_joint6': 0.5}}}, 'openyam_gripper': {'type': 'gripper', 'priority': 20, 'joints': ['arm/gripper'], 'params': {}}}, 'pid': 10133, 'gains': {'openyam': {'kp': {'j1': 80.0, 'j2': 80.0, 'j3': 80.0, 'j4': 22.0, 'j5': 10.0, 'j6': 10.0, 'gripper': 0.0}, 'kd': {'j1': 5.0, 'j2': 5.0, 'j3': 5.0, 'j4': 2.0, 'j5': 1.5, 'j6': 1.5, 'gripper': 0.0}}}, 'gravity': {'openyam': {'adapter': 'armctl_openyam_damiao', 'scale': {'j1': 1.0, 'j2': 1.0, 'j3': 1.0, 'j4': 0.83, 'j5': 1.0, 'j6': 1.0}, 'urdf': None, 'applied': True, 'note': None}}, 'scout_addr': '224.0.0.123:7449'}
+2026-10-29 14:07:59 WARNING DimosBackend: REAL ARM. torque is reported as True (not measured: TODO status nibble)
+2026-10-29 14:07:59 INFO armctl armctl/0 on ws://127.0.0.1:8091/armctl (backend dimos)
+2026-10-29 14:07:59 INFO daemon up: backend=dimos auto_approve=False soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+2026-10-29 14:08:56 INFO [c1 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:08:56 INFO [c1 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:09:34 INFO [c1 wristcam-grasp] disconnected
+2026-10-29 14:09:36 INFO [c2 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:09:36 INFO [c2 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:10:09 INFO [c2 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:10:13 INFO [c2 wristcam-grasp] lease granted by console (previous: c2 wristcam-grasp; stopped first)
+2026-10-29 14:10:14 INFO [c2 wristcam-grasp] lease granted by console (previous: c2 wristcam-grasp; stopped first)
+2026-10-29 14:10:16 INFO lease revoked by c2 wristcam-grasp (release) (was c2 wristcam-grasp); stopped
+2026-10-29 14:10:16 INFO [c2 wristcam-grasp] disconnected
+2026-10-29 14:12:01 INFO [c3 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:12:01 INFO [c3 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:14:01 INFO [c3 wristcam-grasp] disconnected
+2026-10-29 14:14:26 INFO [c4 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:14:26 INFO [c4 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:14:26 INFO [c4 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:14:43 INFO DimosBackend: ready#1 -> DimOS trajectory 51 points (from 499 samples), 4.98 s
+2026-10-29 14:14:43 INFO [c4 wristcam-grasp] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.98 s
+2026-10-29 14:14:50 INFO [c4 wristcam-grasp] done ready (max error 0.0371 rad)
+2026-10-29 14:15:10 INFO DimosBackend: move_joints#2 -> DimOS trajectory 73 points (from 715 samples), 7.14 s
+2026-10-29 14:15:10 INFO [c4 wristcam-grasp] do move_joints -> [0.299, 1.414, 0.867, -0.19, 0.028, 0.0] in 7.14 s
+2026-10-29 14:15:19 INFO [c4 wristcam-grasp] done move_joints (max error 0.0305 rad)
+2026-10-29 14:15:46 INFO [c4 wristcam-grasp] disconnected
+2026-10-29 14:15:46 INFO [c4 wristcam-grasp] lease holder disconnected: stopped, lease free
+2026-10-29 14:17:56 INFO [c5 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:17:56 INFO [c5 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:17:56 INFO [c5 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:18:10 INFO DimosBackend: move_joints#3 -> DimOS trajectory 9 points (from 56 samples), 0.55 s
+2026-10-29 14:18:10 INFO [c5 wristcam-grasp] do move_joints -> [0.344, 1.363, 0.821, -0.194, 0.028, 0.0] in 0.55 s
+2026-10-29 14:18:12 INFO [c5 wristcam-grasp] done move_joints (max error 0.0297 rad)
+2026-10-29 14:18:36 INFO [c5 wristcam-grasp] disconnected
+2026-10-29 14:18:36 INFO [c5 wristcam-grasp] lease holder disconnected: stopped, lease free
+2026-10-29 14:19:00 INFO [c6 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:19:00 INFO [c6 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:19:01 INFO [c6 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:19:09 INFO DimosBackend: move_joints#4 -> DimOS trajectory 7 points (from 44 samples), 0.43 s
+2026-10-29 14:19:09 INFO [c6 wristcam-grasp] do move_joints -> [0.342, 1.362, 0.821, -0.194, 0.028, 0.0] in 0.43 s
+2026-10-29 14:19:11 INFO [c6 wristcam-grasp] done move_joints (max error 0.0283 rad)
+2026-10-29 14:19:27 INFO DimosBackend: move_joints#5 -> DimOS trajectory 7 points (from 42 samples), 0.41 s
+2026-10-29 14:19:27 INFO [c6 wristcam-grasp] do move_joints -> [0.34, 1.362, 0.821, -0.194, 0.028, 0.0] in 0.41 s
+2026-10-29 14:19:29 INFO [c6 wristcam-grasp] done move_joints (max error 0.0265 rad)
+2026-10-29 14:19:41 INFO DimosBackend: move_joints#6 -> DimOS trajectory 22 points (from 204 samples), 2.03 s
+2026-10-29 14:19:41 INFO [c6 wristcam-grasp] do move_joints -> [0.335, 1.488, 0.658, 0.094, 0.028, 0.0] in 2.03 s
+2026-10-29 14:19:44 INFO [c6 wristcam-grasp] done move_joints (max error 0.0208 rad)
+2026-10-29 14:19:46 INFO lease revoked by c6 wristcam-grasp (release) (was c6 wristcam-grasp); stopped
+2026-10-29 14:19:46 INFO [c6 wristcam-grasp] disconnected
+2026-10-29 14:22:34 INFO [c7 cup-park] hello name='cup-park home' from 127.0.0.1
+2026-10-29 14:22:34 INFO [c7 cup-park] acquire: waiting for operator approval
+2026-10-29 14:22:35 INFO [c7 cup-park] lease granted by console (previous: none; stopped first)
+2026-10-29 14:22:35 INFO DimosBackend: home#7 -> DimOS trajectory 125 points (from 1235 samples), 12.34 s
+2026-10-29 14:22:35 INFO [c7 cup-park] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 12.34 s
+2026-10-29 14:22:49 INFO [c7 cup-park] done home (max error 0.0227 rad)
+2026-10-29 14:22:49 INFO lease revoked by c7 cup-park (release) (was c7 cup-park); stopped
+2026-10-29 14:22:49 INFO [c7 cup-park] disconnected
+2026-10-29 14:25:55 INFO [c8 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:25:55 INFO [c8 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:25:55 INFO [c8 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:26:01 INFO DimosBackend: ready#8 -> DimOS trajectory 50 points (from 488 samples), 4.87 s
+2026-10-29 14:26:01 INFO [c8 wristcam-grasp] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.87 s
+2026-10-29 14:26:08 INFO [c8 wristcam-grasp] done ready (max error 0.0378 rad)
+2026-10-29 14:26:15 INFO DimosBackend: move_joints#9 -> DimOS trajectory 82 points (from 804 samples), 8.03 s
+2026-10-29 14:26:15 INFO [c8 wristcam-grasp] do move_joints -> [-0.109, 1.533, 0.8, -0.004, 0.028, 0.0] in 8.03 s
+2026-10-29 14:26:24 INFO [c8 wristcam-grasp] done move_joints (max error 0.0273 rad)
+2026-10-29 14:26:36 INFO DimosBackend: move_joints#10 -> DimOS trajectory 8 points (from 48 samples), 0.47 s
+2026-10-29 14:26:36 INFO [c8 wristcam-grasp] do move_joints -> [-0.115, 1.545, 0.81, -0.001, 0.028, 0.0] in 0.47 s
+2026-10-29 14:26:38 INFO [c8 wristcam-grasp] done move_joints (max error 0.0261 rad)
+2026-10-29 14:26:48 INFO DimosBackend: move_joints#11 -> DimOS trajectory 8 points (from 46 samples), 0.45 s
+2026-10-29 14:26:48 INFO [c8 wristcam-grasp] do move_joints -> [-0.117, 1.553, 0.818, -0.001, 0.028, 0.0] in 0.45 s
+2026-10-29 14:26:50 INFO [c8 wristcam-grasp] done move_joints (max error 0.0254 rad)
+2026-10-29 14:27:00 INFO DimosBackend: move_joints#12 -> DimOS trajectory 7 points (from 43 samples), 0.42 s
+2026-10-29 14:27:00 INFO [c8 wristcam-grasp] do move_joints -> [-0.119, 1.558, 0.823, -0.001, 0.028, 0.0] in 0.42 s
+2026-10-29 14:27:02 INFO [c8 wristcam-grasp] done move_joints (max error 0.0267 rad)
+2026-10-29 14:27:13 INFO DimosBackend: move_joints#13 -> DimOS trajectory 6 points (from 34 samples), 0.33 s
+2026-10-29 14:27:13 INFO [c8 wristcam-grasp] do move_joints -> [-0.116, 1.55, 0.815, -0.001, 0.028, 0.0] in 0.33 s
+2026-10-29 14:27:15 INFO [c8 wristcam-grasp] done move_joints (max error 0.0182 rad)
+2026-10-29 14:27:22 INFO [c8 wristcam-grasp] do gripper 0.55
+2026-10-29 14:28:22 INFO lease revoked by c8 wristcam-grasp (release) (was c8 wristcam-grasp); stopped
+2026-10-29 14:28:22 INFO [c8 wristcam-grasp] disconnected
+2026-10-29 14:28:37 INFO [c9 cup-park] hello name='cup-park home' from 127.0.0.1
+2026-10-29 14:28:37 INFO [c9 cup-park] acquire: waiting for operator approval
+2026-10-29 14:28:37 INFO [c9 cup-park] lease granted by console (previous: none; stopped first)
+2026-10-29 14:28:38 INFO DimosBackend: home#14 -> DimOS trajectory 129 points (from 1277 samples), 12.76 s
+2026-10-29 14:28:38 INFO [c9 cup-park] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 12.76 s
+2026-10-29 14:28:52 INFO [c9 cup-park] done home (max error 0.0223 rad)
+2026-10-29 14:28:52 INFO lease revoked by c9 cup-park (release) (was c9 cup-park); stopped
+2026-10-29 14:28:52 INFO [c9 cup-park] disconnected
+2026-10-29 14:29:23 INFO [c10 wristcam-grasp] hello name='wristcam-grasp' from 127.0.0.1
+2026-10-29 14:29:23 INFO [c10 wristcam-grasp] acquire: waiting for operator approval
+2026-10-29 14:29:23 INFO [c10 wristcam-grasp] lease granted by console (previous: none; stopped first)
+2026-10-29 14:29:25 INFO DimosBackend: ready#15 -> DimOS trajectory 50 points (from 488 samples), 4.87 s
+2026-10-29 14:29:25 INFO [c10 wristcam-grasp] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 4.87 s
+2026-10-29 14:29:31 INFO [c10 wristcam-grasp] done ready (max error 0.0378 rad)
+2026-10-29 14:29:53 INFO DimosBackend: move_joints#16 -> DimOS trajectory 83 points (from 815 samples), 8.14 s
+2026-10-29 14:29:53 INFO [c10 wristcam-grasp] do move_joints -> [-0.117, 1.547, 0.814, -0.004, 0.028, 0.0] in 8.14 s
+2026-10-29 14:30:02 INFO [c10 wristcam-grasp] done move_joints (max error 0.0269 rad)
+2026-10-29 14:30:06 INFO DimosBackend: move_joints#17 -> DimOS trajectory 66 points (from 642 samples), 6.41 s
+2026-10-29 14:30:06 INFO [c10 wristcam-grasp] do move_joints -> [0.746, 1.623, 0.881, 0.006, 0.028, 0.0] in 6.41 s
+2026-10-29 14:30:14 INFO [c10 wristcam-grasp] done move_joints (max error 0.0277 rad)
+2026-10-29 14:30:16 INFO DimosBackend: move_joints#18 -> DimOS trajectory 7 points (from 41 samples), 0.40 s
+2026-10-29 14:30:16 INFO [c10 wristcam-grasp] do move_joints -> [0.746, 1.623, 0.88, 0.006, 0.028, 0.0] in 0.40 s
+2026-10-29 14:30:18 INFO [c10 wristcam-grasp] done move_joints (max error 0.0273 rad)
+2026-10-29 14:30:19 INFO lease revoked by c10 wristcam-grasp (release) (was c10 wristcam-grasp); stopped
+2026-10-29 14:30:19 INFO [c10 wristcam-grasp] disconnected
+2026-10-29 14:30:50 INFO [c11 cup-park] hello name='cup-park home' from 127.0.0.1
+2026-10-29 14:30:50 INFO [c11 cup-park] acquire: waiting for operator approval
+2026-10-29 14:30:51 INFO [c11 cup-park] lease granted by console (previous: none; stopped first)
+2026-10-29 14:30:51 INFO DimosBackend: home#19 -> DimOS trajectory 133 points (from 1318 samples), 13.17 s
+2026-10-29 14:30:51 INFO [c11 cup-park] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 13.17 s
+2026-10-29 14:31:05 INFO [c11 cup-park] done home (max error 0.0219 rad)
+2026-10-29 14:31:05 INFO lease revoked by c11 cup-park (release) (was c11 cup-park); stopped
+2026-10-29 14:31:05 INFO [c11 cup-park] disconnected

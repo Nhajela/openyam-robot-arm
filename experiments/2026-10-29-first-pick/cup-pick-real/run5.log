@@ -1,0 +1,23 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE : joints by up to 0.031 rad (j2); tip -> (0.331, 0.118, 0.143) m; q=[0.3419, 1.362, 0.8206, -0.1945, 0.0275, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.028 rad (j2); tip -> (0.332, 0.117, 0.143) m; q=[0.3402, 1.3623, 0.8209, -0.1944, 0.0275, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.270 rad (j4); tip -> (0.332, 0.116, 0.083) m; q=[0.3348, 1.488, 0.6577, 0.0943, 0.0276, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: {
+ "ok": false,
+ "reason": "can't put the camera over table [-0.139, -0.034] at any height",
+ "trace": [
+  "search",
+  "center",
+  "failed"
+ ],
+ "estimate_table": [
+  -0.13913,
+  -0.03352
+ ],
+ "observations": 3,
+ "measured_width": 0.09055307315059086
+}
+log: experiments/2026-10-29-first-pick/cup-pick-real/run5/run.jsonl

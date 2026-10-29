@@ -1,0 +1,36 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE to ready
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 1.021 rad (j2); tip -> (0.362, -0.037, 0.103) m; q=[-0.1028, 1.483, 0.7517, -0.0053, 0.0277, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.065 rad (j2); tip -> (0.374, -0.042, 0.104) m; q=[-0.1118, 1.5321, 0.7971, -0.0011, 0.0275, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.029 rad (j3); tip -> (0.375, -0.042, 0.104) m; q=[-0.1114, 1.5367, 0.8017, -0.001, 0.0276, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> GRIPPER -> 0.55 (0 closed .. 1 open)
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 1.126 rad (j4); tip -> (0.398, -0.052, 0.087) m; q=[-0.1308, 2.0983, 1.7006, -1.1151, 0.0277, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.033 rad (j3); tip -> (0.398, -0.051, 0.087) m; q=[-0.1277, 2.0988, 1.7021, -1.1165, 0.0275, 0.0]; speed 0.12 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 1.105 rad (j4); tip -> (0.376, -0.041, 0.104) m; q=[-0.1092, 1.5404, 0.8062, -0.0019, 0.028, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: {
+ "ok": false,
+ "reason": "refused an unsafe motion: operator declined: MOVE : joints by up to 1.105 rad (j4); tip -> (0.376, -0.041, 0.104) m; q=[-0.1092, 1.5404, 0.8062, -0.0019, 0.028, 0.0]; speed 0.25 rad/s",
+ "trace": [
+  "search",
+  "center",
+  "approach",
+  "descend",
+  "center",
+  "failed"
+ ],
+ "estimate_table": [
+  0.03535,
+  -0.01163
+ ],
+ "observations": 4,
+ "measured_width": null
+}
+log: experiments/2026-10-29-first-pick/ball-pick-real/purple1/run.jsonl

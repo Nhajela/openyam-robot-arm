@@ -1,0 +1,17 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE : joints by up to 0.052 rad (j1); tip -> (0.331, 0.119, 0.143) m; q=[0.3444, 1.3629, 0.8214, -0.1943, 0.0275, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+>>> MOVE : joints by up to 0.152 rad (j1); tip -> (0.338, 0.064, 0.143) m; q=[0.1865, 1.3306, 0.7972, -0.2024, 0.0275, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: {
+ "ok": false,
+ "reason": "refused an unsafe motion: operator declined: MOVE : joints by up to 0.152 rad (j1); tip -> (0.338, 0.064, 0.143) m; q=[0.1865, 1.3306, 0.7972, -0.2024, 0.0275, 0.0]; speed 0.25 rad/s",
+ "trace": [
+  "search",
+  "failed"
+ ],
+ "estimate_table": null,
+ "observations": 1,
+ "measured_width": null
+}
+log: experiments/2026-10-29-first-pick/cup-pick-real/run4/run.jsonl

@@ -78,6 +78,8 @@ class GraspConfig:
     descent_step: float = 0.02
     realign_min: float = 0.0015
     realign_max: float = 0.008
+    grip_check: bool = True       # False: the backend's grip reading echoes the target (DimOS, 29 Oct), so
+                                  # don't judge holding from it; verify with the camera only
     lift: float = 0.08
     grasp_frac: float = 0.6           # grip height as a fraction of the object height (cup with flared fingertips: ~0.85, just below the rim)
     retries: int = 1
@@ -286,7 +288,8 @@ class GraspEngine:
                 self.log("skip_search_view", xy=list(xy), reason="unreachable")
                 continue
             self.move(q, f"search view {k + 1}: camera {h:.2f} m above the object top over table {xy}")
-            det, view, _ = self.observe()
+            # only near this view's spot (2026-10-29: an orange rug at the frame edge won over the ball)
+            det, view, _ = self.observe(Hint(tuple(xy), radius=0.08))
             if det is not None:
                 self.est = np.array(det.xyz_table[:2])
                 self.est_sigma = det.sigma_xy
@@ -304,6 +307,13 @@ class GraspEngine:
                 return "failed"
             h = c.look_heights[self.level]
             q, h_used = self.camera_over(self.est, h)
+            if q is None and self.level > 0:
+                # a closer look can be out of reach (2026-10-29, real arm: the 0.08 m look at r 0.36 m);
+                # converge at the closest reachable level instead of failing
+                self.top_level = self.level - 1
+                self.level = self.top_level
+                self.log("decision", decision="cap_level", level=self.level, unreachable_h=h)
+                continue
             if q is None:
                 self.reason = f"can't put the camera over table {self.est.round(3).tolist()} at any height"
                 return "failed"
@@ -324,7 +334,7 @@ class GraspEngine:
             self.est, self.est_sigma = new, det.sigma_xy
             if det.diameter:
                 self.measured_width = det.diameter
-            last = self.level == len(c.look_heights) - 1
+            last = self.level == getattr(self, "top_level", len(c.look_heights) - 1)
             px_err = float(np.linalg.norm(np.array(det.pixel) - view.cam.K[:2, 2])) if det.pixel else 1e9
             converged = last and px_err < c.center_px_tol and change < c.change_tol
             self.log("decision", decision="converged" if converged else "closer" if px_err < 3 * c.center_px_tol else "recentre",
@@ -406,7 +416,7 @@ class GraspEngine:
         _, _, _, g_closed, _ = self._grasp_geometry()
         self.grip_to(g_closed, "close on the object")
         g = self.arm.grip()
-        ok = holding(g, g_closed)
+        ok = holding(g, g_closed) if self.cfg.grip_check else True
         self.log("decision", decision="holding" if ok else "miss", grip_measured=g, grip_target=g_closed,
                  width_mm=g * self.wc.max_width * 1000)
         return "lift" if ok else "miss"
@@ -421,7 +431,7 @@ class GraspEngine:
     def st_verify(self):
         _, _, _, g_closed, _ = self._grasp_geometry()
         g = self.arm.grip()
-        still = holding(g, g_closed)
+        still = holding(g, g_closed) if self.cfg.grip_check else True
         det, _, _ = self.observe(Hint(tuple(self.est), 0.03), self.verify_finder)
         on_table = det is not None and abs((det.diameter or self.cfg.width) - self.cfg.width) < 0.2 * self.cfg.width
         self.log("decision", decision="verified" if still and not on_table else "miss", grip_measured=g,
@@ -558,7 +568,8 @@ class DaemonArm:
 
     def gripper(self, g: float) -> None:
         self._ok(f"GRIPPER -> {g:.2f} (0 closed .. 1 open)")
-        self._run(self.client.do("gripper", width=round(float(g), 3)))
+        # the daemon answers gripper with an ack only (no done): don't wait for one (2026-10-29: 60 s timeout)
+        self._run(self.client.do("gripper", wait=False, width=round(float(g), 3)))
         time.sleep(self.grip_settle)
 
     def frame(self) -> np.ndarray:

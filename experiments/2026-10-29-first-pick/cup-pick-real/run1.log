@@ -1,0 +1,21 @@
+usage: look_and_grasp.py [-h] [--dry-run | --simulate | --execute]
+                         [--object OBJECT] [--finder {cup,tags,blob}]
+                         [--source SOURCE] [--image IMAGE] [--q Q]
+                         [--expect EXPECT] [--place PLACE]
+                         [--grasp-frac GRASP_FRAC] [--calib CALIB]
+                         [--handeye HANDEYE] [--out OUT] [--settle SETTLE]
+                         [--miss-first]
+look_and_grasp.py: error: argument --expect: expected one argument
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+{
+ "ok": false,
+ "reason": "object not found in 5 search views around table (-0.127, -0.015)",
+ "trace": [
+  "search",
+  "failed"
+ ],
+ "estimate_table": null,
+ "observations": 0,
+ "measured_width": null
+}
+log: experiments/2026-10-29-first-pick/cup-pick-real/run1/run.jsonl

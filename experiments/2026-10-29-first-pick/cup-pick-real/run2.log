@@ -1,0 +1,32 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/look_and_grasp.py", line 253, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/look_and_grasp.py", line 217, in main
+    with DaemonArm(source=a.source, program="wristcam-grasp", speed=cfg.speed) as arm:
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 523, in __enter__
+    self._run(self.client.acquire())
+  File "/home/naman/openyam-robot-arm/interfaces/wristcam/engine.py", line 513, in _run
+    return self.loop.run_until_complete(coro)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/naman/openyam-robot-arm/interfaces/client.py", line 135, in acquire
+    raise TimeoutError("lease not granted (approve the program in the console, http://127.0.0.1:8090)")
+TimeoutError: lease not granted (approve the program in the console, http://127.0.0.1:8090)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-3' coro=<ArmClient._rx() running at /home/naman/openyam-robot-arm/interfaces/client.py:80> wait_for=<Future pending cb=[Task.task_wakeup()]>>
+Task was destroyed but it is pending!
+task: <Task pending name='Task-2' coro=<Connection.keepalive() running at /home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py:821> wait_for=<Future pending cb=[Task.task_wakeup()]>>
+Exception ignored in: <coroutine object Connection.recv at 0x76cef616ae40>
+Traceback (most recent call last):
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 305, in recv
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/websockets/asyncio/messages.py", line 158, in get
+  File "/home/naman/openyam-robot-arm/.venv/lib/python3.12/site-packages/websockets/asyncio/messages.py", line 53, in get
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 795, in call_soon
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 541, in _check_closed
+RuntimeError: Event loop is closed

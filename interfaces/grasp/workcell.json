@@ -77,6 +77,11 @@
       "title": "white paper cup (76.5 mm rim from the wrist camera, ~74 mm just below the rim, 8 cm tall)",
       "height": 0.08,
       "width": 0.074
+    },
+    "ball": {
+      "title": "orange ball (~40 mm, table-tennis size; 39 x 33 mm blob from the wrist camera at home, 29 Oct)",
+      "height": 0.04,
+      "width": 0.04
     }
   },
   "provisional": true,
