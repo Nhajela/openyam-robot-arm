@@ -10,6 +10,17 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ---
 
+## 2026-10-30 (13:30–14:35 IST): arcade phone page (serenity; no arm), branch `arcade-phone`
+
+- 🧪 **Open play, arcade version** ([experiments/2026-10-30-arcade-phone/LOG.md](experiments/2026-10-30-arcade-phone/LOG.md), [openplay/README.md § Arcade](openplay/README.md#arcade-the-same-thing-as-a-claw-machine-game)): a second phone page at `/arcade` that plays like a claw machine instead of a set of levers. Drag on an angled map to steer, hold DROP / let go to grab and come back, stars, gold dive stars, combos, score, emotes, Ask it. Same protocol and safety model; STOP above every overlay. `--phone-ui arcade` puts it on the QR (default stays classic).
+- 🧪 Server: `/arcade` + `/classic` routes, `--phone-ui`, `welcome.limits` (the daemon's soft joint limits), `ui` in the hello trace. New e2e test `test_arcade_page`.
+- Checked on the mock daemon with headless Chromium at phone size: steering moved the tip 14 cm in the dragged direction, DROP lowered it 12 cm, letting go shut the claw and ran Ready, stars scored. `openplay/tests`: only the 7 chess failures that clean `main` also has on serenity.
+
+### Next
+1. ⏳ Laptop: `--phone-ui arcade` on the mock with a real phone, then DimOS sim, then the real arm with someone at the E-STOP (LOG "Next").
+
+---
+
 ## 2026-10-29 (midday, 11:40–12:40 IST): reuse report, pick up anything, explainer QR (serenity; no arm)
 
 - ✅ **Reuse report** ([experiments/2026-10-29-reuse/REPORT.md](experiments/2026-10-29-reuse/REPORT.md)). DimOS already ships three things: YOLO-E open-vocabulary detection, a CSRT + PID follower (for drones) and an agentic pick-and-place (xArm + depth only). Nobody has published RGB-only YAM picking. Replace our hand-built finders; keep armctl, calibration and the arm-side limits.

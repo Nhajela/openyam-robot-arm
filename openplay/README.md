@@ -16,6 +16,18 @@ The laptop screen is part of the show. It shows the arm live in 3D, the QR, who'
 
 Contract: [PROTOCOL.md](PROTOCOL.md). Handover and status: [../HANDOVER.md](../HANDOVER.md).
 
+## Arcade: the same thing as a claw-machine game
+
+A second phone page, `/arcade` ([`static/arcade.html`](static/arcade.html)), for events where people just want to play. No mode cards and no levers: one game, one verb per thumb.
+
+- **Drag anywhere on the map** to steer the claw (a floating stick under your thumb; Cartesian x/y, like Sticks' left stick). The map is an angled view into a claw machine: the table is the floor, and the claw hangs on its cable at its real height (forward kinematics from the arm's joints).
+- **Hold DROP** to lower the claw. **Let go**: it shuts and comes back up to Ready.
+- **Stars** to fly the claw into (+100), **gold ⬇ stars** you dive to (+250), combos for quick chains, a score and a best score on the phone. **Emotes** are the library moves; **✨ Ask it** is Say it.
+
+It speaks the same protocol (`stream`, `grip`, `ready`, `move`, `say`, `stop`), so everything in the safety model below applies unchanged; STOP stays on screen above every overlay. Two phone-side conveniences are *not* safety limits: DROP stops at 6 cm above the table (`DROP_FLOOR_Z`), and soft walls keep the claw inside the reach ring and the daemon's j1 soft limits (`welcome.limits`).
+
+Run open play with `--phone-ui arcade` to put it on the QR. `/arcade` and `/classic` always work, whichever `/` serves, and each page links to the other. Notebook: [experiments/2026-10-30-arcade-phone](../experiments/2026-10-30-arcade-phone/LOG.md).
+
 ## Safety model
 
 Phones never talk to the arm. `openplay.server` is the only armctl program, and it holds the daemon lease. So the armctl envelope (soft joint limits, speed and acceleration caps), the 300 ms deadman on live control (`--stream-ttl-ms`, see "Stream gaps" below), and the daemon's E-STOP apply to everything.
