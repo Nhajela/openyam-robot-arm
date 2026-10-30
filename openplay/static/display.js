@@ -52,6 +52,7 @@ function handle(m) {
     case 'arm': onArm(m); break;
     case 'lobby': onLobby(m); break;
     case 'event': onEvent(m); break;
+    case 'selfie': onSelfie(m); break;
     case 'say': onSay(m); break;
     case 'pending': onPending(Object.prototype.hasOwnProperty.call(m, 'pending') ? m.pending : (m.id != null ? m : null)); break;
     case 'config': onConfig(m); break;
@@ -799,3 +800,25 @@ requestAnimationFrame(frame);
 cam.cx = focus.cx; cam.cy = focus.cy;
 buildJoints();
 connect();
+
+// ---- 🤳 selfies: each new one pops up in a corner for a few seconds (saved on this laptop;
+// all of them at /selfies)
+let selfieTimer = null;
+function onSelfie(m) {
+  if (!m.file) return;
+  let box = document.getElementById('selfiePop');
+  if (!box) {
+    box = document.createElement('a');
+    box.id = 'selfiePop'; box.href = '/selfies'; box.target = '_blank';
+    box.style.cssText = 'position:fixed;left:24px;bottom:24px;z-index:50;width:260px;padding:10px;border-radius:16px;' +
+      'background:#120b2e;border:3px solid #ffd23f;box-shadow:0 10px 40px rgba(0,0,0,.6);color:#f4f1ff;' +
+      'font:700 15px system-ui;text-decoration:none;transition:opacity .4s';
+    box.innerHTML = '<img style="width:100%;border-radius:10px;display:block"><div style="margin-top:6px"></div>';
+    document.body.append(box);
+  }
+  box.querySelector('img').src = '/selfies/' + encodeURIComponent(m.file);
+  box.querySelector('div').textContent = `📸 ${m.who || 'Someone'} took a selfie · saved on this laptop`;
+  box.style.opacity = '1'; box.hidden = false;
+  clearTimeout(selfieTimer);
+  selfieTimer = setTimeout(() => { box.style.opacity = '0'; setTimeout(() => { box.hidden = true; }, 450); }, 9000);
+}

@@ -121,6 +121,16 @@ class CamRelay:
             return synthetic_frame(self.q(), time.time(), self.width)
         return _shrink(_console_fetch(self.url), self.width)
 
+    def grab_full(self) -> bytes:
+        """One frame at the camera's own size (for a selfie), straight from the source."""
+        if self.source == "off":
+            raise RuntimeError("camera off (--cam off)")
+        if self._fetch:
+            return self._fetch()
+        if self.source == "test":
+            return synthetic_frame(self.q(), time.time(), 1280)
+        return _console_fetch(self.url, timeout=4.0)
+
     def want(self) -> None:
         self.wanted_t = time.monotonic()
         with self.cond:

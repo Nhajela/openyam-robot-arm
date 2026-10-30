@@ -14,6 +14,11 @@
 // Two camera games when the server relays the wrist camera (welcome.features.cam, GET /cam.jpg):
 //   👀 Robot Eyes  the phone shows what the robot sees; drag to look around (joint velocities:
 //                  the base turns, the wrist tilts), pick a filter, SNAP a framed photo to keep.
+//   🤳 Selfie      the arm takes your photo: 🎯 Find me turns the camera to where people stand
+//                  (selfie.aim: the server aims from armctl/audience.json, through the daemon and
+//                  the operator's approval), then 5-4-3-2-1 and selfie.snap: the server saves the
+//                  camera's original on the laptop, the phone frames it, offers "Save to my phone"
+//                  and uploads the framed copy to the laptop too.
 //   🎥 Claw Cam    the claw machine from the claw's own eye: the same steer and DROP, the camera
 //                  picture instead of the map.
 //
@@ -72,12 +77,14 @@ const S = {
   turnRemaining: 0, turnAt: 0, lastTurnMsg: 0, warning: false,
   flip: store.get('arcade-flip', '0') === '1', // the player stands across the table from the base
   wantJoin: false, started: false,
-  game: 'claw',                 // claw | eyes (Robot Eyes) | cam (Claw Cam)
-  filter: 'robot',
+  game: 'claw',                 // claw | selfie | eyes (Robot Eyes) | cam (Claw Cam)
+  filterBy: { eyes: 'robot', selfie: 'none' },
 };
 const G = { score: 0, combo: 0, lastAt: 0, stars: [], pops: [], stats: null, emotesDone: new Set(), trail: [] };
 const newStats = () => ({ stars: 0, dives: 0, grabs: 0, emotes: 0, bestCombo: 0, photos: 0 });
 G.stats = newStats();
+const curFilter = () => S.filterBy[S.game] || 'none';
+const looking = () => S.game === 'eyes' || S.game === 'selfie'; // drag = look around (joint velocities)
 const features = () => Object.assign({ say: true, joystick: true, cam: false }, (S.welcome && S.welcome.features) || {});
 // the base's allowed turn (the tip's angle on the map equals j1), from the daemon's soft limits
 function j1Range() {
@@ -189,7 +196,7 @@ function handle(m) {
     case 'arm': S.arm = m; onArm(); break;
     case 'status':
       if (m.kind === 'error') toast(m.text, 'error');
-      else if (/^The arm can't go further/.test(m.text || '')) { ticker(S.game === 'eyes' ? "🧱 Can't turn further that way" : '🧱 Wall! Steer the other way'); buzz(30); }
+      else if (/^The arm can't go further/.test(m.text || '')) { ticker(looking() ? "🧱 Can't turn further that way" : '🧱 Wall! Steer the other way'); buzz(30); }
       else ticker(m.text);
       break;
     case 'refused': {
@@ -201,6 +208,7 @@ function handle(m) {
       toast(/^busy/i.test(r) && S.screen === 'turn' ? `${r}. Tap STOP first.` : r, 'error'); break;
     }
     case 'say': onSay(m); break;
+    case 'selfie': onSelfie(m); break;
     case 'pong': onPong(m); break;
   }
 }
@@ -220,6 +228,7 @@ function startTurn(remaining) {
   S.lastTurnMsg = Date.now();
   G.score = 0; G.combo = 0; G.lastAt = 0; G.stats = newStats(); G.emotesDone.clear(); G.trail = []; G.pops = [];
   G.stars = []; S.started = false;
+  Object.assign(selfie, { aimed: false, aiming: false, after: false, countdown: false });
   renderScore(); renderEmotes(); setGame('claw', true);
   $('introMore').hidden = !features().cam;
   $('introName').textContent = myName || 'Player one';
@@ -310,6 +319,7 @@ function ticker(text) {
 function idleTicker() {
   if (!S.started) return 'Press start!';
   if (S.game === 'eyes') return 'Drag to look around · SNAP a photo';
+  if (S.game === 'selfie') return selfie.aimed ? 'Drag to frame yourself · TAKE MY SELFIE' : 'Stand where people watch, then 🎯 Find me';
   if (S.game === 'cam') return "Claw's-eye view: steer, hold DROP, let go to grab";
   const gold = G.stars.some((s) => s.gold);
   return gold ? 'Gold ⬇ star: steer over it and hold DROP' : 'Fly the claw over the stars';
@@ -386,7 +396,7 @@ function renderArm() {
   $('clawIcon').textContent = shut ? '✊' : '🖐️';
   $('clawLbl').textContent = shut ? 'Claw shut' : 'Claw open';
   $('dragHint').hidden = driving() || !S.started;
-  $('dragHint').textContent = S.game === 'eyes' ? 'drag to look around' : 'drag to steer';
+  $('dragHint').textContent = S.game === 'selfie' ? 'drag to frame yourself' : S.game === 'eyes' ? 'drag to look around' : 'drag to steer';
 }
 
 // ------------------------------------------------------------------ stars (the game layer)
@@ -585,7 +595,7 @@ function tick() {
   if (lastTick && now - lastTick > Math.max(250, 3 * RATE_MS)) diag('late_tick', { dt_ms: now - lastTick, ep: holdEp });
   lastTick = now;
   if (!driving()) { stopStream('up'); return; }
-  if (S.game === 'eyes') {
+  if (looking()) {
     // look around: drag right = turn right (j1 -), drag up = tilt the camera up (j4 +; FK: at ready
     // the camera looks down the table and +j4 raises it)
     const ux = dz(ctl.sx), uy = dz(ctl.sy);
@@ -703,13 +713,14 @@ $('clawBtn').addEventListener('click', () => {
 });
 
 // STOP
-$('stopBtn').addEventListener('click', () => { releaseAll(); grab.state = null; send({ op: 'stop' }); buzz(40); });
+$('stopBtn').addEventListener('click', () => {
+  selfie.after = false; releaseAll(); grab.state = null; send({ op: 'stop' }); buzz(40); });
 
 // ------------------------------------------------------------------ emotes (library moves)
 function renderEmotes() {
   const box = $('emotes'); box.replaceChildren();
   const moves = (S.welcome && S.welcome.moves) || [];
-  box.hidden = !moves.length || S.game === 'eyes';
+  box.hidden = !moves.length || looking();
   for (const m of moves) {
     const b = el('button', 'emote' + (G.emotesDone.has(m.name) ? ' done' : ''), m.emoji || '🤖');
     b.dataset.name = m.name; b.dataset.title = m.title || m.name;
@@ -761,15 +772,18 @@ function renderGames() {
 function setGame(g, quiet) {
   if (g !== 'claw' && !features().cam) g = 'claw';
   if (S.game !== g) releaseAll();
+  if (g !== 'selfie') selfie.aimed = false;   // the arm will move: aim again before the next selfie
   S.game = g;
   for (const b of $('games').children) b.setAttribute('aria-pressed', String(b.dataset.game === g));
-  const eyes = g === 'eyes', claw = g === 'claw';
+  const eyes = g === 'eyes', sel = g === 'selfie', look = eyes || sel, claw = g === 'claw';
   $('map').hidden = !claw; $('camView').hidden = claw;
-  $('emotes').hidden = eyes || !((S.welcome && S.welcome.moves) || []).length;
-  $('filters').hidden = !eyes;
-  for (const id of ['clawBtn', 'dropBtn', 'askBtn']) $(id).hidden = eyes;
-  for (const id of ['waveBtn', 'snapBtn', 'filterBtn']) $(id).hidden = !eyes;
-  $('waveBtn').hidden = !eyes || !waveMove();
+  $('emotes').hidden = look || !((S.welcome && S.welcome.moves) || []).length;
+  $('filters').hidden = !look;
+  for (const id of ['clawBtn', 'dropBtn', 'askBtn']) $(id).hidden = look;
+  $('filterBtn').hidden = !look;
+  $('snapBtn').hidden = !eyes; $('waveBtn').hidden = !eyes || !waveMove();
+  $('findBtn').hidden = !sel; $('selfieBtn').hidden = !sel;
+  renderFilters();
   if (!claw) camStart(); else camStop();
   if (claw) requestAnimationFrame(resizeMap); else requestAnimationFrame(resizeCam);
   renderArm();
@@ -852,7 +866,7 @@ function drawCam() {
   c.fillStyle = '#000'; c.fillRect(0, 0, w, h);
   let box = [0, 0, w, h];
   if (C.img) {
-    const f = S.game === 'eyes' ? S.filter : 'none';
+    const f = S.game === 'eyes' ? curFilter() : 'none';
     c.imageSmoothingEnabled = f !== 'pixel';
     box = fitDraw(c, filtered(C.img, f), 0, 0, w, h, 'contain'); // the whole field of view
   } else {
@@ -862,7 +876,7 @@ function drawCam() {
   c.textAlign = 'left'; c.font = '800 13px system-ui'; c.lineWidth = 3; c.lineCap = 'round';
   if (S.game === 'eyes') {
     // a robot's HUD: corner brackets, a blinking REC, a reticle
-    c.strokeStyle = S.filter === 'robot' ? '#4dffa6' : 'rgba(255,255,255,.85)';
+    c.strokeStyle = curFilter() === 'robot' ? '#4dffa6' : 'rgba(255,255,255,.85)';
     const [bx, by, bw, bh] = box, m = 10, L = 26;
     for (const [x, y, sx, sy] of [[bx + m, by + m, 1, 1], [bx + bw - m, by + m, -1, 1], [bx + m, by + bh - m, 1, -1], [bx + bw - m, by + bh - m, -1, -1]]) {
       c.beginPath(); c.moveTo(x, y + sy * L); c.lineTo(x, y); c.lineTo(x + sx * L, y); c.stroke();
@@ -871,6 +885,13 @@ function drawCam() {
     c.fillStyle = '#fff'; c.fillText('ROBOT EYES', bx + m + 30, by + m + 27);
     c.beginPath(); c.arc(w / 2, h / 2, 22, 0, 2 * Math.PI); c.stroke();
     c.beginPath(); c.moveTo(w / 2 - 34, h / 2); c.lineTo(w / 2 - 12, h / 2); c.moveTo(w / 2 + 12, h / 2); c.lineTo(w / 2 + 34, h / 2); c.stroke();
+  } else if (S.game === 'selfie') {
+    // a face guide and the state of the aim
+    c.strokeStyle = selfie.aimed ? 'rgba(77,255,166,.85)' : 'rgba(255,255,255,.6)'; c.setLineDash([8, 8]);
+    c.beginPath(); c.ellipse(w / 2, h / 2, Math.min(w, h) * 0.2, Math.min(w, h) * 0.26, 0, 0, 2 * Math.PI); c.stroke(); c.setLineDash([]);
+    c.fillStyle = 'rgba(18,11,46,.7)'; c.fillRect(10, h - 38, 190, 26);
+    c.fillStyle = '#fff';
+    c.fillText(selfie.aimed ? '🤳 LOOKING AT YOU' : selfie.aiming ? '🤳 TURNING TO YOU…' : '🤳 TAP 🎯 FIND ME', 18, h - 20);
   } else {
     // claw cam: crosshair and the claw's height over the table
     c.strokeStyle = ctl.drop ? '#ffd23f' : '#3ee6ff';
@@ -886,14 +907,14 @@ requestAnimationFrame(drawCam);
 function renderFilters() {
   const box = $('filters'); box.replaceChildren();
   for (const [id, label] of FILTERS) {
-    const b = el('button', 'filter', label); b.setAttribute('aria-pressed', String(S.filter === id));
+    const b = el('button', 'filter', label); b.setAttribute('aria-pressed', String(curFilter() === id));
     b.addEventListener('click', () => setFilter(id)); box.append(b);
   }
-  $('filterLbl').textContent = (FILTERS.find((f) => f[0] === S.filter) || FILTERS[0])[1];
+  $('filterLbl').textContent = (FILTERS.find((f) => f[0] === curFilter()) || FILTERS[0])[1];
 }
-function setFilter(id) { S.filter = id; buzz(10); renderFilters(); }
+function setFilter(id) { S.filterBy[S.game] = id; buzz(10); renderFilters(); }
 $('filterBtn').addEventListener('click', () => {
-  const i = FILTERS.findIndex((f) => f[0] === S.filter);
+  const i = FILTERS.findIndex((f) => f[0] === curFilter());
   setFilter(FILTERS[(i + 1) % FILTERS.length][0]);
 });
 renderFilters();
@@ -905,48 +926,115 @@ $('waveBtn').addEventListener('click', () => {
   releaseAll(); buzz(15); send({ op: 'move', name: m.name });
 });
 
-// SNAP: 3-2-1, flash, then a framed photo to save or share
-let snapping = false;
-async function snap() {
-  if (snapping || !C.img || S.game !== 'eyes') { if (!C.img) toast('No picture from the camera yet'); return; }
-  snapping = true; releaseAll();
-  const cnt = $('camCount');
-  for (const n of ['3', '2', '1']) { cnt.hidden = false; cnt.textContent = n; buzz(20); await new Promise((ok) => setTimeout(ok, 650)); }
+// Photos (Robot Eyes SNAP and 🤳 Selfie): count down, ask the server to take it (it saves the
+// camera's original on the laptop), frame the original here, offer it to save, and upload the
+// framed copy so the laptop has it too.
+const selfie = { aimed: false, aiming: false, after: false, kind: 'eyes', countdown: false };
+const photo = { id: null, url: null, blob: null, kind: 'eyes' };
+const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
+async function countdownAndSnap(kind) {
+  if (selfie.countdown || S.screen !== 'turn') return;
+  if (!C.img) { toast('No picture from the camera yet'); return; }
+  selfie.countdown = true; selfie.kind = kind; releaseAll();
+  const cnt = $('camCount'), steps = kind === 'selfie' ? ['5', '4', '3', '2', '1', '😁'] : ['3', '2', '1'];
+  for (const n of steps) {
+    if (S.screen !== 'turn' || !looking()) { cnt.hidden = true; selfie.countdown = false; return; }
+    cnt.hidden = false; cnt.textContent = n; buzz(20); await sleep(n === '😁' ? 350 : 700);
+  }
   cnt.hidden = true;
   const fl = $('camFlash'); fl.hidden = false; fl.style.animation = 'none'; void fl.offsetWidth; fl.style.animation = '';
   setTimeout(() => { fl.hidden = true; }, 520);
   buzz([40, 30, 80]);
-  const W = 1080, H = 1350, pad = 48, ph = 1000;
-  const out = document.createElement('canvas'); out.width = W; out.height = H;
-  const c = out.getContext('2d');
-  const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#3b1f8f'); g.addColorStop(1, '#120b2e');
-  c.fillStyle = g; c.fillRect(0, 0, W, H);
-  c.imageSmoothingEnabled = S.filter !== 'pixel';
-  fitDraw(c, filtered(C.img, S.filter), pad, pad, W - 2 * pad, ph, 'cover');
-  c.strokeStyle = '#ffd23f'; c.lineWidth = 8; c.strokeRect(pad, pad, W - 2 * pad, ph);
-  c.textAlign = 'center'; c.fillStyle = '#ffd23f'; c.font = '900 64px system-ui';
-  c.fillText('SEEN BY THE ROBOT 🤖', W / 2, pad + ph + 100);
-  c.fillStyle = '#f4f1ff'; c.font = '700 40px system-ui';
-  const when = new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-  c.fillText(`${myName || 'A friend'} · OpenYAM arm · ${when}`, W / 2, pad + ph + 170);
-  const url = out.toDataURL('image/jpeg', 0.9);
-  $('photoImg').src = url; $('photoSave').href = url;
-  $('photoShare').hidden = !(navigator.canShare && navigator.share);
-  $('photo').hidden = false;
-  G.stats.photos++;
-  if (G.stats.photos <= 3) award(50, '+50 PHOTO');
-  snapping = false;
+  if (!send({ op: 'selfie.snap' })) toast('Not connected right now', 'error');
+  ticker('📸 Got it! Framing your photo…');
+  selfie.countdown = false;
 }
-$('snapBtn').addEventListener('click', snap);
-$('photoClose').addEventListener('click', () => { $('photo').hidden = true; });
-$('photoShare').addEventListener('click', async () => {
-  try {
-    const blob = await (await fetch($('photoImg').src)).blob();
-    const file = new File([blob], 'robot-arm-photo.jpg', { type: 'image/jpeg' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'Seen by the robot' });
-    else toast('Sharing is not available here: use Save');
-  } catch (_) { /* cancelled */ }
+function onSelfie(m) {
+  if (m.stage === 'aiming') { selfie.aiming = true; ticker(m.text || 'Turning to look at you…'); }
+  else if (m.stage === 'aimed') {
+    selfie.aiming = false; selfie.aimed = true; buzz([20, 40, 20]);
+    ticker(m.text || 'Looking at you: strike a pose!');
+    if (selfie.after && S.game === 'selfie') { selfie.after = false; countdownAndSnap('selfie'); }
+  } else if (m.stage === 'taken') showPhoto(m.id, selfie.kind);
+  else if (m.stage === 'error') { selfie.aiming = false; selfie.after = false; toast(m.text || "Couldn't take the photo", 'error'); }
+}
+// the server refuses the aim while the arm is busy; the busy/refused paths already toast
+$('findBtn').addEventListener('click', () => {
+  if (S.screen !== 'turn' || !S.started) return;
+  releaseAll(); buzz(15); selfie.after = false;
+  if (send({ op: 'selfie.aim' })) { selfie.aiming = true; ticker('Turning to look at you…'); }
 });
+$('selfieBtn').addEventListener('click', () => {
+  if (S.screen !== 'turn' || !S.started || selfie.countdown) return;
+  buzz(15);
+  if (selfie.aimed) return countdownAndSnap('selfie');
+  releaseAll(); selfie.after = true;               // aim first, the countdown starts when it's there
+  if (send({ op: 'selfie.aim' })) { selfie.aiming = true; ticker('Turning to look at you… then 5-4-3-2-1!'); }
+});
+$('snapBtn').addEventListener('click', () => countdownAndSnap('eyes'));
+
+function qs() {
+  const k = new URLSearchParams(location.search).get('k');
+  return `pid=${encodeURIComponent(pid)}` + (k ? `&k=${encodeURIComponent(k)}` : '');
+}
+async function showPhoto(id, kind) {
+  try {
+    const r = await fetch(`/selfie/${encodeURIComponent(id)}.jpg?${qs()}`, { cache: 'no-store', credentials: 'same-origin' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const img = await createImageBitmap(await r.blob());
+    const f = kind === 'selfie' ? (S.filterBy.selfie || 'none') : (S.filterBy.eyes || 'none');
+    // the whole picture (a wide camera: someone a little off-centre is still in it), then the caption
+    const W = 1080, pad = 48, ph = Math.round((W - 2 * pad) * img.height / img.width), H = ph + 2 * pad + 190;
+    const out = document.createElement('canvas'); out.width = W; out.height = H;
+    const c = out.getContext('2d');
+    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#3b1f8f'); g.addColorStop(1, '#120b2e');
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.imageSmoothingEnabled = f !== 'pixel';
+    fitDraw(c, f === 'none' ? img : filtered(img, f), pad, pad, W - 2 * pad, ph, 'cover');
+    c.strokeStyle = '#ffd23f'; c.lineWidth = 8; c.strokeRect(pad, pad, W - 2 * pad, ph);
+    c.textAlign = 'center'; c.fillStyle = '#ffd23f'; c.font = '900 62px system-ui';
+    c.fillText(kind === 'selfie' ? 'SELFIE WITH THE ROBOT 🤖' : 'SEEN BY THE ROBOT 🤖', W / 2, pad + ph + 100);
+    c.fillStyle = '#f4f1ff'; c.font = '700 40px system-ui';
+    const when = new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    c.fillText(`${myName || 'A friend'} · OpenYAM arm · ${when}`, W / 2, pad + ph + 170);
+    const blob = await new Promise((ok) => out.toBlob(ok, 'image/jpeg', 0.9));
+    if (photo.url) URL.revokeObjectURL(photo.url);
+    Object.assign(photo, { id, blob, kind, url: URL.createObjectURL(blob) });
+    $('photoImg').src = photo.url;
+    $('photoRetake').hidden = kind !== 'selfie';
+    const lap = $('photoLaptop'); lap.className = 'photo-saved'; lap.textContent = "⏳ Saving a copy on the robot's laptop…";
+    $('photo').hidden = false;
+    G.stats.photos++;
+    if (G.stats.photos <= 3) award(50, '+50 PHOTO');
+    ticker(kind === 'selfie' ? '🤳 Your selfie! Save it to your phone' : '📸 Your photo! Save it to your phone');
+    // the laptop keeps the framed copy too (it already has the camera's original)
+    const up = await fetch(`/selfie/${encodeURIComponent(id)}/framed?${qs()}`, { method: 'POST', body: blob, credentials: 'same-origin',
+      headers: { 'Content-Type': 'image/jpeg' } });
+    if (!up.ok) throw Object.assign(new Error(`HTTP ${up.status}`), { upload: true });
+    lap.className = 'photo-saved ok'; lap.textContent = "✅ Also saved on the robot's laptop";
+  } catch (e) {
+    if (e.upload) { const lap = $('photoLaptop'); lap.className = 'photo-saved bad'; lap.textContent = `⚠️ Only the original is on the laptop (${e.message})`; }
+    else toast(`Couldn't get your photo (${e.message || e})`, 'error');
+  }
+}
+// Browsers can't write to the photo library on their own: one tap. iPhone: the share sheet's
+// "Save Image" puts it in Photos; elsewhere a download (Android: Downloads / Gallery).
+const iOS = /iPhone|iPad|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+$('photoHint').textContent = iOS ? 'Tip: in the share sheet, tap “Save Image” to put it in Photos. Or press and hold the photo.'
+  : 'Or press and hold the photo, then Download image.';
+$('photoSave').addEventListener('click', async () => {
+  if (!photo.blob) return;
+  const name = `robot-${photo.kind === 'selfie' ? 'selfie' : 'photo'}-${(myName || 'me').replace(/[^A-Za-z0-9]+/g, '-').toLowerCase()}.jpg`;
+  const file = new File([photo.blob], name, { type: 'image/jpeg' });
+  if (iOS && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = photo.url; a.download = name;
+  document.body.append(a); a.click(); a.remove();
+  toast('Saved to your phone 📲');
+});
+$('photoRetake').addEventListener('click', () => { $('photo').hidden = true; countdownAndSnap('selfie'); });
+$('photoClose').addEventListener('click', () => { $('photo').hidden = true; });
 
 // ------------------------------------------------------------------ toasts + wake lock
 let toastTimer = null;
@@ -973,4 +1061,4 @@ renderBest();
 show('lobby');
 connect();
 // debugging / tests / screenshots
-window.openplay = { S, G, ctl, send, handle, ws: () => ws, startTurn, spawnStars, toScreen, tip: () => tipNow, setGame, snap };
+window.openplay = { S, G, ctl, send, handle, ws: () => ws, startTurn, spawnStars, toScreen, tip: () => tipNow, setGame, selfie, photo };

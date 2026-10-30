@@ -171,6 +171,15 @@ The game's moves are accepted only while the active player is one of its players
 2. Tap / prompt: nothing moves. The server shows the outline it found and the size; the player confirms.
 3. Pick: one operator approval, then `GraspEngine` with the tapped target's tracker: re-centre → closer (0.18 / 0.12 / 0.08 m above the top) → fingers open, down in 2 cm steps → close across the narrow side → lift 8 cm → verify (grip stalled + no longer on the table) → miss: retry once → put it back where it was → ready. Every motion is a daemon `move_joints` / `gripper` (envelope, speed caps ≤ 0.3 rad/s, lease, E-STOP) and is checked by the engine first (soft box, table guard, camera above the object).
 
+### Selfie (arcade 🤳; active player only; needs the camera)
+
+| Phone → server | |
+|---|---|
+| `selfie.aim` | turn the wrist camera toward where people stand (`armctl/audience.json`, or `--selfie-at`): only j1 and j4 change from the ready pose, inside the daemon's soft limits; `move_joints` at 0.3 rad/s through the daemon, after the operator's Approve when auto-play is off. A discrete action (busy slot) |
+| `selfie.snap` | take the photo now: the server grabs the camera's full-size frame and saves it on the laptop (`--selfie-dir`, default `~/Pictures/openyam-selfies`, never the repo). ≤ 12 per turn |
+
+Server → phone `{op: "selfie", stage, text, id?, off_deg?}`: `aiming`, `aimed` (`off_deg`: how far the camera axis still is from the expected eye), `taken` (`id`), `error`. Then `GET /selfie/<id>.jpg?pid=` → the original (only for the phone that took it); `POST /selfie/<id>/framed?pid=` with the phone's framed JPEG (≤ 4 MB) → saved next to it as `…-framed.jpg`. Server → display `{op: "selfie", who, file}` (each new photo); the display listener serves `GET /selfies` (a gallery) and `/selfies/<file>`, loopback only.
+
 ### Phone camera (`GET /cam.jpg`)
 
 `GET https://…:8450/cam.jpg?pid=<pid>&after=<seq>` (room key as for every route) → the wrist camera's latest JPEG, header `X-Seq`; it waits up to 1 s for a frame newer than `after`, so a phone that asks again as soon as it has drawn one gets about the relay's rate (≤ 10 fps, 640 px wide). 403 unless `pid` is the active player (bandwidth, not secrecy: the room key is the access check); 503 while the camera is unavailable. Read-only: frames come from the lab console (`--cam console`, `$VISION_DASHBOARD_URL`), a synthetic test picture (`--cam test`) or nothing (`--cam off`). `welcome.features.cam` says whether the camera answers now; the server re-sends `welcome` when that changes and when the arm (re)connects.

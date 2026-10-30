@@ -10,6 +10,16 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ---
 
+## 2026-10-30 (15:00–15:45 IST): 🤳 Selfie (serenity; no arm), branch `arcade-selfie`
+
+- 🧪 **The arm takes your selfie** ([LOG](experiments/2026-10-30-arcade-phone/LOG.md), `openplay/selfie.py`): 🎯 aims the wrist camera at where people stand (`armctl/audience.json`, j1 + j4 only, inside the soft limits, operator approval when auto-play is off), 5-4-3-2-1, snap. **Saved on the laptop** (full-size original + framed copy in `~/Pictures/openyam-selfies`, `selfies.jsonl`, display pop-up, gallery at `:8451/selfies`) and **on the phone** (one tap: iPhone share sheet → Save Image, Android download). Robot Eyes photos are saved the same way.
+- Checked on the mock with the synthetic camera: one tap aimed (j1 → 1.10), snapped, both files on the laptop, "Also saved" on the phone. `openplay/tests`: 150 passed; the 7 failures are the chess tests that fail on clean `main` too.
+
+### Next
+1. ⏳ Laptop: set `--selfie-at` for the event's layout; check the real camera's picture is upright at the selfie pose; a sign line that photos stay on the laptop.
+
+---
+
 ## 2026-10-30 (13:30–14:50 IST): arcade phone page + camera games, chess/pick off on the real arm (serenity; no arm), branch `arcade-phone`
 
 - 🧪 **Open play, arcade version** ([experiments/2026-10-30-arcade-phone/LOG.md](experiments/2026-10-30-arcade-phone/LOG.md), [openplay/README.md § Arcade](openplay/README.md#arcade-the-same-thing-as-a-claw-machine-game)): a second phone page at `/arcade` that plays like a claw machine instead of a set of levers. Drag on an angled map to steer, hold DROP / let go to grab and come back, stars, gold dive stars, combos, score, emotes, Ask it. Same protocol and safety model; STOP above every overlay. `--phone-ui arcade` puts it on the QR (default stays classic).

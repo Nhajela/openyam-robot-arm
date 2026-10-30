@@ -2,7 +2,7 @@
 
 **Experimenters:** Naman (idea) + Claude (build on serenity, no arm)
 **Goal:** A second phone experience for open play that feels like a game, not like driving a JCB. The classic page (`openplay/static/play.html`) gives people levers: a Slow/Normal switch, a grip slider, two joysticks labelled away/toward/up/down/twist, joint bars. Make one more version where each thumb has one verb and there is something to *do* (a goal, a score), on the same protocol and safety model.
-**Status:** built (claw game + Robot Eyes + Claw Cam); mock-daemon end to end green with a synthetic camera; real phone, camera and arm next (laptop).
+**Status:** built (claw game + Robot Eyes + Claw Cam + 🤳 Selfie); mock-daemon end to end green with a synthetic camera; real phone, camera and arm next (laptop).
 
 Branch `arcade-phone` (fork). Page: `openplay/static/arcade.{html,css,js}`, served at `/arcade`; `--phone-ui arcade` puts it on the QR.
 
@@ -90,6 +90,43 @@ Same environment as above; open play started with `--phone-ui arcade --cam test`
 - `pytest openplay/tests`: 146 passed, 7 failed, all in `test_chess.py` and all failing on clean `main` on serenity too (the repo's `workcell.json` is now `calibrated: true`, which these tests assume is false; one flaky). New: [`openplay/tests/test_modes.py`](../../openplay/tests/test_modes.py) (auto / on / off visibility and refusals, the relay's frames and failure reporting, the synthetic frame).
 
 Screens: [Robot Eyes](screens/9-robot-eyes.png), [Thermal](screens/10-robot-eyes-thermal.png), [the photo](screens/11-photo.png), [Claw Cam](screens/12-claw-cam.png) (the test camera).
+
+## 2026-10-30 15:00–15:45 IST: 🤳 Selfie: the arm takes your photo, saved on the phone and the laptop (serenity, mock daemon)
+
+Naman: "make the robot arm take a selfie of me … make sure the selfie gets saved on the phone and the laptop that is controlling the robot arm." Branch `arcade-selfie` from fork main `663bd13` (PR #2 merged).
+
+**Decision: aim from `armctl/audience.json`.** It already records where people stand (29 Oct: the table's front edge on the arm's left, eye (0.45, 1.10, 0.85) m). [`openplay/selfie.py`](../../openplay/selfie.py) `aim_pose` keeps the ready pose and changes only j1 (base) and j4 (wrist tilt), grid-searching the angle between the camera axis (the fingers' direction, `kin.approach`) and the eye, inside the daemon's soft limits minus 0.1 rad:
+
+```
+standing   q=[1.10, 0.5, 0.8, 0.09, 0, 0]   5.3° off   (j1 capped by the site's 1.2 soft limit; it would want 1.18)
+seated     q=[1.10, 0.5, 0.8, -0.23, 0, 0]  5.7° off
+down-table q=[0.00, 0.5, 0.8, -0.07, 0, 0]  0.2° off
+```
+
+5° is well inside the camera's ~100° view. The server moves there with `move_joints` at 0.3 rad/s (pick_play's cap), after the operator's Approve when auto-play is off (the display shows the two-keyframe preview), as a discrete action.
+
+**Decision: the laptop keeps both versions.** On `selfie.snap` the server takes the camera's **full-size** frame itself (not the 640 px relay) and saves it in `--selfie-dir` (default `~/Pictures/openyam-selfies`: photos of people never go in the repo) with `selfies.jsonl`; the phone fetches that original, frames it (caption, name, date, the chosen filter, the whole picture), shows it, and uploads the framed copy, saved next to it. The display pops the newest one up for 9 s; `http://127.0.0.1:8451/selfies` is a gallery of all of them (loopback only). Robot Eyes' SNAP now goes through the same path, so those photos are on the laptop too.
+
+**Decision: "saved on the phone" is one tap.** A web page can't write to the photo library by itself. **💾 Save to my phone**: on iPhone the share sheet (its "Save Image" puts the photo in Photos), elsewhere a download (Android: Downloads, shown in the gallery). Press-and-hold the photo also works. The phone says when the laptop copy is saved ("✅ Also saved on the robot's laptop").
+
+**Flow on the phone (🤳 Selfie tab):** 🎯 Find me (aim only) or TAKE MY SELFIE (aims if needed, then 5-4-3-2-1 😁, flash, snap) → the framed photo with 💾 Save to my phone, 🔁 Again (same aim, new countdown), Keep playing. A dashed face guide shows the middle of the picture; drag to fine-tune (the same look-around as Robot Eyes). Leaving the tab forgets the aim.
+
+### Test (mock daemon, `--cam test`, `--selfie-dir /tmp/arcade-test/selfies`, serenity)
+
+[`arcade_smoke.cjs`](arcade_smoke.cjs) (third argument: the display URL) now also opens 🤳 Selfie, presses TAKE MY SELFIE, waits for the photo and "Also saved", and screenshots the laptop display and gallery:
+
+```
+"selfie": {"dj1": 0.861, "j1": 1.09999, "dj4": -0.706, "laptop": "✅ Also saved on the robot's laptop"}, "errors": []
+/tmp/arcade-test/selfies: 20261030-…-asha.jpg, 20261030-…-asha-framed.jpg (×2: the Eyes snap and the selfie), selfies.jsonl
+server: "selfie: Asha took a selfie with the arm 📸", "selfie saved: /tmp/arcade-test/selfies/…-asha.jpg"
+```
+
+- **Observation:** one tap aimed the arm (j1 → 1.10, the audience preset), counted down, snapped; both files on the laptop; the display showed the pop-up. No page errors.
+- `pytest openplay/tests`: 150 passed, 7 failed (the same `test_chess.py` set that fails on clean `main` here; one of them flaky). New: [`test_selfie.py`](../../openplay/tests/test_selfie.py) (aim pose and limits, the store, the server's aim → snap → save → framed, no camera → no selfie).
+
+Screens: [Selfie tab](screens/13-selfie.png), [countdown](screens/14-selfie-countdown.png), [the photo](screens/15-selfie-photo.png), [laptop display pop-up](screens/16-laptop-display-selfie.png), [laptop gallery](screens/17-laptop-gallery.png) (the synthetic camera; no real people).
+
+**Next for the selfie on the arm:** measure where players actually stand at the event and set `--selfie-at` (or edit `armctl/audience.json`); check the real camera's image is upright at the selfie pose (j6 = 0; if not, rotate in the phone's framing); watch j4 heat while it holds the pose; a sign line that photos are kept on the laptop.
 
 ### Next (laptop, with the arm)
 1. Mock first on the laptop: `--phone-ui arcade`, play on a real phone over the LAN; check the feel of the floating stick and DROP with real touch latency. With the lab console running, `--cam console`: does the relay keep up on the event Wi-Fi (frame rate on the phone, the console's camera load)?

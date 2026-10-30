@@ -231,3 +231,7 @@ h1, h2 { margin: 0; }
 .intro-more { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
 .photo-card { width: 100%; max-width: 420px; text-align: center; }
 .photo-card img { width: 100%; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, .6); display: block; }
+.photo-saved { margin: 10px 0 0; font-weight: 700; color: var(--muted); }
+.photo-saved.ok { color: var(--green); }
+.photo-saved.bad { color: var(--red); }
+.photo-card .btn.start { margin-top: 10px; }

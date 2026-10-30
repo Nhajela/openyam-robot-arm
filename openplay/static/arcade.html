@@ -69,7 +69,8 @@
   </header>
   <nav class="games" id="games" hidden>
     <button class="gametab" data-game="claw" aria-pressed="true">🕹️ Claw</button>
-    <button class="gametab" data-game="eyes">👀 Robot Eyes</button>
+    <button class="gametab" data-game="selfie">🤳 Selfie</button>
+    <button class="gametab" data-game="eyes">👀 Eyes</button>
     <button class="gametab" data-game="cam">🎥 Claw Cam</button>
   </nav>
   <div class="ticker" id="ticker">Ready, player one</div>
@@ -95,7 +96,9 @@
     <button class="act drop" id="dropBtn"><span class="ai">⬇</span><span class="al">HOLD TO DROP</span></button>
     <button class="act ask" id="askBtn"><span class="ai">✨</span><span class="al">Ask it</span></button>
     <button class="act" id="waveBtn" hidden><span class="ai">👋</span><span class="al">Wave at me</span></button>
+    <button class="act" id="findBtn" hidden><span class="ai">🎯</span><span class="al">Find me</span></button>
     <button class="act drop snap" id="snapBtn" hidden><span class="ai">📸</span><span class="al">SNAP A PHOTO</span></button>
+    <button class="act drop snap" id="selfieBtn" hidden><span class="ai">🤳</span><span class="al">TAKE MY SELFIE</span></button>
     <button class="act" id="filterBtn" hidden><span class="ai">🎨</span><span class="al" id="filterLbl">Filter</span></button>
   </div>
 
@@ -111,7 +114,7 @@
         <li><span>⭐</span><div><b>Fly over stars</b> for points. Gold ⬇ stars need a dive.</div></li>
         <li><span>⬇️</span><div><b>Hold DROP</b> to lower the claw. <b>Let go</b>: it grabs and comes back.</div></li>
       </ol>
-      <p class="intro-more" id="introMore" hidden>More games at the top: <b>👀 Robot Eyes</b> (see what the robot sees, snap a photo) and <b>🎥 Claw Cam</b> (drive from the claw's eye).</p>
+      <p class="intro-more" id="introMore" hidden>More games at the top: <b>🤳 Selfie</b> (the arm takes your photo), <b>👀 Eyes</b> (see what the robot sees) and <b>🎥 Claw Cam</b> (drive from the claw's eye).</p>
       <button class="btn start" id="startBtn">▶ PRESS START</button>
     </div>
     <div class="countdown" id="countdown" hidden></div>
@@ -145,11 +148,13 @@
 <div class="overlay" id="photo" hidden>
   <div class="photo-card">
     <img id="photoImg" alt="Your photo with the robot arm">
+    <div class="photo-saved" id="photoLaptop">⏳ Saving a copy on the robot's laptop…</div>
+    <button class="btn start" id="photoSave">💾 Save to my phone</button>
+    <p class="fine" id="photoHint">Or press and hold the photo, then Save.</p>
     <div class="row2">
-      <a class="btn" id="photoSave" download="robot-arm-photo.jpg">⬇ Save</a>
-      <button class="btn start small" id="photoShare">Share</button>
+      <button class="btn" id="photoRetake">🔁 Again</button>
+      <button class="btn ghost" id="photoClose">Keep playing</button>
     </div>
-    <button class="btn ghost" id="photoClose">Keep playing</button>
   </div>
 </div>
 
