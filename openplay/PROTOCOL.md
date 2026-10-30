@@ -30,7 +30,7 @@ Every phone message may carry two optional fields for the event log (see "Event 
 
 | op | fields | meaning |
 |---|---|---|
-| `hello` | `pid` (client-made id kept in localStorage), `name` (≤ 24 chars) | first message; reconnecting with the same `pid` keeps your place and turn |
+| `hello` | `pid` (client-made id kept in localStorage), `name` (≤ 24 chars), optional `ui` (`classic` \| `arcade`: which phone page, logged in the trace) | first message; reconnecting with the same `pid` keeps your place and turn |
 | `join` / `leave` | | enter or leave the queue (leaving during your turn ends it) |
 | `stream` | `v: {x,y,z,roll,pitch,yaw}` each in −1..1, **or** `qd: [6]` each in −1..1; optional `grip` 0..1 | live control. Send at 10–20 Hz while the finger/tilt is active; when you stop sending, the arm stops (300 ms). The server scales −1..1 to its configured max speeds |
 | `move` | `name` | play a library move (see `moves` in `welcome`) |
@@ -53,7 +53,7 @@ Every phone message may carry two optional fields for the event log (see "Event 
 
 | op | fields |
 |---|---|
-| `welcome` | `pid, name, moves: [{name, title, emoji, duration_s, blurb}], spots: [{name, title}], turn_s, features: {say, grab, tilt, joystick, poses, chess, pick}, speeds: {lin_mps, ang_rps, joint_rps}` |
+| `welcome` | `pid, name, moves: [{name, title, emoji, duration_s, blurb}], spots: [{name, title}], turn_s, features: {say, grab, tilt, joystick, poses, chess, pick, cam}, speeds: {lin_mps, ang_rps, joint_rps}, limits: {j1: [lo, hi], …}` (the daemon's soft joint limits in rad, or null before the daemon has said hello; for display, the daemon enforces them) |
 | `lobby` | `queue: [{name, you}]`, `position` (1-based, null if not queued), `active: {name, remaining_s} \| null`, `you_active: bool`, `eta_s` (null if unknown). Sent on every change and once a second while a turn is running |
 | `turn` | `remaining_s`: your turn started (and once a second during it; `warning: true` in the last 30 s) |
 | `turn_end` | `reason`: `time` \| `left` \| `idle` \| `skipped` \| `operator` |
@@ -170,6 +170,12 @@ The game's moves are accepted only while the active player is one of its players
 1. Look: one `move_joints` (0.25 rad/s) to a camera-down pose over the table, approved like a playable (`pending` with two keyframes).
 2. Tap / prompt: nothing moves. The server shows the outline it found and the size; the player confirms.
 3. Pick: one operator approval, then `GraspEngine` with the tapped target's tracker: re-centre → closer (0.18 / 0.12 / 0.08 m above the top) → fingers open, down in 2 cm steps → close across the narrow side → lift 8 cm → verify (grip stalled + no longer on the table) → miss: retry once → put it back where it was → ready. Every motion is a daemon `move_joints` / `gripper` (envelope, speed caps ≤ 0.3 rad/s, lease, E-STOP) and is checked by the engine first (soft box, table guard, camera above the object).
+
+### Phone camera (`GET /cam.jpg`)
+
+`GET https://…:8450/cam.jpg?pid=<pid>&after=<seq>` (room key as for every route) → the wrist camera's latest JPEG, header `X-Seq`; it waits up to 1 s for a frame newer than `after`, so a phone that asks again as soon as it has drawn one gets about the relay's rate (≤ 10 fps, 640 px wide). 403 unless `pid` is the active player (bandwidth, not secrecy: the room key is the access check); 503 while the camera is unavailable. Read-only: frames come from the lab console (`--cam console`, `$VISION_DASHBOARD_URL`), a synthetic test picture (`--cam test`) or nothing (`--cam off`). `welcome.features.cam` says whether the camera answers now; the server re-sends `welcome` when that changes and when the arm (re)connects.
+
+`features.chess` and `features.pick` are what the phone should offer: with `--chess` / `--pick auto` (default) only in rehearsal (mock backend or the DimOS sim), with `on` also on the real arm once the board / camera is calibrated, with `off` never (their ops are then refused).
 
 ## Server rules
 
