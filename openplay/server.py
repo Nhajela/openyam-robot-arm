@@ -74,6 +74,7 @@ MOTION_OPS = {"stream", "move", "say", "grip", "ready", "home", "stop", "pose.sa
 DISCRETE = {"move", "ready", "home", "pose.goto", "seq.play", "grab"}  # (say joins the busy slot once authored)
 CHESS_OPS = {"chess.new", "chess.accept", "chess.clock", "chess.pick", "chess.move", "chess.resign"}
 CHESS_SENSORS = ("fake", "camera")
+MODE_CHOICES = ("auto", "on", "off")   # --chess / --pick
 EVENT_KINDS = ("move", "say", "seq", "grab", "chess", "pick")
 LOOPBACK = {"127.0.0.1", "::1", "localhost", "testclient"}
 DAEMON_TTL_MAX_MS = 500   # armctl.daemon.TTL_MAX_MS: the daemon clips longer ttls
@@ -220,7 +221,8 @@ class OpenPlay:
                  workcell: Path | None = None, chess_sensor: Any = "fake", chess_clock_s: float = 600.0,
                  chess_cameras: list[str] | None = None, chess_calib: str | None = None,
                  trace_log: Path | None = None, stream_ttl_ms: float = STREAM_TTL_MS,
-                 pick_opts: dict | None = None):
+                 pick_opts: dict | None = None, chess_mode: str = "auto", pick_mode: str = "auto",
+                 cam_source: str = "off", cam_url: str | None = None):
         self.lobby = Lobby(turn_s=turn_s)
         self.stream_ttl_ms = float(min(max(stream_ttl_ms, 50.0), DAEMON_TTL_MAX_MS))
         # the time-synced trace (openplay/eventlog.py): phone -> server -> arm, one clock
@@ -269,10 +271,27 @@ class OpenPlay:
             self.pick = PickStation(self, **(pick_opts or {}))
         except Exception as e:
             log.warning("pick it up unavailable: %s: %s", type(e).__name__, e)
-        self.features["pick"] = self.pick is not None
+        # chess / pick: "off" refuses them; "auto" offers them to phones only in rehearsal (mock
+        # backend or the DimOS sim); "on" offers them on the real arm too. Either way phones only
+        # see them while they could run now (calibrated board / camera: see phone_features).
+        for name, mode in (("chess", chess_mode), ("pick", pick_mode)):
+            if mode not in MODE_CHOICES:
+                raise ValueError(f"{name} mode must be one of {MODE_CHOICES}")
+        self.chess_mode, self.pick_mode = chess_mode, pick_mode
+        self.features["chess"] = bool(self.features.get("chess")) and chess_mode != "off"
+        self.features["pick"] = self.pick is not None and pick_mode != "off"
+        # the wrist camera relayed to the active player's phone (arcade Robot Eyes / Claw Cam)
+        from openplay.cam import CamRelay, CONSOLE_URL
+
+        self.cam = CamRelay(cam_source, url=cam_url or CONSOLE_URL, q=lambda: self.arm.state.get("q"),
+                            on_change=self._cam_changed)
+        self.features["cam"] = self.cam.ok
+        self._loop: asyncio.AbstractEventLoop | None = None
 
     # ------------------------------------------------------------------ lifecycle
     async def start(self) -> None:
+        self._loop = asyncio.get_running_loop()
+        self.cam.start()
         if self.events_log:
             self.events_log.parent.mkdir(parents=True, exist_ok=True)
         self._tasks = [asyncio.create_task(self.arm.run(), name="arm"),
@@ -288,6 +307,7 @@ class OpenPlay:
                         "last setpoint", self.stream_ttl_ms, STREAM_TTL_MS)
 
     async def shutdown(self) -> None:
+        self.cam.stop()
         for t in self._tasks:
             t.cancel()
         with contextlib.suppress(Exception):
@@ -398,9 +418,40 @@ class OpenPlay:
             return "estop"
         return "connected" if self.arm.has_lease else "waiting for lease"
 
+    def _rehearsal(self) -> bool:
+        return self.arm.backend == "mock" or self.arm.adapter in ("mock", "sim")
+
+    def phone_features(self) -> dict:
+        """``features`` as phones see them: chess and Pick it up only where they could run now
+        (``auto``: rehearsal only; ``on``: also the real arm, once calibrated), the camera games
+        only while the camera answers. The server-side refusals are unchanged."""
+        f = dict(self.features)
+        f["cam"] = self.cam.ok
+        try:
+            if f.get("chess"):
+                f["chess"] = (self.chess_mode == "on" or self._rehearsal()) and not (self.chess_sensor_error or self.chess_refusal())
+        except Exception:
+            f["chess"] = False
+        try:
+            if f.get("pick"):
+                f["pick"] = (self.pick_mode == "on" or self._rehearsal()) and self.pick.refusal() is None
+        except Exception:
+            f["pick"] = False
+        return f
+
+    def push_welcome(self) -> None:
+        """Re-send welcome (its features change when the arm connects or the camera comes and goes)."""
+        for pid, cs in self.phones.items():
+            for c in cs:
+                c.send(self.welcome(pid))
+
+    def _cam_changed(self, ok: bool) -> None:  # called from the camera thread
+        if self._loop is not None:
+            self._loop.call_soon_threadsafe(self.push_welcome)
+
     def welcome(self, pid: str) -> dict:
         return {"op": "welcome", "pid": pid, "name": self.lobby.name(pid), "moves": self.moves,
-                "spots": self.spots, "turn_s": self.lobby.turn_s, "features": self.features,
+                "spots": self.spots, "turn_s": self.lobby.turn_s, "features": self.phone_features(),
                 "speeds": self.arm.speeds(),
                 # the daemon's soft joint limits (rad), e.g. the site's j1 range: the arcade page keeps
                 # its stars and soft walls inside them. Display only; the daemon still enforces them.
@@ -590,6 +641,7 @@ class OpenPlay:
                        f"auto-play {'on' if self.auto_play else 'off'}")
             self.to_displays(self.display_hello())
             self.push_config()
+            self.push_welcome()   # rehearsal or real arm decides which modes phones see
         elif kind == "disconnected":
             if not self._offline_said:  # once per outage, not every retry
                 self._offline_said = True
@@ -661,6 +713,8 @@ class OpenPlay:
         if op in CHESS_OPS:
             return await self._chess_msg(c, pid, op, m)
         if op.startswith("pick.") and self.pick is not None:   # openplay/pick_play.py
+            if not self.features.get("pick"):
+                return self.refuse(c, "Pick it up is switched off (open play --pick off)")
             return await self.pick.phone(c, pid, op, m)
         if op not in MOTION_OPS:
             return self.refuse(c, f"unknown op {op!r}")
@@ -1680,6 +1734,19 @@ class OpenPlay:
         def favicon():
             return Response(status_code=204)
 
+        @app.get("/cam.jpg")
+        async def cam_jpg(pid: str = "", after: int = 0):
+            # the wrist camera for the arcade's camera games: the player whose turn it is only
+            # (Wi-Fi bandwidth; the room key is the access check, the pid only picks the viewer)
+            if not self.lobby.is_active(pid):
+                raise HTTPException(403, "not your turn")
+            if not self.cam.ok:
+                raise HTTPException(503, self.cam.error or "camera unavailable")
+            jpeg, seq = await asyncio.to_thread(self.cam.latest, int(after), 1.0)
+            if jpeg is None:
+                raise HTTPException(503, self.cam.error or "no frame yet")
+            return Response(jpeg, media_type="image/jpeg", headers={"Cache-Control": "no-store", "X-Seq": str(seq)})
+
         @app.websocket("/ws")
         async def ws_endpoint(ws: WebSocket):
             ok_q, ok_c = key_ok(ws.query_params.get("k", ""), ws.cookies.get(COOKIE, ""))
@@ -1965,7 +2032,8 @@ async def serve(args) -> None:
                   ang_rps=args.ang_rps, joint_rps=args.joint_rps, chess_sensor=args.chess_sensor,
                   chess_cameras=args.chess_camera, chess_calib=args.chess_calib, trace_log=trace,
                   stream_ttl_ms=args.stream_ttl_ms,
-                  pick_opts={"detector_kind": "" if args.pick_detector == "none" else args.pick_detector})
+                  pick_opts={"detector_kind": "" if args.pick_detector == "none" else args.pick_detector},
+                  chess_mode=args.chess, pick_mode=args.pick, cam_source=args.cam, cam_url=args.cam_url)
     # The room key is a secret: only on an interactive terminal (and on the loopback display).
     shown = join_url if os.isatty(1) else join_url.split("?k=")[0] + f"?k=<key: see http://127.0.0.1:{args.local_port}>"
     print(f"open play: phones join at {shown} ({args.phone_ui} page; /classic and /arcade both work)", flush=True)
@@ -2009,6 +2077,16 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--daemon", default=DEFAULT_URL, help="armctl daemon WebSocket")
     ap.add_argument("--phone-host", default="0.0.0.0", help="phone listener bind address")
     ap.add_argument("--phone-port", type=int, default=8450)
+    ap.add_argument("--chess", choices=MODE_CHOICES, default="auto",
+                    help="chess on phones: auto = only in rehearsal (mock/sim), on = also on the real arm "
+                         "(once the board is calibrated), off = refused")
+    ap.add_argument("--pick", choices=MODE_CHOICES, default="auto",
+                    help="Pick it up on phones: auto = only in rehearsal (mock/sim), on = also on the real arm "
+                         "(once the camera is calibrated), off = refused")
+    ap.add_argument("--cam", choices=["console", "test", "off"], default="console",
+                    help="wrist camera for the arcade camera games: the lab console's /camera.jpg, a synthetic "
+                         "test picture, or off")
+    ap.add_argument("--cam-url", default=None, help="camera JPEG URL (default $VISION_DASHBOARD_URL or the console's)")
     ap.add_argument("--phone-ui", choices=["classic", "arcade"], default="classic",
                     help="the phone page the QR opens: classic (modes) or arcade (claw game); "
                          "/classic and /arcade always work")
