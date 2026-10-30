@@ -10,14 +10,18 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ---
 
-## 2026-10-30 (13:30–14:35 IST): arcade phone page (serenity; no arm), branch `arcade-phone`
+## 2026-10-30 (13:30–14:50 IST): arcade phone page + camera games, chess/pick off on the real arm (serenity; no arm), branch `arcade-phone`
 
 - 🧪 **Open play, arcade version** ([experiments/2026-10-30-arcade-phone/LOG.md](experiments/2026-10-30-arcade-phone/LOG.md), [openplay/README.md § Arcade](openplay/README.md#arcade-the-same-thing-as-a-claw-machine-game)): a second phone page at `/arcade` that plays like a claw machine instead of a set of levers. Drag on an angled map to steer, hold DROP / let go to grab and come back, stars, gold dive stars, combos, score, emotes, Ask it. Same protocol and safety model; STOP above every overlay. `--phone-ui arcade` puts it on the QR (default stays classic).
 - 🧪 Server: `/arcade` + `/classic` routes, `--phone-ui`, `welcome.limits` (the daemon's soft joint limits), `ui` in the hello trace. New e2e test `test_arcade_page`.
 - Checked on the mock daemon with headless Chromium at phone size: steering moved the tip 14 cm in the dragged direction, DROP lowered it 12 cm, letting go shut the claw and ran Ready, stars scored. `openplay/tests`: only the 7 chess failures that clean `main` also has on serenity.
 
+- 🧪 **Two camera games in the arcade** (14:35–14:50): 👀 **Robot Eyes** (the wrist camera on the phone, drag to look around, filters, 📸 a framed photo to save or share) and 🎥 **Claw Cam** (the claw game from the claw's eye). `openplay/cam.py` relays the lab console's camera to the active player (`--cam console|test|off`, `GET /cam.jpg`).
+- ❗ **Chess and Pick it up are now off on the real arm by default** (`--chess` / `--pick auto|on|off`; auto = rehearsal only). Picking works on the arm only in the tuned CLI case (purple ball); chess pinches slipped; the phone's Pick it up never ran on the arm. Pass `--pick on` / `--chess on` to offer them.
+- Checked on the mock with a synthetic camera: look-around moved j1/j4 the right way, the photo was made. `openplay/tests`: 146 passed; the 7 failures are chess tests that fail on clean `main` too.
+
 ### Next
-1. ⏳ Laptop: `--phone-ui arcade` on the mock with a real phone, then DimOS sim, then the real arm with someone at the E-STOP (LOG "Next").
+1. ⏳ Laptop: `--phone-ui arcade` on the mock with a real phone, then with the console camera (`--cam console`), then DimOS sim, then the real arm with someone at the E-STOP (LOG "Next").
 
 ---
 

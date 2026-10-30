@@ -2,7 +2,7 @@
 
 **Experimenters:** Naman (idea) + Claude (build on serenity, no arm)
 **Goal:** A second phone experience for open play that feels like a game, not like driving a JCB. The classic page (`openplay/static/play.html`) gives people levers: a Slow/Normal switch, a grip slider, two joysticks labelled away/toward/up/down/twist, joint bars. Make one more version where each thumb has one verb and there is something to *do* (a goal, a score), on the same protocol and safety model.
-**Status:** built; mock-daemon end to end green; real arm next (laptop).
+**Status:** built (claw game + Robot Eyes + Claw Cam); mock-daemon end to end green with a synthetic camera; real phone, camera and arm next (laptop).
 
 Branch `arcade-phone` (fork). Page: `openplay/static/arcade.{html,css,js}`, served at `/arcade`; `--phone-ui arcade` puts it on the QR.
 
@@ -57,9 +57,45 @@ CHROME_PATH=<chrome> NODE_PATH=<dir with playwright> node experiments/2026-10-30
 
 Screens ([screens/](screens/)): [lobby](screens/1-lobby.png), [how to play + PRESS START](screens/2-intro.png), [steering](screens/3-steering.png), [dropping](screens/4-dropping.png), [grab → coming back](screens/5-grab-return.png), [score and a gold dive star](screens/6-score.png), [menu](screens/7-menu.png), [game over](screens/8-game-over.png).
 
+## 2026-10-30 14:35–14:50 IST: camera games, chess / pick off on the real arm (serenity, mock daemon)
+
+Naman: "is pick up object working at all? … two more game modes … disable chess and pickup if we can't pick up. Game mode 1: look at the camera, just stream the camera, and have fun with it. Game mode 2: … at least a camera feed into the phone."
+
+**Observation: where picking stands (from the notebooks, nothing run today).** On the real arm the purple ball was picked up on 29 Oct with the CLI (`look_and_grasp --finder blob` with hand-tuned flags, [first-pick](../2026-10-29-first-pick/LOG.md)). Chess pieces failed: the pinch closed on a round head and slipped ([chess](../2026-10-29-chess/LOG.md)). The phone's **Pick it up** mode has only run in simulation; open play on the arm was only used for driving and moves. So: picking works in a narrow, tuned case from the command line, not from the phone.
+
+**Decision: `--chess` / `--pick auto|on|off`.** `auto` (default) offers them on phones only in rehearsal (mock backend or the DimOS sim); `on` also on the real arm, and only while they could run (calibrated board / camera); `off` refuses their ops. Visibility lives in `OpenPlay.phone_features()`; the server-side refusals (uncalibrated board, camera) are unchanged, so the existing chess and pick tests keep their meaning. The server re-sends `welcome` when the arm connects (that's when it knows mock / sim / real).
+
+**Built: the camera relay** ([`openplay/cam.py`](../../openplay/cam.py)). One thread pulls JPEGs from the lab console (`--cam console`, default; `$VISION_DASHBOARD_URL`), shrinks them to 640 px and keeps the latest, only while someone asked in the last 3 s (plus a probe every 15 s so `features.cam` is current). `GET /cam.jpg?pid=&after=` on the phone listener, active player only (Wi-Fi), long-polls for a newer frame. `--cam test` draws a synthetic scene (wall with three cartoon faces, table, blobs) that slides with j1/j4, for rehearsals and these screenshots. Read-only.
+
+**Built: two camera games in the arcade** (tabs at the top: 🕹️ Claw · 👀 Robot Eyes · 🎥 Claw Cam; the tabs only appear while the camera answers):
+- **👀 Robot Eyes:** the phone shows the wrist camera with a robot HUD. Drag to look around: joint-velocity stream `qd = [−0.6·dx, 0, 0, −0.6·dy, 0, 0]` (base turns, wrist tilts; full drag 0.3 rad/s at the default `joint_rps`). Directions from FK: at ready the camera looks down the table and a little up (direction (0.96, 0, 0.30)); +j4 raises it ((0.62, 0, 0.78) at j4 = 0.6), +j1 turns it left. Filters drawn on the phone: 🤖 Robot (green scanlines), 🔥 Thermal, 👾 8-bit, 💥 Comic. **📸 SNAP:** 3-2-1, flash, a framed 1080×1350 photo ("SEEN BY THE ROBOT", name, date) to save or share (Web Share with a file where the phone supports it). +50 for the first three photos. 👋 plays the library's wave.
+- **🎥 Claw Cam:** the claw game from the claw's eye: the same steer (base frame, never flipped) and DROP, the camera picture with a crosshair and the claw's height above the table.
+
+**Problem / Fix:** the new tab buttons were styled with `.game`, which is also the class of the game screen itself (`section.screen.game`): the whole turn screen became a pill shape, clipping the HUD and swallowing the menu tap. Renamed to `.gametab`.
+
+**Problem / Fix:** a 16:9 camera frame cover-fitted into the tall arena showed only the middle third. The viewfinder now fits the whole frame (`contain`); only the photo crops (`cover`).
+
+**Insight:** at the ready pose the claw points forward and slightly up, not down. Cartesian streaming keeps that orientation, so the claw game's DROP lowers a forward-pointing gripper (it grabs from the side). A fingers-down "claw pose" (taught with Poses on the arm, then used as the claw game's start instead of Ready) would make it a real claw machine. Next on the arm.
+
+### Test (mock daemon + `--cam test`, serenity)
+
+Same environment as above; open play started with `--phone-ui arcade --cam test`. [`arcade_smoke.cjs`](arcade_smoke.cjs) now also opens Robot Eyes, drags up-right for 1.2 s, picks Thermal, snaps a photo, and opens Claw Cam:
+
+```
+{"dx_away":0.140,"dropped":0.123,"busyAfterDrop":"ready","gripAfter":0,"scoreBefore":50,"scoreAfter":350,
+ "eyes":{"dj1":-0.254,"dj4":0.310,"photos":1},"errors":[]}
+```
+
+- **Observation:** drag right turned the base right (j1 −0.25 rad), drag up raised the camera (j4 +0.31 rad); the photo was made; no page errors.
+- `pytest openplay/tests`: 146 passed, 7 failed, all in `test_chess.py` and all failing on clean `main` on serenity too (the repo's `workcell.json` is now `calibrated: true`, which these tests assume is false; one flaky). New: [`openplay/tests/test_modes.py`](../../openplay/tests/test_modes.py) (auto / on / off visibility and refusals, the relay's frames and failure reporting, the synthetic frame).
+
+Screens: [Robot Eyes](screens/9-robot-eyes.png), [Thermal](screens/10-robot-eyes-thermal.png), [the photo](screens/11-photo.png), [Claw Cam](screens/12-claw-cam.png) (the test camera).
+
 ### Next (laptop, with the arm)
-1. Mock first on the laptop: `--phone-ui arcade`, play on a real phone over the LAN; check the feel of the floating stick and DROP with real touch latency.
-2. DimOS sim, then the real arm with someone at the E-STOP: does the angled map match what people see from where they stand? (Menu → Flip the map if they stand across the table.) Does `DROP_FLOOR_Z` = 0.03 stop at a sensible height over the real table? Do the gold stars' dives stay clear of whatever is on the table?
-3. Watch real people play: do they find DROP without being told? Is 0.08 m/s too slow for a game (`--lin-mps`)?
+1. Mock first on the laptop: `--phone-ui arcade`, play on a real phone over the LAN; check the feel of the floating stick and DROP with real touch latency. With the lab console running, `--cam console`: does the relay keep up on the event Wi-Fi (frame rate on the phone, the console's camera load)?
+2. Robot Eyes on the arm: is 0.3 rad/s a good look-around speed? Do people find the photo? Watch j4's temperature (looking up holds the wrist under load).
+3. Teach a fingers-down claw pose and make it the claw game's start pose.
+4. DimOS sim, then the real arm with someone at the E-STOP: does the angled map match what people see from where they stand? (Menu → Flip the map if they stand across the table.) Does `DROP_FLOOR_Z` = 0.03 stop at a sensible height over the real table? Do the gold stars' dives stay clear of whatever is on the table?
+5. Watch real people play: do they find DROP without being told? Is 0.08 m/s too slow for a game (`--lin-mps`)?
 
 **Ideas:** a two-finger twist on the map for yaw; real prizes (a few foam blocks on the table and the wrist camera confirming a grab, from `interfaces/wristcam`) instead of +50 for any drop; the score and a "now playing" claw view on the laptop display; a shared high-score table on the server.

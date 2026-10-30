@@ -24,9 +24,20 @@ A second phone page, `/arcade` ([`static/arcade.html`](static/arcade.html)), for
 - **Hold DROP** to lower the claw. **Let go**: it shuts and comes back up to Ready.
 - **Stars** to fly the claw into (+100), **gold ⬇ stars** you dive to (+250), combos for quick chains, a score and a best score on the phone. **Emotes** are the library moves; **✨ Ask it** is Say it.
 
+Two more games when the wrist camera is available (tabs at the top of the game; `--cam`):
+
+- **👀 Robot Eyes:** the phone shows what the robot sees. Drag to look around (the base turns, the wrist tilts: joint velocities), pick a filter (🤖 Robot HUD, 🔥 Thermal, 👾 8-bit, 💥 Comic), **📸 SNAP** for a 3-2-1 framed photo ("Seen by the robot", your name, the date) to save or share, 👋 to make it wave at you.
+- **🎥 Claw Cam:** the claw game from the claw's own eye: the same steer and DROP, the camera picture instead of the map.
+
+The frames come from the lab console's camera (`--cam console`, the default; the server relays them only to the player whose turn it is, ≤ 10 fps at 640 px), `--cam test` draws a synthetic picture for rehearsals, `--cam off` hides the camera games.
+
 It speaks the same protocol (`stream`, `grip`, `ready`, `move`, `say`, `stop`), so everything in the safety model below applies unchanged; STOP stays on screen above every overlay. Two phone-side conveniences are *not* safety limits: DROP stops at 6 cm above the table (`DROP_FLOOR_Z`), and soft walls keep the claw inside the reach ring and the daemon's j1 soft limits (`welcome.limits`).
 
 Run open play with `--phone-ui arcade` to put it on the QR. `/arcade` and `/classic` always work, whichever `/` serves, and each page links to the other. Notebook: [experiments/2026-10-30-arcade-phone](../experiments/2026-10-30-arcade-phone/LOG.md).
+
+## Chess and Pick it up: off on the real arm unless you ask
+
+`--chess` and `--pick` take `auto` (default), `on` or `off`. **auto** offers them on phones only in rehearsal (mock backend or the DimOS sim), because on the real arm neither works reliably yet: the purple ball was picked with the hand-tuned `look_and_grasp` CLI, the pinch on chess pieces slipped, and the phone's Pick it up has never run on the arm. **on** offers them on the real arm too, and only while they could run (board / camera calibrated). **off** refuses their ops. The classic page's mode cards follow `welcome.features`, so nothing else changes.
 
 ## Safety model
 

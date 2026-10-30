@@ -2,7 +2,8 @@
 //   node arcade_smoke.cjs https://127.0.0.1:<phone port>/arcade?k=<key> <out dir>
 // CHROME_PATH=<chrome binary> if this Playwright has no browser of its own; NODE_PATH to find playwright.
 // Joins, presses start, steers by dragging on the map, holds DROP, lets go, and checks that the
-// mock arm's tip moved the right way. Screenshots: lobby, intro, play, drop, menu, game over.
+// mock arm's tip moved the right way; with a camera (--cam test) also Robot Eyes (look, filter, snap)
+// and Claw Cam. Screenshots: lobby, intro, play, drop, menu, game over, camera games.
 const { chromium } = require('playwright');
 const [url, out = '.'] = process.argv.slice(2);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -61,6 +62,32 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   }
   const after = await page.evaluate(() => window.openplay.G.score);
   await page.screenshot({ path: `${out}/6-score.png` });
+  // camera games (server started with --cam test or a real console camera)
+  let eyes = null;
+  if (await page.evaluate(() => !document.getElementById('games').hidden)) {
+    await page.click('.gametab[data-game="eyes"]');
+    await page.waitForFunction(() => window.openplay.S.game === 'eyes');
+    await sleep(1500);
+    const q0 = await page.evaluate(() => window.openplay.S.arm.q.slice());
+    const ab = await page.locator('#arena').boundingBox();
+    const ex = ab.x + ab.width / 2, ey = ab.y + ab.height / 2;
+    await page.mouse.move(ex, ey); await page.mouse.down(); await page.mouse.move(ex + 60, ey - 60);
+    await sleep(1200);
+    await page.screenshot({ path: `${out}/9-robot-eyes.png` });
+    await page.mouse.up(); await sleep(400);
+    const q1 = await page.evaluate(() => window.openplay.S.arm.q.slice());
+    await page.click('.filter >> text=Thermal'); await sleep(500);
+    await page.screenshot({ path: `${out}/10-robot-eyes-thermal.png` });
+    await page.click('#snapBtn');
+    await page.waitForSelector('#photo:not([hidden])', { timeout: 8000 });
+    await sleep(300);
+    await page.screenshot({ path: `${out}/11-photo.png` });
+    await page.click('#photoClose');
+    await page.click('.gametab[data-game="cam"]'); await sleep(1500);
+    await page.screenshot({ path: `${out}/12-claw-cam.png` });
+    await page.click('.gametab[data-game="claw"]'); await sleep(300);
+    eyes = { dj1: q1[0] - q0[0], dj4: q1[3] - q0[3], photos: await page.evaluate(() => window.openplay.G.stats.photos) };
+  }
   await page.click('#pauseBtn'); await sleep(200);
   await page.screenshot({ path: `${out}/7-menu.png` });
   page.once('dialog', (dlg) => dlg.accept());
@@ -68,6 +95,6 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.waitForSelector('#over:not([hidden])', { timeout: 10000 });
   await sleep(300);
   await page.screenshot({ path: `${out}/8-game-over.png` });
-  console.log(JSON.stringify({ t0, t1, dx_away: t1[0] - t0[0], z0, z1, dropped: z0 - z1, busyAfterDrop, gripAfter: grip, scoreBefore: before, scoreAfter: after, errors }, null, 1));
+  console.log(JSON.stringify({ t0, t1, dx_away: t1[0] - t0[0], z0, z1, dropped: z0 - z1, busyAfterDrop, gripAfter: grip, scoreBefore: before, scoreAfter: after, eyes, errors }, null, 1));
   await browser.close();
 })().catch((e) => { console.error(e); process.exit(1); });
