@@ -8,7 +8,8 @@
 Two listeners in one asyncio process:
   * https://<phone-host>:8450  phones. Self-signed cert from dashboard/certs/ (phonecam's),
     every route needs the room key (?k=<key> once, then cookie op_key). "/" is
-    openplay/static/play.html, /static/..., WebSocket /ws.
+    openplay/static/play.html (or arcade.html with --phone-ui arcade); /classic and /arcade
+    always serve that page; /static/..., WebSocket /ws.
   * http://127.0.0.1:8451  the laptop display and operator, loopback only, no key. "/" is
     openplay/static/display.html, /static/..., /qr.png, /api/join, /urdf/..., WebSocket /display/ws.
 
@@ -400,7 +401,10 @@ class OpenPlay:
     def welcome(self, pid: str) -> dict:
         return {"op": "welcome", "pid": pid, "name": self.lobby.name(pid), "moves": self.moves,
                 "spots": self.spots, "turn_s": self.lobby.turn_s, "features": self.features,
-                "speeds": self.arm.speeds()}
+                "speeds": self.arm.speeds(),
+                # the daemon's soft joint limits (rad), e.g. the site's j1 range: the arcade page keeps
+                # its stars and soft walls inside them. Display only; the daemon still enforces them.
+                "limits": (self.arm.hello.get("envelope") or {}).get("soft_limits")}
 
     def display_hello(self) -> dict:
         h = self.arm.hello
@@ -749,7 +753,8 @@ class OpenPlay:
                         reconnect=pid in self.pid_seq or closed is not None,
                         since_close_s=None if closed is None else round(time.time() - closed, 2),
                         rate_ms=m.get("rate_ms") if isinstance(m.get("rate_ms"), (int, float)) else None,
-                        ua=str(m.get("ua") or "")[:120] or None)
+                        ua=str(m.get("ua") or "")[:120] or None,
+                        ui=clean_name(m.get("ui"), 16) or None)
         self.phones.setdefault(pid, set()).add(c)
         self.lobby.hello(pid, name)
         c.send(self.welcome(pid))
@@ -1640,7 +1645,10 @@ class OpenPlay:
             c.send(e)
 
     # ------------------------------------------------------------------ apps
-    def phone_app(self, key: str):
+    def phone_app(self, key: str, ui: str = "classic"):
+        """``ui``: which phone page "/" serves (the QR's URL): ``classic`` (play.html, the modes)
+        or ``arcade`` (arcade.html, the claw game). Both pages speak the same protocol."""
+        pages = {"classic": "play.html", "arcade": "arcade.html"}
         app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
         def key_ok(q: str, c: str) -> tuple[bool, bool]:
@@ -1658,7 +1666,15 @@ class OpenPlay:
 
         @app.get("/")
         def page():
+            return HTMLResponse(_page(pages.get(ui, "play.html"), "The phone page"), headers={"Cache-Control": "no-store"})
+
+        @app.get("/classic")
+        def classic_page():
             return HTMLResponse(_page("play.html", "The phone page"), headers={"Cache-Control": "no-store"})
+
+        @app.get("/arcade")
+        def arcade_page():
+            return HTMLResponse(_page("arcade.html", "The arcade phone page"), headers={"Cache-Control": "no-store"})
 
         @app.get("/favicon.ico")
         def favicon():
@@ -1952,7 +1968,7 @@ async def serve(args) -> None:
                   pick_opts={"detector_kind": "" if args.pick_detector == "none" else args.pick_detector})
     # The room key is a secret: only on an interactive terminal (and on the loopback display).
     shown = join_url if os.isatty(1) else join_url.split("?k=")[0] + f"?k=<key: see http://127.0.0.1:{args.local_port}>"
-    print(f"open play: phones join at {shown}", flush=True)
+    print(f"open play: phones join at {shown} ({args.phone_ui} page; /classic and /arcade both work)", flush=True)
     print(f"open play: display at http://127.0.0.1:{args.local_port}  (daemon {args.daemon}, "
           f"turn {args.turn:.0f} s, auto-play {args.auto_play})", flush=True)
     print(f"open play: event trace {trace or 'off (ring buffer only)'}; live at "
@@ -1962,7 +1978,7 @@ async def serve(args) -> None:
         print("open play: auto-play is ON: playables play without the operator pressing Play", flush=True)
 
     servers = [
-        _uvicorn_server(uvicorn.Config(op.phone_app(key), host=args.phone_host, port=args.phone_port,
+        _uvicorn_server(uvicorn.Config(op.phone_app(key, args.phone_ui), host=args.phone_host, port=args.phone_port,
                                        ssl_certfile=str(pc.CERT), ssl_keyfile=str(pc.KEY), log_level="warning",
                                        timeout_graceful_shutdown=1, ws_max_size=MAX_MSG * 2)),
         _uvicorn_server(uvicorn.Config(op.display_app(), host="127.0.0.1", port=args.local_port,
@@ -1993,6 +2009,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--daemon", default=DEFAULT_URL, help="armctl daemon WebSocket")
     ap.add_argument("--phone-host", default="0.0.0.0", help="phone listener bind address")
     ap.add_argument("--phone-port", type=int, default=8450)
+    ap.add_argument("--phone-ui", choices=["classic", "arcade"], default="classic",
+                    help="the phone page the QR opens: classic (modes) or arcade (claw game); "
+                         "/classic and /arcade always work")
     ap.add_argument("--pick-detector", choices=["yoloe", "claude", "none"], default="yoloe",
                     help="Pick it up: open-vocabulary detector for taps and names (yoloe: GPU; none: GrabCut taps + Claude names)")
     ap.add_argument("--learn-url", default=LEARN_URL,

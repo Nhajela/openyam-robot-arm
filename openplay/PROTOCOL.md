@@ -30,7 +30,7 @@ Every phone message may carry two optional fields for the event log (see "Event 
 
 | op | fields | meaning |
 |---|---|---|
-| `hello` | `pid` (client-made id kept in localStorage), `name` (≤ 24 chars) | first message; reconnecting with the same `pid` keeps your place and turn |
+| `hello` | `pid` (client-made id kept in localStorage), `name` (≤ 24 chars), optional `ui` (`classic` \| `arcade`: which phone page, logged in the trace) | first message; reconnecting with the same `pid` keeps your place and turn |
 | `join` / `leave` | | enter or leave the queue (leaving during your turn ends it) |
 | `stream` | `v: {x,y,z,roll,pitch,yaw}` each in −1..1, **or** `qd: [6]` each in −1..1; optional `grip` 0..1 | live control. Send at 10–20 Hz while the finger/tilt is active; when you stop sending, the arm stops (300 ms). The server scales −1..1 to its configured max speeds |
 | `move` | `name` | play a library move (see `moves` in `welcome`) |
@@ -53,7 +53,7 @@ Every phone message may carry two optional fields for the event log (see "Event 
 
 | op | fields |
 |---|---|
-| `welcome` | `pid, name, moves: [{name, title, emoji, duration_s, blurb}], spots: [{name, title}], turn_s, features: {say, grab, tilt, joystick, poses, chess, pick}, speeds: {lin_mps, ang_rps, joint_rps}` |
+| `welcome` | `pid, name, moves: [{name, title, emoji, duration_s, blurb}], spots: [{name, title}], turn_s, features: {say, grab, tilt, joystick, poses, chess, pick}, speeds: {lin_mps, ang_rps, joint_rps}, limits: {j1: [lo, hi], …}` (the daemon's soft joint limits in rad, or null before the daemon has said hello; for display, the daemon enforces them) |
 | `lobby` | `queue: [{name, you}]`, `position` (1-based, null if not queued), `active: {name, remaining_s} \| null`, `you_active: bool`, `eta_s` (null if unknown). Sent on every change and once a second while a turn is running |
 | `turn` | `remaining_s`: your turn started (and once a second during it; `warning: true` in the last 30 s) |
 | `turn_end` | `reason`: `time` \| `left` \| `idle` \| `skipped` \| `operator` |
