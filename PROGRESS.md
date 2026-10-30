@@ -25,6 +25,24 @@ What got done, when, how it was checked, and what's next. Newest session on top.
 
 ---
 
+## 2026-10-30 (afternoon, 14:20–15:50 IST): ensemble moves, camera modes, ball pick (lab laptop, real arm)
+
+**Where:** lab laptop, real arm, `main` @ `663bd13` + uncommitted work. Notebook: [experiments/2026-10-30-ensemble-moves/LOG.md](experiments/2026-10-30-ensemble-moves/LOG.md).
+
+- ✅ Systems check: probe clean (all ~0, no faults, j4 27 °C); real stack + open play up; players drove all afternoon.
+- 🧪 **Four ensemble moves** (figure-eight, ripple, conductor-finale, tornado): Fable visual loop, 3 review passes, all six joints + gripper overlapping, ~24.5 s each at dance caps; played on the mock daemon; on the phone. Not yet watched on the real arm by us (players may have).
+- ✅ PR #2 (arcade page) merged to the fork's `main`. 🧪 Then the claw game was removed and Robot Eyes / Claw Cam became mode cards (`camgames.js`), Grab shows the camera; browser-checked on the mock, 0 JS errors. Tests: 151 passed; the 6 failures are pre-existing `test_chess.py` (same on `main`).
+- ✅ **Ball pick-and-place** (pick1): picked, verified in the jaws, put back. ❗ Final ready refused (too low) → fixed in sim. pick2/pick3: centring vs arm sag; the looser gate pushed the ball.
+- 🧪 Two agents (worktrees, mock only): saved moves (record → validated playable → replay) and selfie mode (YuNet faces, j1/j4 framing, 3-2-1 photo). Not merged.
+- Incidents: a daemon restart cut a player's move (arm stopped mid-move, no fault; back to ready); a `git stash` briefly reverted the live phone pages.
+
+### Next
+1. ⏳ Merge saved moves + selfie into the mode-card page; mock browser check; then real phones.
+2. ⏳ Real-arm check of the camera modes and the post-place lift fix; ball pick with a closer look / longer settle.
+3. ❗ Naman: saved-moves questions (replay length, git, name filter, what gets recorded) and selfie questions (photo QR / gallery, model file in repo, pose height).
+
+---
+
 ## 2026-10-29 (midday, 11:40–12:40 IST): reuse report, pick up anything, explainer QR (serenity; no arm)
 
 - ✅ **Reuse report** ([experiments/2026-10-29-reuse/REPORT.md](experiments/2026-10-29-reuse/REPORT.md)). DimOS already ships three things: YOLO-E open-vocabulary detection, a CSRT + PID follower (for drones) and an agentic pick-and-place (xArm + depth only). Nobody has published RGB-only YAM picking. Replace our hand-built finders; keep armctl, calibration and the arm-side limits.

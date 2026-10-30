@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="/static/play.css">
 <link rel="stylesheet" href="/static/chess.css">
 <link rel="stylesheet" href="/static/pick.css">
+<link rel="stylesheet" href="/static/camgames.css">
 <script type="module" src="/static/play.js"></script>
 </head>
 <body>
@@ -58,7 +59,6 @@
   </div>
 
   <p class="safety">⚠️ Stay out of the arm's reach. The staff can stop it any time.</p>
-  <p class="small muted center"><a href="/arcade" style="color: var(--accent)">Just want to play? Try the arcade version (a claw game) →</a></p>
 
   <div class="card" id="queueCard" hidden>
     <div class="label">In the queue</div>
@@ -271,7 +271,12 @@
         </div>
       </div>
 
+      <!-- camera modes (openplay/static/camgames.js): the camera box is moved into the showing panel -->
+      <div class="panel" id="panel-eyes" hidden></div>
+      <div class="panel" id="panel-clawcam" hidden></div>
+
       <div class="panel" id="panel-grab" hidden>
+        <div id="grabCam"></div>
         <div class="label">From</div>
         <div class="spots" id="spotsFrom"></div>
         <div class="label">To</div>

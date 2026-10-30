@@ -1,0 +1,369 @@
+{
+  "ok": true,
+  "playable": {
+    "name": "tornado",
+    "author": "llm:claude-fable-5-1",
+    "created": "2026-10-30T14:27:26+05:30",
+    "prompt": "tornado: the base sweeps steadily one way while the wrist roll spins the other way, the head bobs and the shoulder/elbow pump in and out, building speed and size, then winding down and settling gracefully. Lots of movement: every one of the six joints AND the gripper should be doing something through most of the move, overlapping (staggered starts, follow-through), not one joint at a time. Use big, readable amplitudes from the audience; vary the tempo with a build and at least one held accent. 15-25 seconds.",
+    "notes": "The arm coils away low, then sweeps steadily toward the audience in growing laps while the hand twists the opposite way, pumping and bobbing with grip pulses, peaks as a tall pole facing them with a held snap, and spirals wide and low back down to rest.",
+    "space": "joint",
+    "start": "ready",
+    "keyframes": [
+      {
+        "t": 0.0,
+        "q": [
+          0.0,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 3.0,
+        "q": [
+          -0.4,
+          0.65,
+          0.6,
+          -0.35,
+          0.15,
+          0.55
+        ],
+        "grip": 0.2,
+        "ease": "cubic"
+      },
+      {
+        "t": 3.5,
+        "q": [
+          -0.4,
+          0.65,
+          0.6,
+          -0.35,
+          0.15,
+          0.55
+        ],
+        "grip": 0.2,
+        "ease": "hold"
+      },
+      {
+        "t": 6.1,
+        "q": [
+          0.0,
+          0.7,
+          1.05,
+          0.1,
+          -0.2,
+          0.15
+        ],
+        "grip": 0.8,
+        "ease": "flow"
+      },
+      {
+        "t": 8.5,
+        "q": [
+          0.35,
+          1.0,
+          0.8,
+          -0.15,
+          0.2,
+          -0.25
+        ],
+        "grip": 0.1,
+        "ease": "flow"
+      },
+      {
+        "t": 11.1,
+        "q": [
+          0.75,
+          0.6,
+          1.15,
+          0.25,
+          -0.25,
+          -0.7
+        ],
+        "grip": 1.0,
+        "ease": "flow"
+      },
+      {
+        "t": 13.0,
+        "q": [
+          1.0,
+          0.5,
+          1.4,
+          0.45,
+          -0.5,
+          -1.0
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 13.8,
+        "q": [
+          1.0,
+          0.5,
+          1.4,
+          0.45,
+          -0.5,
+          -1.0
+        ],
+        "grip": 1.0,
+        "ease": "hold"
+      },
+      {
+        "t": 14.4,
+        "q": [
+          1.0,
+          0.5,
+          1.4,
+          0.45,
+          -0.5,
+          -1.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 14.8,
+        "q": [
+          1.0,
+          0.5,
+          1.4,
+          0.45,
+          -0.5,
+          -1.0
+        ],
+        "grip": 0.0,
+        "ease": "hold"
+      },
+      {
+        "t": 17.4,
+        "q": [
+          0.65,
+          0.9,
+          1.0,
+          0.0,
+          -0.15,
+          -0.6
+        ],
+        "grip": 0.5,
+        "ease": "flow"
+      },
+      {
+        "t": 19.9,
+        "q": [
+          0.3,
+          1.1,
+          0.75,
+          -0.25,
+          0.05,
+          -0.25
+        ],
+        "grip": 0.15,
+        "ease": "flow"
+      },
+      {
+        "t": 21.9,
+        "q": [
+          0.1,
+          0.8,
+          1.0,
+          0.05,
+          0.0,
+          -0.05
+        ],
+        "grip": 0.3,
+        "ease": "flow"
+      },
+      {
+        "t": 24.5,
+        "q": [
+          0.0,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      }
+    ],
+    "loop": 1,
+    "speed": 1.0,
+    "caps": "dance"
+  },
+  "passes": [
+    {
+      "pass": 0,
+      "stage": "drafting",
+      "latency_s": 59.19,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 7587
+        },
+        "cache_creation_input_tokens": 7587,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 7587
+            },
+            "cache_creation_input_tokens": 7587,
+            "cache_read_input_tokens": 0,
+            "input_tokens": 4,
+            "output_tokens": 4853,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 4853,
+        "output_tokens_details": {
+          "thinking_tokens": 3704
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 4,
+        "timing": 4,
+        "safety_margin": 4
+      },
+      "satisfied": false,
+      "critique": "",
+      "changelog": [
+        "Draft: coil away from audience (j1 -, j6 + wind-up, head down) with a short hold",
+        "Build: three flow segments sweeping j1 -0.3 to +1.0 while j6 unwinds the other way 0.5 to -1.0, shoulder/elbow pumping, head bobbing, j5 alternating, grip pulsing on each lap",
+        "Peak: tallest pose facing the audience with head turned to them, held 0.8 s, then a grip snap shut accent and a second short hold",
+        "Wind-down: two decelerating flow laps back toward centre with dampening bobs, then a 3 s soft cubic settle to ready",
+        "All segment durations sized at >= 5.5 s per rad of the largest joint delta for cap headroom"
+      ]
+    },
+    {
+      "pass": 1,
+      "stage": "reviewing pass 1/3",
+      "latency_s": 55.73,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 19279
+        },
+        "cache_creation_input_tokens": 19279,
+        "cache_read_input_tokens": 7587,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 19279
+            },
+            "cache_creation_input_tokens": 19279,
+            "cache_read_input_tokens": 7587,
+            "input_tokens": 4,
+            "output_tokens": 4350,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 4350,
+        "output_tokens_details": {
+          "thinking_tokens": 2881
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 3,
+        "energy_contrast": 4,
+        "timing": 4,
+        "safety_margin": 5
+      },
+      "satisfied": false,
+      "critique": "The build reads well: a coil away, then three laps that grow from 16 to 34 to 45 cm of hand travel while the hand twists the other way, ending in a tall vertical pole facing the audience with the head turned to them, held, then a grip snap. Two weak spots: the anticipation (K0->K1) moves the hand only 4 cm, so the coil is invisible from the front; and the wind-down collapses — K10->K11 and K11->K12 each move the hand only 5 cm because the arm is nearly upright so the base sweep gives almost no lateral travel. The tornado stops abruptly after the peak instead of spiralling down. Safety is excellent (45 % velocity, 25 % accel, 8 cm above the floor at the lowest).",
+      "changelog": [
+        "Anticipation enlarged: base turns further away (j1 -0.4), forearm and head drop (j3 0.6, j4 -0.35), j6 winds up to 0.55; segment lengthened to 3.0 s",
+        "First build lap re-sized to keep every joint delta <= 0.45 rad over 2.6 s",
+        "Wind-down now spirals outward and down: lean forward (j2 0.9 -> 1.1) so the base sweep carries the hand on a wide, visible arc, with a damped elbow bounce and dampening head bob",
+        "Added one more decaying lap (K12) before the 2.6 s soft settle; total 24.5 s",
+        "Peak hold slightly longer after the grip snap (0.4 s) so the snap registers before the spiral-down starts"
+      ]
+    },
+    {
+      "pass": 2,
+      "stage": "reviewing pass 2/3",
+      "latency_s": 21.2,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 18898
+        },
+        "cache_creation_input_tokens": 18898,
+        "cache_read_input_tokens": 26866,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 18898
+            },
+            "cache_creation_input_tokens": 18898,
+            "cache_read_input_tokens": 26866,
+            "input_tokens": 4,
+            "output_tokens": 1645,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 1645,
+        "output_tokens_details": {
+          "thinking_tokens": 301
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 4,
+        "timing": 4,
+        "safety_margin": 5
+      },
+      "satisfied": true,
+      "critique": "From the front this now reads as a spiral: a visible low coil away (14 cm), three laps that grow 21 → 29 → 45 cm as the base sweeps toward the audience while the gripper twists the other way and the shoulder/elbow pump, then an unmistakable photograph pose — a tall vertical pole with the head turned to the audience, held, then the mouth snaps shut. The spiral-down is now wide and low (45, 21, 29 cm) with a damped bob before a soft 6 cm settle to ready. All six joints and the gripper are active through most of the piece with staggered reversals; tempo varies (CV 0.49) with three holds. Lowest point is 8 cm above the safe height (tip 20 cm), peak velocity 46 % of cap — comfortable. The one nitpick is that the last bounce (K11->K12) is slightly larger than the lap before it, but it reads as a final flick before settling rather than a flaw.",
+      "changelog": [
+        "No changes: candidate is valid, every score >= 4, and the structure (coil, growing laps, held peak with grip snap, decaying spiral, soft settle) reads clearly from the audience"
+      ]
+    }
+  ],
+  "route": {
+    "use_camera": false,
+    "method": "override",
+    "reason": "--camera never"
+  },
+  "stop_reason": "satisfied",
+  "latency_s": 147.89,
+  "model": "claude-fable-5-1",
+  "sheets_dir": "experiments/2026-10-30-ensemble-moves/runs/tornado",
+  "retimed": false
+}

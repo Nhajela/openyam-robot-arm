@@ -1,0 +1,6 @@
+conductor-finale: validate ok=True []
+conductor-finale: done in 24.7 s: {'op': 'done', 'id': 6, 'cmd': 'playable:conductor-finale'}
+tornado: validate ok=True []
+tornado: done in 24.6 s: {'op': 'done', 'id': 10, 'cmd': 'playable:tornado'}
+figure-eight: validate ok=True []
+figure-eight: done in 24.6 s: {'op': 'done', 'id': 14, 'cmd': 'playable:figure-eight'}

@@ -460,17 +460,14 @@ async def _home_scenario() -> None:
         await x.close()
 
 
-def test_arcade_page(stack):
-    """The arcade phone page (/arcade) and the classic one (/classic) are served next to "/";
-    welcome carries the daemon's soft limits (the arcade keeps its stars inside j1's range)."""
-    code, body, _ = _get(f"https://127.0.0.1:{PHONE_PORT}/arcade?k={KEY}", SSL_CTX)
-    assert code == 200 and b"<title>Claw Arcade" in body and b"/static/arcade.js" in body
-    code, body, _ = _get(f"https://127.0.0.1:{PHONE_PORT}/classic?k={KEY}", SSL_CTX)
-    assert code == 200 and b"/static/play.js" in body
-    code, body, _ = _get(f"https://127.0.0.1:{PHONE_PORT}/?k={KEY}", SSL_CTX)  # default --phone-ui classic
-    assert code == 200 and b"/static/play.js" in body
+def test_phone_page_routes(stack):
+    """One phone page (play.html, with the camera modes) on "/", /classic and /arcade (old links);
+    welcome carries the daemon's soft limits (Claw Cam keeps the claw inside j1's range)."""
+    for path in ("/", "/classic", "/arcade"):
+        code, body, _ = _get(f"https://127.0.0.1:{PHONE_PORT}{path}?k={KEY}", SSL_CTX)
+        assert code == 200 and b"/static/play.js" in body, path
     assert _get(f"https://127.0.0.1:{PHONE_PORT}/arcade", SSL_CTX)[0] == 403   # still needs the room key
-    for f in ("arcade.js", "arcade.css", "kin.js"):
+    for f in ("camgames.js", "camgames.css", "kin.js"):
         assert _get(f"https://127.0.0.1:{PHONE_PORT}/static/{f}?k={KEY}", SSL_CTX)[0] == 200
     asyncio.run(asyncio.wait_for(_arcade_scenario(), 30))
 
@@ -479,7 +476,7 @@ async def _arcade_scenario() -> None:
     disp = await Client.connect(f"ws://127.0.0.1:{LOCAL_PORT}/display/ws", "display-arcade")
     await disp.wait("hello", lambda m: m["lease"] is True, timeout=15)
     e = await Client.connect(f"wss://127.0.0.1:{PHONE_PORT}/ws?k={KEY}", "esha", ssl=SSL_CTX)
-    await e.send("hello", pid="pid-esha", name="Esha", ui="arcade")
+    await e.send("hello", pid="pid-esha", name="Esha", ui="classic")
     w = await e.wait("welcome")
     j1 = w["limits"]["j1"]
     assert len(j1) == 2 and j1[0] < 0 < j1[1]

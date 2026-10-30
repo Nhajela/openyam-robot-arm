@@ -1,0 +1,2 @@
+ripple: validate ok=True []
+ripple: done in 24.5 s: {'op': 'done', 'id': 6, 'cmd': 'playable:ripple'}

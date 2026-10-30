@@ -49,5 +49,17 @@
    "tags": ["look", "around", "scan", "search", "explore", "room", "see", "watch", "turn"]},
   {"name": "sleepy-stretch", "title": "Sleepy stretch", "emoji": "😴",
    "blurb": "Dozes, yawns wide, then stretches up tall",
-   "tags": ["sleep", "sleepy", "tired", "yawn", "stretch", "wake", "morning", "nap", "rest", "lazy", "relax"]}
+   "tags": ["sleep", "sleepy", "tired", "yawn", "stretch", "wake", "morning", "nap", "rest", "lazy", "relax"]},
+  {"name": "figure-eight", "title": "Figure eight", "emoji": "♾️",
+   "blurb": "Draws a giant 8 in the air, wrist rolling, claw snapping",
+   "tags": ["eight", "8", "figure", "infinity", "loop", "swirl", "draw", "fancy", "flourish"]},
+  {"name": "ripple", "title": "Ripple", "emoji": "🌊",
+   "blurb": "A wave runs base to fingertip and back, twice",
+   "tags": ["ripple", "wave", "ocean", "sea", "flow", "noodle", "wiggle", "snake", "wobble"]},
+  {"name": "conductor-finale", "title": "Grand finale", "emoji": "🎼",
+   "blurb": "Conducts the last bars, big final downbeat, bow",
+   "tags": ["conduct", "conductor", "orchestra", "finale", "music", "symphony", "baton", "maestro", "encore", "end"]},
+  {"name": "tornado", "title": "Tornado", "emoji": "🌪️",
+   "blurb": "Spins up in growing laps, then spirals down",
+   "tags": ["tornado", "spin", "twister", "whirl", "storm", "swirl", "cyclone", "twirl", "crazy", "wild"]}
 ]

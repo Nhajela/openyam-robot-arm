@@ -16,24 +16,18 @@ The laptop screen is part of the show. It shows the arm live in 3D, the QR, who'
 
 Contract: [PROTOCOL.md](PROTOCOL.md). Handover and status: [../HANDOVER.md](../HANDOVER.md).
 
-## Arcade: the same thing as a claw-machine game
+## Camera modes: Robot Eyes and Claw Cam
 
-A second phone page, `/arcade` ([`static/arcade.html`](static/arcade.html)), for events where people just want to play. No mode cards and no levers: one game, one verb per thumb.
+Two mode cards on the phone page while the wrist camera answers (`--cam`), from [`static/camgames.js`](static/camgames.js). Grab also shows the live feed above its spots.
 
-- **Drag anywhere on the map** to steer the claw (a floating stick under your thumb; Cartesian x/y, like Sticks' left stick). The map is an angled view into a claw machine: the table is the floor, and the claw hangs on its cable at its real height (forward kinematics from the arm's joints).
-- **Hold DROP** to lower the claw. **Let go**: it shuts and comes back up to Ready.
-- **Stars** to fly the claw into (+100), **gold ⬇ stars** you dive to (+250), combos for quick chains, a score and a best score on the phone. **Emotes** are the library moves; **✨ Ask it** is Say it.
+- **👀 Robot Eyes:** the phone shows what the robot sees. Drag on the picture to look around (the base turns, the wrist tilts: joint velocities), pick a filter (🤖 Robot HUD, 🔥 Thermal, 👾 8-bit, 💥 Comic), **📸 SNAP** for a 3-2-1 framed photo ("Seen by the robot", your name, the date) to save or share, 👋 to make it wave at you.
+- **🎥 Claw Cam:** the claw's own view. Drag on the picture to steer (Cartesian x/y, like Sticks' left stick), **hold DROP** to lower the claw, **let go**: it shuts and comes back up to Ready.
 
-Two more games when the wrist camera is available (tabs at the top of the game; `--cam`):
+The frames come from the lab console's camera (`--cam console`, the default; the server relays them only to the player whose turn it is, ≤ 10 fps at 640 px), `--cam test` draws a synthetic picture for rehearsals, `--cam off` hides the camera modes.
 
-- **👀 Robot Eyes:** the phone shows what the robot sees. Drag to look around (the base turns, the wrist tilts: joint velocities), pick a filter (🤖 Robot HUD, 🔥 Thermal, 👾 8-bit, 💥 Comic), **📸 SNAP** for a 3-2-1 framed photo ("Seen by the robot", your name, the date) to save or share, 👋 to make it wave at you.
-- **🎥 Claw Cam:** the claw game from the claw's own eye: the same steer and DROP, the camera picture instead of the map.
+They speak the same protocol (`stream`, `grip`, `ready`, `move`, `stop`), so everything in the safety model below applies unchanged. Two phone-side conveniences are *not* safety limits: DROP stops at 6 cm above the table (`DROP_FLOOR_Z`), and soft walls keep the claw inside the reach ring and the daemon's j1 soft limits (`welcome.limits`).
 
-The frames come from the lab console's camera (`--cam console`, the default; the server relays them only to the player whose turn it is, ≤ 10 fps at 640 px), `--cam test` draws a synthetic picture for rehearsals, `--cam off` hides the camera games.
-
-It speaks the same protocol (`stream`, `grip`, `ready`, `move`, `say`, `stop`), so everything in the safety model below applies unchanged; STOP stays on screen above every overlay. Two phone-side conveniences are *not* safety limits: DROP stops at 6 cm above the table (`DROP_FLOOR_Z`), and soft walls keep the claw inside the reach ring and the daemon's j1 soft limits (`welcome.limits`).
-
-Run open play with `--phone-ui arcade` to put it on the QR. `/arcade` and `/classic` always work, whichever `/` serves, and each page links to the other. Notebook: [experiments/2026-10-30-arcade-phone](../experiments/2026-10-30-arcade-phone/LOG.md).
+The 30 Oct arcade page (a claw-machine game with stars, `/arcade`) was folded back into these modes the same day (Naman: "let's remove claw mode, just robot eyes … and claw cam … as modes"); `/arcade` and `/classic` now serve the one phone page. Notebook: [experiments/2026-10-30-arcade-phone](../experiments/2026-10-30-arcade-phone/LOG.md).
 
 ## Chess and Pick it up: off on the real arm unless you ask
 

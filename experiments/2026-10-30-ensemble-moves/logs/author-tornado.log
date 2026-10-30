@@ -1,0 +1,18 @@
+... routing
+[route] camera=no (override): --camera never
+... drafting
+[drafting] 59.19s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 4, 'timing': 4, 'safety_margin': 4}
+... rendering pass 1
+... reviewing pass 1/3
+[reviewing pass 1/3] 55.73s  VALID  scores {'readability': 4, 'silhouette': 3, 'energy_contrast': 4, 'timing': 4, 'safety_margin': 5}
+... rendering pass 2
+... reviewing pass 2/3
+[reviewing pass 2/3] 21.2s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 4, 'timing': 4, 'safety_margin': 5}  satisfied
+... final
+
+model=claude-fable-5-1 3 call(s) 147.89 s  stop: satisfied
+OK  duration 24.5 s  (envelope: armctl.envelope (custom))
+  max |vel| rad/s: j1=0.20 j2=0.23 j3=0.26 j4=0.26 j5=0.26 j6=0.28
+  max |acc| rad/s2: j1=0.4 j2=0.4 j3=0.4 j4=0.4 j5=0.4 j6=0.5
+wrote experiments/2026-10-30-ensemble-moves/tornado.json
+sheets + CHANGELOG.md in experiments/2026-10-30-ensemble-moves/runs/tornado

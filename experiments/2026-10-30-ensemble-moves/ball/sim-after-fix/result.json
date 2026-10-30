@@ -1,0 +1,32 @@
+{
+ "ok": true,
+ "reason": "",
+ "trace": [
+  "search",
+  "center",
+  "approach",
+  "descend",
+  "close",
+  "lift",
+  "verify",
+  "place",
+  "ready",
+  "done"
+ ],
+ "estimate_table": [
+  -0.01026,
+  -0.16027
+ ],
+ "observations": 9,
+ "measured_width": 0.05994318472944796,
+ "cup_final_table": [
+  0.0798,
+  -0.0496
+ ],
+ "cup_true_start": [
+  -0.01,
+  -0.16
+ ],
+ "collisions": [],
+ "plan_ok": true
+}

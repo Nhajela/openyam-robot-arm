@@ -490,7 +490,10 @@ class GraspEngine:
         q_down = self.tip_over(xy, z_rel)
         self.move(q_down, "down to release", floor=wc.floor_base(), slow=True)
         self.grip_to(g_open, "release")
-        q_lift = self.tip_over(xy, self._grasp_geometry()[1])   # clear of the object and of the table guard
+        # clear of the object and of the table guard: up to travel height, or the move to ready that
+        # follows starts below the default floor and is refused (2026-10-30, real arm: ball placed,
+        # lifted to tip 0.069 m, ready refused "too low")
+        q_lift = self.tip_over(xy, max(self._grasp_geometry()[1], z_travel))
         self.move(q_lift, "lift clear of the object", floor=wc.floor_base(), slow=True)
         self.log("decision", decision="placed", grasp_offset_z=grasp_off)
         return "ready"

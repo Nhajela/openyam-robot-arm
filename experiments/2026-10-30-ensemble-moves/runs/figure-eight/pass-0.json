@@ -1,0 +1,209 @@
+{
+  "name": "figure-eight",
+  "author": "llm:claude-fable-5-1",
+  "created": "2026-10-30T14:28:20+05:30",
+  "prompt": "figure-eight: the whole arm traces a huge sideways figure eight in the air in front of the audience while the wrist rolls continuously and the gripper snaps open/closed at each turn of the eight. Lots of movement: every one of the six joints AND the gripper should be doing something through most of the move, overlapping (staggered starts, follow-through), not one joint at a time. Use big, readable amplitudes from the audience; vary the tempo with a build and at least one held accent. 15-25 seconds.",
+  "notes": "After a turn-away anticipation and a gripper snap, the arm sweeps a wide sideways figure eight (base yaw across, shoulder/elbow/wrist arcing up and down) with the hand rolling continuously, the head lagging the body, a gripper snap at every turn, and a held stare at the audience between the two lobes before a soft return to ready.",
+  "space": "joint",
+  "start": "ready",
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 2.6,
+      "q": [
+        -0.3,
+        0.7,
+        1.1,
+        0.0,
+        0.35,
+        -0.45
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 3.2,
+      "q": [
+        -0.3,
+        0.7,
+        1.1,
+        0.0,
+        0.35,
+        -0.45
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 3.6,
+      "q": [
+        -0.3,
+        0.7,
+        1.1,
+        0.0,
+        0.35,
+        -0.45
+      ],
+      "grip": 1.0,
+      "ease": "hold"
+    },
+    {
+      "t": 5.9,
+      "q": [
+        -0.124,
+        0.5,
+        1.44,
+        0.34,
+        0.5,
+        -0.15
+      ],
+      "grip": 0.0,
+      "ease": "flow"
+    },
+    {
+      "t": 8.2,
+      "q": [
+        0.3,
+        0.7,
+        1.1,
+        0.0,
+        0.3,
+        0.15
+      ],
+      "grip": 1.0,
+      "ease": "flow"
+    },
+    {
+      "t": 10.5,
+      "q": [
+        0.724,
+        0.9,
+        0.76,
+        -0.34,
+        -0.1,
+        0.45
+      ],
+      "grip": 0.0,
+      "ease": "flow"
+    },
+    {
+      "t": 12.8,
+      "q": [
+        0.9,
+        0.7,
+        1.1,
+        0.0,
+        -0.5,
+        0.75
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 13.4,
+      "q": [
+        0.9,
+        0.7,
+        1.1,
+        0.0,
+        -0.5,
+        0.75
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 13.9,
+      "q": [
+        0.9,
+        0.7,
+        1.1,
+        0.0,
+        -0.5,
+        0.75
+      ],
+      "grip": 0.0,
+      "ease": "hold"
+    },
+    {
+      "t": 16.0,
+      "q": [
+        0.724,
+        0.5,
+        1.44,
+        0.34,
+        -0.4,
+        0.45
+      ],
+      "grip": 1.0,
+      "ease": "flow"
+    },
+    {
+      "t": 18.1,
+      "q": [
+        0.3,
+        0.7,
+        1.1,
+        0.0,
+        -0.25,
+        0.15
+      ],
+      "grip": 0.0,
+      "ease": "flow"
+    },
+    {
+      "t": 20.2,
+      "q": [
+        -0.124,
+        0.9,
+        0.76,
+        -0.34,
+        0.05,
+        -0.15
+      ],
+      "grip": 1.0,
+      "ease": "flow"
+    },
+    {
+      "t": 22.3,
+      "q": [
+        -0.3,
+        0.7,
+        1.1,
+        0.0,
+        0.35,
+        -0.45
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 25.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    }
+  ],
+  "loop": 1,
+  "speed": 1.0,
+  "caps": "dance"
+}

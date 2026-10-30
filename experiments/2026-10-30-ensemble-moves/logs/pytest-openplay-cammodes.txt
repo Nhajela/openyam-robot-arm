@@ -1,0 +1,256 @@
+...........FF..F...FF..F................................................ [ 45%]
+........................................................................ [ 91%]
+.............                                                            [100%]
+=================================== FAILURES ===================================
+___________________ test_plan_capture_goes_to_the_graveyard ____________________
+
+    def test_plan_capture_goes_to_the_graveyard():
+        b = chess.Board()
+        for u in ("e2e4", "d7d5"):
+            b.push_uci(u)
+>       steps = CP.plan_move(b, chess.Move.from_uci("e4d5"), captured=3)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+openplay/tests/test_chess.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+openplay/chess_play.py:93: in plan_move
+    for k, (op, _p, _info) in enumerate(planned(caps_order[0])):
+                                        ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+caps = 'dance'
+
+    def planned(caps: str) -> list:
+        if caps not in by_caps:
+            try:
+                by_caps[caps] = chess_arm.plan(wc, geom, board, move, captured, caps)
+            except Unreachable as e:
+>               raise ChessError(f"the arm can't reach that: {e}") from None
+E               openplay.chess_play.ChessError: the arm can't reach that: take p on d5 (d5): above place: can't reach (0.607, 0.027, 0.108) m with the fingers down (tip 74 mm from target)
+
+openplay/chess_play.py:89: ChessError
+_______________________ test_plan_castling_and_promotion _______________________
+
+    def test_plan_castling_and_promotion():
+        b = chess.Board("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1")
+>       steps = CP.plan_move(b, chess.Move.from_uci("e1g1"))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+openplay/tests/test_chess.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+openplay/chess_play.py:93: in plan_move
+    for k, (op, _p, _info) in enumerate(planned(caps_order[0])):
+                                        ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+caps = 'dance'
+
+    def planned(caps: str) -> list:
+        if caps not in by_caps:
+            try:
+                by_caps[caps] = chess_arm.plan(wc, geom, board, move, captured, caps)
+            except Unreachable as e:
+>               raise ChessError(f"the arm can't reach that: {e}") from None
+E               openplay.chess_play.ChessError: the arm can't reach that: K e1-g1 (e1->g1): above place: can't reach (0.513, -0.125, 0.108) m with the fingers down (approach 8 deg off)
+
+openplay/chess_play.py:89: ChessError
+__________ test_server_clock_press_sees_the_move_and_the_arm_replies ___________
+
+    def test_server_clock_press_sees_the_move_and_the_arm_replies():
+        async def main():
+            op, disp, (a, b) = await station()
+            assert a.last("welcome")["features"]["chess"] is True
+            await op.phone_msg(a, {"op": "chess.new", "opponent": "engine", "color": "white"})
+            g = a.last("chess")["game"]
+            assert g["you"] == "white" and g["your_move"] and "e2e4" in g["legal"]
+            assert g["clock"]["running"] == "white" and op.chess_ref is not None
+            d = disp.last("chess")
+            assert d["calibrated"] is False and d["arm_ok"] is True and d["sensor"] == "fake"
+            # not in the game
+            await op.phone_msg(b, {"op": "chess.clock"})
+            assert b.refusals()[-1] == "you're not playing in this game"
+            # Asha moves a piece on the real board, then presses the clock
+            op.chess_sensor.play("g1f3")
+            await op.phone_msg(a, {"op": "chess.clock"})
+            assert op.chess.sans[0] == "Nf3" and op.chess.last["how"] == "camera"
+            assert any(m.get("op") == "status" and m["text"] == "You played Nf3" for m in a.msgs)
+            assert any(m.get("op") == "event" and m["text"] == "Asha played Nf3" for m in disp.msgs)
+            assert op.busy and op.busy["kind"] == "chess"          # the arm's reply
+            await op.phone_msg(a, {"op": "chess.clock"})
+            assert a.refusals()[-1] == "it's the arm's move"
+            await settle(op)
+            game = op.chess
+            assert len(game.sans) == 2 and game.last["by"] == "the arm" and game.last["how"] == "arm"
+            assert len(op.arm.played) == 1 and op.arm.played[0]["name"].startswith("chess-")
+            assert game.running == chess.WHITE and game.remaining(chess.BLACK) < game.clock_s  # the arm's clock ran
+            v = a.last("chess")["game"]
+            assert v["your_move"] and v["legal"] and v["clock"]["running"] == "white"
+            dv = disp.last("chess")["game"]
+            assert dv["last"]["by"] == "the arm" and dv["white"]["pid"] == "p-asha" and "pawns" in dv["eval"]
+            # the fake world now has the arm's move, so the next clock press sees the next move
+            op.chess_sensor.play("e2e4" if game.board.piece_at(chess.E2) else "d2d4")
+            await op.phone_msg(a, {"op": "chess.clock"})
+            assert len(op.chess.sans) == 3
+            await settle(op)
+>       asyncio.run(main())
+
+openplay/tests/test_chess.py:295: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/asyncio/runners.py:194: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/base_events.py:687: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def main():
+        op, disp, (a, b) = await station()
+        assert a.last("welcome")["features"]["chess"] is True
+        await op.phone_msg(a, {"op": "chess.new", "opponent": "engine", "color": "white"})
+        g = a.last("chess")["game"]
+        assert g["you"] == "white" and g["your_move"] and "e2e4" in g["legal"]
+        assert g["clock"]["running"] == "white" and op.chess_ref is not None
+        d = disp.last("chess")
+>       assert d["calibrated"] is False and d["arm_ok"] is True and d["sensor"] == "fake"
+E       assert (True is False)
+
+openplay/tests/test_chess.py:268: AssertionError
+_____________________ test_server_arm_capture_one_approval _____________________
+
+    def test_server_arm_capture_one_approval():
+        async def main():
+            op, disp, (a, _b) = await station(auto_play="off")
+            await op.phone_msg(a, {"op": "chess.new", "opponent": "engine"})
+            op.chess.board = chess.Board(CAPTURE_FEN)
+            op._chess_sync()
+            op.chess_ref = op.chess_sensor.snapshot()
+            op.chess_sensor.play("d2d4")
+            await op.phone_msg(a, {"op": "chess.clock"})
+            await until(lambda: op.pending)
+            pend = disp.last("pending")["pending"]
+            assert pend["title"] == "Chess: the arm plays exd4" and pend["duration_s"] > 0 and pend["keyframes"]
+            assert not op.arm.played and op.chess.board.piece_at(chess.D4).symbol() == "P"
+            await op.display_msg(disp, {"op": "approve", "id": pend["id"]})
+            await settle(op)
+            assert len(op.arm.played) == 2  # take the pawn to the graveyard, then move: one approval
+            assert len([m for m in disp.msgs if m.get("op") == "pending" and m["pending"]]) == 1
+            assert op.chess.sans[-1] == "exd4" and op.chess.captured == 1 and op.chess.running == chess.WHITE
+>       asyncio.run(main())
+
+openplay/tests/test_chess.py:366: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/asyncio/runners.py:194: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/base_events.py:687: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+openplay/tests/test_chess.py:357: in main
+    await until(lambda: op.pending)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = <function test_server_arm_capture_one_approval.<locals>.main.<locals>.<lambda> at 0x7c1dfe3c8d60>
+timeout = 20.0
+
+    async def until(pred, timeout=20.0):
+        for _ in range(int(timeout / 0.02)):
+            if pred():
+                return
+            await asyncio.sleep(0.02)
+>       raise AssertionError("condition not met")
+E       AssertionError: condition not met
+
+openplay/tests/test_chess.py:251: AssertionError
+__________ test_server_denied_or_stopped_arm_move_needs_the_operator ___________
+
+    def test_server_denied_or_stopped_arm_move_needs_the_operator():
+        async def main():
+            op, disp, (a, _b) = await station(auto_play="off")
+            await op.phone_msg(a, {"op": "chess.new", "opponent": "engine"})
+            op.chess.board = chess.Board(CAPTURE_FEN)
+            op._chess_sync()
+            op.chess_ref = op.chess_sensor.snapshot()
+            await op.phone_msg(a, {"op": "chess.move", "uci": "d2d4"})
+            await until(lambda: op.pending)
+            await op.display_msg(disp, {"op": "deny", "id": op.pending["id"]})
+            await settle(op)
+            g = op.chess
+            assert g.sans[-1] == "d4" and "didn't start" in g.attention and not op.arm.played
+            # retry after "Board fixed", auto-play on, and stop it half-way
+            op.auto_play_mode = "on"
+            op.arm.fail_after = 1
+            await op.display_msg(disp, {"op": "chess.fixed"})
+            await settle(op)
+            assert g.sans[-1] == "exd4" and "finish e5d4 by hand" in g.attention
+            assert disp.last("chess")["game"]["attention"]
+            await op.phone_msg(a, {"op": "chess.clock"})
+            assert "board to be fixed" in a.refusals()[-1]
+            await op.display_msg(disp, {"op": "chess.fixed"})
+            assert g.attention is None and g.running == chess.WHITE and op.chess_ref is not None
+            # the operator can press the clock for the player (laptop key / USB button)
+            op.chess_sensor.play("d1d4")
+            await op.display_msg(disp, {"op": "chess.clock"})
+            assert g.sans[-1] == "Qxd4"
+            await settle(op)
+>       asyncio.run(main())
+
+openplay/tests/test_chess.py:398: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/asyncio/runners.py:194: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/base_events.py:687: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+openplay/tests/test_chess.py:377: in main
+    await until(lambda: op.pending)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pred = <function test_server_denied_or_stopped_arm_move_needs_the_operator.<locals>.main.<locals>.<lambda> at 0x7c1dfe3cb2e0>
+timeout = 20.0
+
+    async def until(pred, timeout=20.0):
+        for _ in range(int(timeout / 0.02)):
+            if pred():
+                return
+            await asyncio.sleep(0.02)
+>       raise AssertionError("condition not met")
+E       AssertionError: condition not met
+
+openplay/tests/test_chess.py:251: AssertionError
+____________ test_server_refuses_chess_on_an_uncalibrated_real_arm _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-naman/pytest-2/test_server_refuses_chess_on_a0')
+
+    def test_server_refuses_chess_on_an_uncalibrated_real_arm(tmp_path):
+        async def main(workcell, adapter):
+            op, disp, (a, _b) = await station(adapter=adapter, auto_play="off", workcell=workcell)
+            await op.phone_msg(a, {"op": "chess.new", "opponent": "engine", "color": "white"})
+            return op, disp, a
+    
+        for adapter in ("real", None):  # an unknown adapter on a non-mock backend counts as real
+            op, disp, a = asyncio.run(main(None, adapter))
+>           assert op.chess is None and "calibrated" in a.refusals()[-1]
+E           assert (<openplay.chess_play.Game object at 0x7c1dfe38de50> is None)
+E            +  where <openplay.chess_play.Game object at 0x7c1dfe38de50> = <openplay.server.OpenPlay object at 0x7c1dfe389b20>.chess
+
+openplay/tests/test_chess.py:446: AssertionError
+=========================== short test summary info ============================
+FAILED openplay/tests/test_chess.py::test_plan_capture_goes_to_the_graveyard
+FAILED openplay/tests/test_chess.py::test_plan_castling_and_promotion - openp...
+FAILED openplay/tests/test_chess.py::test_server_clock_press_sees_the_move_and_the_arm_replies
+FAILED openplay/tests/test_chess.py::test_server_arm_capture_one_approval - A...
+FAILED openplay/tests/test_chess.py::test_server_denied_or_stopped_arm_move_needs_the_operator
+FAILED openplay/tests/test_chess.py::test_server_refuses_chess_on_an_uncalibrated_real_arm
+6 failed, 151 passed in 149.28s (0:02:29)
+EXIT 1

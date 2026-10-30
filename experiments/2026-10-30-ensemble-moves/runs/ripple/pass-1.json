@@ -1,0 +1,326 @@
+{
+  "name": "ripple",
+  "author": "llm:claude-fable-5-1",
+  "created": "2026-10-30T14:30:07+05:30",
+  "prompt": "ripple: a wave that travels through the arm from the base to the fingertip (base turns, then shoulder, elbow, wrist, roll, gripper each pass it on with a delay), then travels back from the fingertip to the base, twice, the second time bigger. Lots of movement: every one of the six joints AND the gripper should be doing something through most of the move, overlapping (staggered starts, follow-through), not one joint at a time. Use big, readable amplitudes from the audience; vary the tempo with a build and at least one held accent. 15-25 seconds.",
+  "notes": "A wave ripples from the base out to the fingertip and back, first medium and quick, then again twice as big and slower with a held, open-gripper peak before settling to ready.",
+  "space": "joint",
+  "start": "ready",
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 0.95,
+      "q": [
+        0.2,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 1.9,
+      "q": [
+        0.4,
+        0.7,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 2.85,
+      "q": [
+        0.42,
+        0.9,
+        1.02,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 3.8,
+      "q": [
+        0.42,
+        0.92,
+        1.24,
+        0.2,
+        -0.2,
+        0.2
+      ],
+      "grip": 0.3,
+      "ease": "cubic"
+    },
+    {
+      "t": 4.75,
+      "q": [
+        0.42,
+        0.92,
+        1.24,
+        0.4,
+        -0.4,
+        0.4
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 5.1,
+      "q": [
+        0.42,
+        0.92,
+        1.24,
+        0.4,
+        -0.4,
+        0.4
+      ],
+      "grip": 1.0,
+      "ease": "hold"
+    },
+    {
+      "t": 6.05,
+      "q": [
+        0.42,
+        0.92,
+        1.24,
+        0.2,
+        -0.2,
+        0.2
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 7.0,
+      "q": [
+        0.4,
+        0.72,
+        1.02,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 7.95,
+      "q": [
+        0.22,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 8.9,
+      "q": [
+        0.0,
+        0.42,
+        0.8,
+        -0.08,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 9.2,
+      "q": [
+        0.0,
+        0.42,
+        0.8,
+        -0.08,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "hold"
+    },
+    {
+      "t": 10.5,
+      "q": [
+        0.4,
+        0.42,
+        0.8,
+        -0.08,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 11.8,
+      "q": [
+        0.8,
+        0.76,
+        0.8,
+        -0.08,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 13.1,
+      "q": [
+        0.84,
+        1.1,
+        1.2,
+        -0.08,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 14.4,
+      "q": [
+        0.84,
+        1.12,
+        1.6,
+        0.3,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 15.7,
+      "q": [
+        0.84,
+        1.12,
+        1.62,
+        0.68,
+        -0.4,
+        0.4
+      ],
+      "grip": 0.3,
+      "ease": "cubic"
+    },
+    {
+      "t": 17.0,
+      "q": [
+        0.84,
+        1.12,
+        1.62,
+        0.78,
+        -0.8,
+        0.8
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 17.9,
+      "q": [
+        0.84,
+        1.12,
+        1.62,
+        0.78,
+        -0.8,
+        0.8
+      ],
+      "grip": 1.0,
+      "ease": "hold"
+    },
+    {
+      "t": 19.2,
+      "q": [
+        0.84,
+        1.12,
+        1.62,
+        0.7,
+        -0.4,
+        0.4
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 20.5,
+      "q": [
+        0.82,
+        1.1,
+        1.6,
+        0.32,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 21.8,
+      "q": [
+        0.74,
+        0.78,
+        1.2,
+        -0.06,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 23.1,
+      "q": [
+        0.4,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 24.4,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    }
+  ],
+  "loop": 1,
+  "speed": 1.0,
+  "caps": "dance"
+}

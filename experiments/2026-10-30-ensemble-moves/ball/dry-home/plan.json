@@ -1,0 +1,16 @@
+{
+ "q_frame": [
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0
+ ],
+ "detection": null,
+ "validation": null,
+ "look_poses": [],
+ "notes": [
+  "object not found in this frame: move the look pose (or --expect) over it"
+ ]
+}

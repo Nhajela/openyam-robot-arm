@@ -8,7 +8,7 @@
 Two listeners in one asyncio process:
   * https://<phone-host>:8450  phones. Self-signed cert from dashboard/certs/ (phonecam's),
     every route needs the room key (?k=<key> once, then cookie op_key). "/" is
-    openplay/static/play.html (or arcade.html with --phone-ui arcade); /classic and /arcade
+    openplay/static/play.html (the modes); /classic and /arcade (old links) serve it too
     always serve that page; /static/..., WebSocket /ws.
   * http://127.0.0.1:8451  the laptop display and operator, loopback only, no key. "/" is
     openplay/static/display.html, /static/..., /qr.png, /api/join, /urdf/..., WebSocket /display/ws.
@@ -280,7 +280,7 @@ class OpenPlay:
         self.chess_mode, self.pick_mode = chess_mode, pick_mode
         self.features["chess"] = bool(self.features.get("chess")) and chess_mode != "off"
         self.features["pick"] = self.pick is not None and pick_mode != "off"
-        # the wrist camera relayed to the active player's phone (arcade Robot Eyes / Claw Cam)
+        # the wrist camera relayed to the active player's phone (Robot Eyes, Claw Cam, Grab)
         from openplay.cam import CamRelay, CONSOLE_URL
 
         self.cam = CamRelay(cam_source, url=cam_url or CONSOLE_URL, q=lambda: self.arm.state.get("q"),
@@ -453,8 +453,8 @@ class OpenPlay:
         return {"op": "welcome", "pid": pid, "name": self.lobby.name(pid), "moves": self.moves,
                 "spots": self.spots, "turn_s": self.lobby.turn_s, "features": self.phone_features(),
                 "speeds": self.arm.speeds(),
-                # the daemon's soft joint limits (rad), e.g. the site's j1 range: the arcade page keeps
-                # its stars and soft walls inside them. Display only; the daemon still enforces them.
+                # the daemon's soft joint limits (rad), e.g. the site's j1 range: Claw Cam keeps
+                # the claw inside them. Display only; the daemon still enforces them.
                 "limits": (self.arm.hello.get("envelope") or {}).get("soft_limits")}
 
     def display_hello(self) -> dict:
@@ -1699,10 +1699,8 @@ class OpenPlay:
             c.send(e)
 
     # ------------------------------------------------------------------ apps
-    def phone_app(self, key: str, ui: str = "classic"):
-        """``ui``: which phone page "/" serves (the QR's URL): ``classic`` (play.html, the modes)
-        or ``arcade`` (arcade.html, the claw game). Both pages speak the same protocol."""
-        pages = {"classic": "play.html", "arcade": "arcade.html"}
+    def phone_app(self, key: str):
+        """The phone page (play.html, the modes) on "/", and on /classic and /arcade for old links."""
         app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
         def key_ok(q: str, c: str) -> tuple[bool, bool]:
@@ -1719,16 +1717,10 @@ class OpenPlay:
             return resp
 
         @app.get("/")
-        def page():
-            return HTMLResponse(_page(pages.get(ui, "play.html"), "The phone page"), headers={"Cache-Control": "no-store"})
-
         @app.get("/classic")
-        def classic_page():
-            return HTMLResponse(_page("play.html", "The phone page"), headers={"Cache-Control": "no-store"})
-
         @app.get("/arcade")
-        def arcade_page():
-            return HTMLResponse(_page("arcade.html", "The arcade phone page"), headers={"Cache-Control": "no-store"})
+        def page():
+            return HTMLResponse(_page("play.html", "The phone page"), headers={"Cache-Control": "no-store"})
 
         @app.get("/favicon.ico")
         def favicon():
@@ -1736,7 +1728,7 @@ class OpenPlay:
 
         @app.get("/cam.jpg")
         async def cam_jpg(pid: str = "", after: int = 0):
-            # the wrist camera for the arcade's camera games: the player whose turn it is only
+            # the wrist camera for the camera modes: the player whose turn it is only
             # (Wi-Fi bandwidth; the room key is the access check, the pid only picks the viewer)
             if not self.lobby.is_active(pid):
                 raise HTTPException(403, "not your turn")
@@ -2036,7 +2028,7 @@ async def serve(args) -> None:
                   chess_mode=args.chess, pick_mode=args.pick, cam_source=args.cam, cam_url=args.cam_url)
     # The room key is a secret: only on an interactive terminal (and on the loopback display).
     shown = join_url if os.isatty(1) else join_url.split("?k=")[0] + f"?k=<key: see http://127.0.0.1:{args.local_port}>"
-    print(f"open play: phones join at {shown} ({args.phone_ui} page; /classic and /arcade both work)", flush=True)
+    print(f"open play: phones join at {shown}", flush=True)
     print(f"open play: display at http://127.0.0.1:{args.local_port}  (daemon {args.daemon}, "
           f"turn {args.turn:.0f} s, auto-play {args.auto_play})", flush=True)
     print(f"open play: event trace {trace or 'off (ring buffer only)'}; live at "
@@ -2046,7 +2038,7 @@ async def serve(args) -> None:
         print("open play: auto-play is ON: playables play without the operator pressing Play", flush=True)
 
     servers = [
-        _uvicorn_server(uvicorn.Config(op.phone_app(key, args.phone_ui), host=args.phone_host, port=args.phone_port,
+        _uvicorn_server(uvicorn.Config(op.phone_app(key), host=args.phone_host, port=args.phone_port,
                                        ssl_certfile=str(pc.CERT), ssl_keyfile=str(pc.KEY), log_level="warning",
                                        timeout_graceful_shutdown=1, ws_max_size=MAX_MSG * 2)),
         _uvicorn_server(uvicorn.Config(op.display_app(), host="127.0.0.1", port=args.local_port,
@@ -2084,12 +2076,9 @@ def main(argv: list[str] | None = None) -> None:
                     help="Pick it up on phones: auto = only in rehearsal (mock/sim), on = also on the real arm "
                          "(once the camera is calibrated), off = refused")
     ap.add_argument("--cam", choices=["console", "test", "off"], default="console",
-                    help="wrist camera for the arcade camera games: the lab console's /camera.jpg, a synthetic "
+                    help="wrist camera for the camera modes (Robot Eyes, Claw Cam, Grab): the lab console's /camera.jpg, a synthetic "
                          "test picture, or off")
     ap.add_argument("--cam-url", default=None, help="camera JPEG URL (default $VISION_DASHBOARD_URL or the console's)")
-    ap.add_argument("--phone-ui", choices=["classic", "arcade"], default="classic",
-                    help="the phone page the QR opens: classic (modes) or arcade (claw game); "
-                         "/classic and /arcade always work")
     ap.add_argument("--pick-detector", choices=["yoloe", "claude", "none"], default="yoloe",
                     help="Pick it up: open-vocabulary detector for taps and names (yoloe: GPU; none: GrabCut taps + Claude names)")
     ap.add_argument("--learn-url", default=LEARN_URL,

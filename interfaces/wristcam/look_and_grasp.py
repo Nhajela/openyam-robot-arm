@@ -191,6 +191,7 @@ def main(argv=None):
     ap.add_argument("--hsv", default=None, help="blob finder: h,s,v,h,s,v colour range (OpenCV HSV; orange 3,120,100,22,255,255)")
     ap.add_argument("--open-margin", type=float, default=None, help="open this much wider than the object (m; workcell default 0.02)")
     ap.add_argument("--realign-max", type=float, default=None, help="descent: largest offset re-aligned on the way down (m; default 0.008)")
+    ap.add_argument("--center-px-tol", type=float, default=None, help="centring: converged within this many px of the image centre (default 25; arm sag can hold it ~30 px off)")
     ap.add_argument("--min-tip-z", type=float, default=None, help="lowest fingertip height above the calibrated table (m; workcell default)")
     ap.add_argument("--no-grip-check", action="store_true", help="don't judge holding from the grip reading (it echoes the target on DimOS); camera verify only")
     ap.add_argument("--finger-yaw", type=float, default=None, help="rad (base frame): direction the fingers close along")
@@ -218,6 +219,8 @@ def main(argv=None):
         cfg.finger_yaw = a.finger_yaw
     if a.realign_max is not None:
         cfg.realign_max = a.realign_max
+    if a.center_px_tol is not None:
+        cfg.center_px_tol = a.center_px_tol
     cam, T_tc, notes = load_view_inputs(a.calib, a.handeye)
     for n in notes:
         print("note:", n)

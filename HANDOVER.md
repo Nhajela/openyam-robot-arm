@@ -4,6 +4,15 @@ The starting point for a local session on the lab laptop with the real arm. It s
 
 > **Status at a glance:** everything runs in armctl's **mock** sim, and the full stack (DimOS coordinator → armctl daemon on `DimosBackend` → open play → phone) also runs in DimOS **`--simulation`**. **On 28 Oct the laptop ran §5 steps 1–3 on the real arm (ready, home, gripper); nothing beyond that has moved it.** The code lives on Naman's fork, **`Nhajela/openyam-robot-arm` `main`**. Our GitHub account can't push to `Edge-City/openyam-robot-arm` (pull-only), so work goes to the fork; a PR to Edge-City is optional.
 
+## 0. Where we stopped (30 Oct, 15:50): ensemble moves, camera modes, ball pick-and-place
+Notebook: [`experiments/2026-10-30-ensemble-moves/LOG.md`](experiments/2026-10-30-ensemble-moves/LOG.md).
+- **Arm:** folded home, motors disabled, no faults (j4 56 °C at 15:48). Probe before re-enabling.
+- **Four new ensemble moves** on the phone (♾️ Figure eight, 🌊 Ripple, 🎼 Grand finale, 🌪️ Tornado; `playables/` + `openplay/moves.json`), authored with the Fable visual loop at dance caps ([author.sh](experiments/2026-10-30-ensemble-moves/author.sh)). Run the daemon at `--vel-cap 0.6 --acc-cap 2.0` (coordinator `--traj-vel-limit 0.7`) or open play slows them to half speed. Players ran library moves at those caps all afternoon.
+- **Phone page:** the arcade PR (#2) was merged, then its claw game removed. **Robot Eyes** and **Claw Cam** are now mode cards on the one phone page (`openplay/static/camgames.js`); Grab shows the live camera. `/arcade` serves the same page. Browser-checked on the mock only (`experiments/2026-10-30-ensemble-moves/cammodes_smoke.py`).
+- **Ball pick:** pick1 picked, verified and put back the purple ball with the guard ([`tools/pick_guard.py`](tools/pick_guard.py)); its final move to ready was refused ("too low") → fixed in `engine.st_place` (sim only). pick2 hit the 25 px centring gate (arm sag ≈ 29 px) → `--center-px-tol`; pick3 at 35 px pushed the ball away. Next: a closer reachable look / longer settle, not a looser gate.
+- **Unmerged branches:** saved moves (`worktree-agent-a0e08eb9ef4c376d7`) and selfie mode (`worktree-agent-afdab102676f69e1d`), both mock-only; move their phone UI into mode cards when merging.
+- **Rules learned today:** check the open-play log for an active turn before restarting the daemon or open play (a restart cut a player's move); never `git stash` in the live checkout (open play serves its pages from disk).
+
 ## 0. Where we stopped (29 Oct, 17:00): pick works; chess next
 - **Arm:** folded home, motors disabled (j4 ~52 °C). Probe before re-enabling. j4 heats when the arm is **held** under torque (ready or look poses, open play idling): fold home or disable between sessions; the guard stops picks at 57 °C.
 - **Picking works on the real arm** (`experiments/2026-10-29-first-pick/LOG.md`): purple ball picked seamlessly (purple4) with `look_and_grasp --finder blob --hsv 145,150,70,165,255,255 --grasp-frac 0.25 --min-tip-z 0.03 --open-margin 0.04 --realign-max 0.012 --no-grip-check` and the guarded auto-answer. Keep objects 25–35 cm from the base (j2 load).

@@ -1,0 +1,92 @@
+{
+ "q_frame": [
+  -0.004,
+  0.0,
+  0.004,
+  0.018,
+  0.02,
+  0.011
+ ],
+ "detection": {
+  "kind": "blob",
+  "xyz_base": [
+   0.31606,
+   -0.02037,
+   -0.01521
+  ],
+  "xyz_table": [
+   -0.00535,
+   -0.09436,
+   0.02
+  ],
+  "yaw_table": 1.5708,
+  "diameter": null,
+  "height": 0.02,
+  "sigma_xy": 0.003,
+  "pixel": [
+   707.30694,
+   495.62786
+  ],
+  "score": 0.000794045422704889,
+  "id": null,
+  "extra": {
+   "area_m2": 0.000794,
+   "size_m": [
+    0.0327,
+    0.0297
+   ]
+  }
+ },
+ "validation": {
+  "ok": true,
+  "duration": 58.71,
+  "violations": [],
+  "coach_ok": true
+ },
+ "look_poses": [
+  {
+   "height": 0.18,
+   "q": null,
+   "why": "unreachable"
+  },
+  {
+   "height": 0.12,
+   "q": null,
+   "why": "unreachable"
+  },
+  {
+   "height": 0.08,
+   "q": null,
+   "why": "unreachable"
+  }
+ ],
+ "notes": [],
+ "plan_info": {
+  "steps": [
+   " 0.00s start",
+   "10.97s above pick, open",
+   "16.14s down to grasp",
+   "16.74s close",
+   "21.91s lift",
+   "40.28s above place",
+   "45.06s down to release",
+   "45.66s open",
+   "49.24s lift",
+   "58.71s ready"
+  ],
+  "grip_open": 0.7272727272727273,
+  "grip_closed": 0.2727272727272727,
+  "z_grasp": 0.03,
+  "z_above": 0.14,
+  "base_pick": [
+   0.317,
+   -0.02,
+   -0.035
+  ],
+  "base_place": [
+   0.371,
+   -0.1,
+   -0.033
+  ]
+ }
+}

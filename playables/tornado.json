@@ -1,0 +1,199 @@
+{
+  "format": "openyam-playable",
+  "version": "1.0",
+  "name": "tornado",
+  "title": "Tornado",
+  "author": "llm:claude-fable-5-1",
+  "created": "2026-10-30T14:27:26+05:30",
+  "prompt": "tornado: the base sweeps steadily one way while the wrist roll spins the other way, the head bobs and the shoulder/elbow pump in and out, building speed and size, then winding down and settling gracefully. Lots of movement: every one of the six joints AND the gripper should be doing something through most of the move, overlapping (staggered starts, follow-through), not one joint at a time. Use big, readable amplitudes from the audience; vary the tempo with a build and at least one held accent. 15-25 seconds.",
+  "notes": "The arm coils away low, then sweeps steadily toward the audience in growing laps while the hand twists the opposite way, pumping and bobbing with grip pulses, peaks as a tall pole facing them with a held snap, and spirals wide and low back down to rest.",
+  "space": "joint",
+  "start": "ready",
+  "keyframes": [
+    {
+      "t": 0.0,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 3.0,
+      "q": [
+        -0.4,
+        0.65,
+        0.6,
+        -0.35,
+        0.15,
+        0.55
+      ],
+      "grip": 0.2,
+      "ease": "cubic"
+    },
+    {
+      "t": 3.5,
+      "q": [
+        -0.4,
+        0.65,
+        0.6,
+        -0.35,
+        0.15,
+        0.55
+      ],
+      "grip": 0.2,
+      "ease": "hold"
+    },
+    {
+      "t": 6.1,
+      "q": [
+        0.0,
+        0.7,
+        1.05,
+        0.1,
+        -0.2,
+        0.15
+      ],
+      "grip": 0.8,
+      "ease": "flow"
+    },
+    {
+      "t": 8.5,
+      "q": [
+        0.35,
+        1.0,
+        0.8,
+        -0.15,
+        0.2,
+        -0.25
+      ],
+      "grip": 0.1,
+      "ease": "flow"
+    },
+    {
+      "t": 11.1,
+      "q": [
+        0.75,
+        0.6,
+        1.15,
+        0.25,
+        -0.25,
+        -0.7
+      ],
+      "grip": 1.0,
+      "ease": "flow"
+    },
+    {
+      "t": 13.0,
+      "q": [
+        1.0,
+        0.5,
+        1.4,
+        0.45,
+        -0.5,
+        -1.0
+      ],
+      "grip": 1.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 13.8,
+      "q": [
+        1.0,
+        0.5,
+        1.4,
+        0.45,
+        -0.5,
+        -1.0
+      ],
+      "grip": 1.0,
+      "ease": "hold"
+    },
+    {
+      "t": 14.4,
+      "q": [
+        1.0,
+        0.5,
+        1.4,
+        0.45,
+        -0.5,
+        -1.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    },
+    {
+      "t": 14.8,
+      "q": [
+        1.0,
+        0.5,
+        1.4,
+        0.45,
+        -0.5,
+        -1.0
+      ],
+      "grip": 0.0,
+      "ease": "hold"
+    },
+    {
+      "t": 17.4,
+      "q": [
+        0.65,
+        0.9,
+        1.0,
+        0.0,
+        -0.15,
+        -0.6
+      ],
+      "grip": 0.5,
+      "ease": "flow"
+    },
+    {
+      "t": 19.9,
+      "q": [
+        0.3,
+        1.1,
+        0.75,
+        -0.25,
+        0.05,
+        -0.25
+      ],
+      "grip": 0.15,
+      "ease": "flow"
+    },
+    {
+      "t": 21.9,
+      "q": [
+        0.1,
+        0.8,
+        1.0,
+        0.05,
+        0.0,
+        -0.05
+      ],
+      "grip": 0.3,
+      "ease": "flow"
+    },
+    {
+      "t": 24.5,
+      "q": [
+        0.0,
+        0.5,
+        0.8,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "grip": 0.0,
+      "ease": "cubic"
+    }
+  ],
+  "loop": 1,
+  "speed": 1.0,
+  "caps": "dance"
+}

@@ -1,0 +1,68 @@
+2026-10-30 14:30:59 INFO armctl armctl/0 on ws://127.0.0.1:8692/armctl (backend mock)
+2026-10-30 14:30:59 INFO daemon up: backend=mock auto_approve=True soft margin=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1] vel caps=[0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+2026-10-30 14:31:04 INFO [c1 script] hello name='rehearse' from 127.0.0.1
+2026-10-30 14:31:04 INFO [c1 script] acquire (auto-approved)
+2026-10-30 14:31:04 INFO [c1 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-30 14:31:04 INFO [c1 script] playable.validate 'conductor-finale': ok
+2026-10-30 14:31:04 INFO [c1 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.50 s
+2026-10-30 14:31:07 INFO [c1 script] done ready (max error 0.0000 rad)
+2026-10-30 14:31:07 INFO [c1 script] playable.validate 'conductor-finale': ok
+2026-10-30 14:31:07 INFO [c1 script] playable.play 'conductor-finale' (24.6 s): waiting for operator confirmation
+2026-10-30 14:31:07 INFO [c1 script] playable 'conductor-finale' confirmed by console: playing 24.6 s
+2026-10-30 14:31:32 INFO [c1 script] done playable:conductor-finale (max error 0.0000 rad)
+2026-10-30 14:31:32 INFO [c1 script] playable.validate 'tornado': ok
+2026-10-30 14:31:32 INFO [c1 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.02 s
+2026-10-30 14:31:32 INFO [c1 script] done ready (max error 0.0000 rad)
+2026-10-30 14:31:32 INFO [c1 script] playable.validate 'tornado': ok
+2026-10-30 14:31:32 INFO [c1 script] playable.play 'tornado' (24.5 s): waiting for operator confirmation
+2026-10-30 14:31:32 INFO [c1 script] playable 'tornado' confirmed by console: playing 24.5 s
+2026-10-30 14:31:56 INFO [c1 script] done playable:tornado (max error 0.0000 rad)
+2026-10-30 14:31:56 INFO [c1 script] playable.validate 'figure-eight': ok
+2026-10-30 14:31:56 INFO [c1 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.02 s
+2026-10-30 14:31:56 INFO [c1 script] done ready (max error 0.0000 rad)
+2026-10-30 14:31:56 INFO [c1 script] playable.validate 'figure-eight': ok
+2026-10-30 14:31:56 INFO [c1 script] playable.play 'figure-eight' (24.5 s): waiting for operator confirmation
+2026-10-30 14:31:56 INFO [c1 script] playable 'figure-eight' confirmed by console: playing 24.5 s
+2026-10-30 14:32:21 INFO [c1 script] done playable:figure-eight (max error 0.0000 rad)
+2026-10-30 14:32:21 INFO [c1 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 5.94 s
+2026-10-30 14:32:27 INFO [c1 script] done home (max error 0.0000 rad)
+2026-10-30 14:32:27 INFO lease revoked by c1 script (release) (was c1 script); stopped
+2026-10-30 14:32:27 INFO [c1 script] disconnected
+2026-10-30 14:32:43 INFO [c2 script] hello name='rehearse' from 127.0.0.1
+2026-10-30 14:32:43 INFO [c2 script] acquire (auto-approved)
+2026-10-30 14:32:43 INFO [c2 script] lease granted by auto-approve (previous: none; stopped first)
+2026-10-30 14:32:44 INFO [c2 script] playable.validate 'ripple': ok
+2026-10-30 14:32:44 INFO [c2 script] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.50 s
+2026-10-30 14:32:46 INFO [c2 script] done ready (max error 0.0000 rad)
+2026-10-30 14:32:46 INFO [c2 script] playable.validate 'ripple': ok
+2026-10-30 14:32:46 INFO [c2 script] playable.play 'ripple' (24.4 s): waiting for operator confirmation
+2026-10-30 14:32:46 INFO [c2 script] playable 'ripple' confirmed by console: playing 24.4 s
+2026-10-30 14:33:11 INFO [c2 script] done playable:ripple (max error 0.0000 rad)
+2026-10-30 14:33:11 INFO [c2 script] do home -> [0.0, 0.0, 0.0, 0.0, 0.0, 0.0] in 5.94 s
+2026-10-30 14:33:17 INFO [c2 script] done home (max error 0.0000 rad)
+2026-10-30 14:33:17 INFO lease revoked by c2 script (release) (was c2 script); stopped
+2026-10-30 14:33:17 INFO [c2 script] disconnected
+2026-10-30 15:13:36 INFO [c3 openplay] hello name='open play' from 127.0.0.1
+2026-10-30 15:13:36 INFO [c3 openplay] acquire (auto-approved)
+2026-10-30 15:13:36 INFO [c3 openplay] lease granted by auto-approve (previous: none; stopped first)
+2026-10-30 15:14:11 INFO [c3 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.50 s
+2026-10-30 15:14:14 INFO [c3 openplay] done ready (max error 0.0000 rad)
+2026-10-30 15:14:15 INFO [c3 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.02 s
+2026-10-30 15:14:15 INFO [c3 openplay] done ready (max error 0.0000 rad)
+2026-10-30 15:14:17 INFO [c3 openplay] stream start (joint, ttl 300 ms)
+2026-10-30 15:14:19 INFO [c3 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-30 15:14:24 INFO [c3 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 1.16 s
+2026-10-30 15:14:25 INFO [c3 openplay] done ready (max error 0.0000 rad)
+2026-10-30 15:14:26 INFO [c3 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-30 15:14:28 INFO [c3 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-30 15:14:28 INFO [c3 openplay] stream start (cartesian, ttl 300 ms)
+2026-10-30 15:14:29 INFO [c3 openplay] do gripper 0.00
+2026-10-30 15:14:30 INFO [c3 openplay] deadman: no setpoint for 300+ ms, decelerating to a stop
+2026-10-30 15:14:30 INFO [c3 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 2.18 s
+2026-10-30 15:14:32 INFO [c3 openplay] done ready (max error 0.0000 rad)
+2026-10-30 15:14:57 INFO [c3 openplay] do stop
+2026-10-30 15:14:57 INFO [c3 openplay] do ready -> [0.0, 0.5, 0.8, 0.0, 0.0, 0.0] in 0.02 s
+2026-10-30 15:14:57 INFO [c3 openplay] done ready (max error 0.0000 rad)
+2026-10-30 15:48:59 INFO [c3 openplay] disconnected
+2026-10-30 15:48:59 INFO [c3 openplay] lease holder disconnected: stopped, lease free
+2026-10-30 15:49:00 INFO daemon down (backend stopped)

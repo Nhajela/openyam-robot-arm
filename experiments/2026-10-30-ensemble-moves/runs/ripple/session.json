@@ -1,0 +1,549 @@
+{
+  "ok": true,
+  "playable": {
+    "name": "ripple",
+    "author": "llm:claude-fable-5-1",
+    "created": "2026-10-30T14:31:27+05:30",
+    "prompt": "ripple: a wave that travels through the arm from the base to the fingertip (base turns, then shoulder, elbow, wrist, roll, gripper each pass it on with a delay), then travels back from the fingertip to the base, twice, the second time bigger. Lots of movement: every one of the six joints AND the gripper should be doing something through most of the move, overlapping (staggered starts, follow-through), not one joint at a time. Use big, readable amplitudes from the audience; vary the tempo with a build and at least one held accent. 15-25 seconds.",
+    "notes": "A wave ripples from the base out to the fingertip and back, first medium and quick, then again twice as big and slower with a held, open-gripper peak before settling to ready.",
+    "space": "joint",
+    "start": "ready",
+    "keyframes": [
+      {
+        "t": 0.0,
+        "q": [
+          0.0,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 0.95,
+        "q": [
+          0.2,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 1.9,
+        "q": [
+          0.4,
+          0.7,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 2.85,
+        "q": [
+          0.42,
+          0.9,
+          1.02,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 3.8,
+        "q": [
+          0.42,
+          0.92,
+          1.24,
+          0.2,
+          -0.2,
+          0.2
+        ],
+        "grip": 0.3,
+        "ease": "cubic"
+      },
+      {
+        "t": 4.75,
+        "q": [
+          0.42,
+          0.92,
+          1.24,
+          0.4,
+          -0.4,
+          0.4
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 5.1,
+        "q": [
+          0.42,
+          0.92,
+          1.24,
+          0.4,
+          -0.4,
+          0.4
+        ],
+        "grip": 1.0,
+        "ease": "hold"
+      },
+      {
+        "t": 6.05,
+        "q": [
+          0.42,
+          0.92,
+          1.24,
+          0.2,
+          -0.2,
+          0.2
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 7.0,
+        "q": [
+          0.4,
+          0.72,
+          1.02,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 7.95,
+        "q": [
+          0.22,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 8.9,
+        "q": [
+          0.0,
+          0.42,
+          0.8,
+          -0.08,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 9.2,
+        "q": [
+          0.0,
+          0.42,
+          0.8,
+          -0.08,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "hold"
+      },
+      {
+        "t": 10.5,
+        "q": [
+          0.35,
+          0.42,
+          0.8,
+          -0.08,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 11.8,
+        "q": [
+          0.7,
+          0.76,
+          0.8,
+          -0.08,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 13.1,
+        "q": [
+          0.72,
+          1.1,
+          1.2,
+          -0.08,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 14.4,
+        "q": [
+          0.72,
+          1.12,
+          1.6,
+          0.3,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 15.7,
+        "q": [
+          0.72,
+          1.12,
+          1.62,
+          0.68,
+          -0.4,
+          0.4
+        ],
+        "grip": 0.3,
+        "ease": "cubic"
+      },
+      {
+        "t": 17.0,
+        "q": [
+          0.72,
+          1.12,
+          1.62,
+          0.78,
+          -0.8,
+          0.8
+        ],
+        "grip": 1.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 17.9,
+        "q": [
+          0.72,
+          1.12,
+          1.62,
+          0.78,
+          -0.8,
+          0.8
+        ],
+        "grip": 1.0,
+        "ease": "hold"
+      },
+      {
+        "t": 19.2,
+        "q": [
+          0.72,
+          1.12,
+          1.62,
+          0.7,
+          -0.4,
+          0.4
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 20.5,
+        "q": [
+          0.7,
+          1.1,
+          1.6,
+          0.32,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 21.8,
+        "q": [
+          0.64,
+          0.78,
+          1.2,
+          -0.06,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 23.1,
+        "q": [
+          0.34,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      },
+      {
+        "t": 24.4,
+        "q": [
+          0.0,
+          0.5,
+          0.8,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "grip": 0.0,
+        "ease": "cubic"
+      }
+    ],
+    "loop": 1,
+    "speed": 1.0,
+    "caps": "dance"
+  },
+  "passes": [
+    {
+      "pass": 0,
+      "stage": "drafting",
+      "latency_s": 228.15,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 7602
+        },
+        "cache_creation_input_tokens": 7602,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 7602
+            },
+            "cache_creation_input_tokens": 7602,
+            "cache_read_input_tokens": 0,
+            "input_tokens": 4,
+            "output_tokens": 17475,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 17475,
+        "output_tokens_details": {
+          "thinking_tokens": 15715
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 3,
+        "timing": 4,
+        "safety_margin": 4
+      },
+      "satisfied": false,
+      "critique": "",
+      "changelog": [
+        "Draft: two ripples (out from base to fingertip, back from fingertip to base), first small and quick (1.0 s steps, ~0.25 rad per joint), second big and slow (1.3 s steps, ~0.45 rad per joint).",
+        "Each joint hands the wave on one step after the previous one and moves over two consecutive segments so neighbours overlap; base/shoulder keep creeping slightly after arriving for follow-through.",
+        "Gripper opens as the last link of each outbound wave and snaps shut to start the return; held accents at both fingertip peaks (0.35 s then 0.8 s) and a small base/head anticipation dip before the big wave.",
+        "All cubic segments sized for <=0.78 rad/s^2 and <=0.26 rad/s; all poses >=0.2 rad inside soft limits; ends at ready at 24.75 s."
+      ]
+    },
+    {
+      "pass": 1,
+      "stage": "reviewing pass 1/3",
+      "latency_s": 74.15,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 33189
+        },
+        "cache_creation_input_tokens": 33189,
+        "cache_read_input_tokens": 7602,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 33189
+            },
+            "cache_creation_input_tokens": 33189,
+            "cache_read_input_tokens": 7602,
+            "input_tokens": 4,
+            "output_tokens": 6237,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 6237,
+        "output_tokens_details": {
+          "thinking_tokens": 4169
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 3,
+        "silhouette": 3,
+        "energy_contrast": 3,
+        "timing": 4,
+        "safety_margin": 5
+      },
+      "satisfied": false,
+      "critique": "Valid and the structure reads as intended, but the first ripple is nearly invisible from the audience: six of the pass-1 segments move the hand only 1-5 cm, so the spectator sees a still arm with a faint twitch for the first nine seconds, then a modest second wave. The peak pose (K17) is distinct but not dramatic; the base turn and shoulder lean barely change the silhouette. The speed report shows the active caps are twice what I budgeted for (42 % velocity, 39 % acceleration used), so there is room to roughly double every amplitude at the same tempo. Timing structure (quick small wave, breath, slow big wave, held open-gripper peak) is good and tempo variety is acceptable; safety is excellent with the hand always above 40 cm.",
+      "changelog": [
+        "Re-budgeted every segment to the active 'dance' caps (0.6 rad/s, 2.0 rad/s^2), staying at or below ~77 % velocity and ~73 % acceleration.",
+        "First ripple amplitudes raised from ~0.24 to ~0.42 rad per joint (j1 0.42, j2 +0.42, j3 +0.44, j4/j5/j6 0.40) with 0.95 s steps so each step moves the hand well over 5 cm.",
+        "Second ripple amplitudes roughly doubled: j1 0.84, j2 1.12, j3 1.62, j4 0.78, j5 -0.80, j6 0.80, giving a clearly taller, turned-to-audience peak silhouette.",
+        "Anticipation before the big wave made more visible: shoulder leans back to 0.42 and head dips -0.08 during the 0.3 s breath.",
+        "Peak hold extended to 0.9 s; j4 gets a small follow-through overshoot into the peak; total duration 24.4 s."
+      ]
+    },
+    {
+      "pass": 2,
+      "stage": "reviewing pass 2/3",
+      "latency_s": 44.81,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 21905
+        },
+        "cache_creation_input_tokens": 21905,
+        "cache_read_input_tokens": 40791,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 21905
+            },
+            "cache_creation_input_tokens": 21905,
+            "cache_read_input_tokens": 40791,
+            "input_tokens": 4,
+            "output_tokens": 3306,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 3306,
+        "output_tokens_details": {
+          "thinking_tokens": 1385
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 4,
+        "timing": 4,
+        "safety_margin": 5
+      },
+      "satisfied": false,
+      "critique": "Now it reads: the first wave visibly passes base→shoulder→elbow→wrist→hand with the gripper snapping open at the tip, and the second wave is unmistakably bigger, climbing to a tall vertical silhouette (hand at 66-71 cm) with the head turned to the audience and the gripper held open. Build, breath, peak and resolve are all clear, and the tempo shift from 0.95 s to 1.3 s steps is felt. Remaining weaknesses: the very first and last base-only segments move the hand only 2-5 cm on the audience's view (inherent to a base turn from ready, acceptable as the quiet bookends); at the big peak the arm points almost straight at the audience (j1 0.84 ≈ their bearing), so the hand's nod/twist is slightly foreshortened and the hold reads as a vertical bar more than a profile. Safety is excellent: 77 %/70 % of caps, hand never below 36 cm, no near-limit joints.",
+      "changelog": [
+        "Trimmed the big wave's base turn from 0.84 to 0.72 rad (0.35 rad steps) so the peak pose is seen more in profile and the wrist nod/twist foreshortens less.",
+        "Return-pass base steps adjusted accordingly (0.72 → 0.70 → 0.64 → 0.34 → 0); everything else unchanged."
+      ]
+    },
+    {
+      "pass": 3,
+      "stage": "reviewing pass 3/3",
+      "latency_s": 24.29,
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 18988
+        },
+        "cache_creation_input_tokens": 18988,
+        "cache_read_input_tokens": 62696,
+        "inference_geo": "global",
+        "input_tokens": 4,
+        "iterations": [
+          {
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 18988
+            },
+            "cache_creation_input_tokens": 18988,
+            "cache_read_input_tokens": 62696,
+            "input_tokens": 4,
+            "output_tokens": 1817,
+            "type": "message"
+          }
+        ],
+        "output_tokens": 1817,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "service_tier": "standard",
+        "speed": "standard"
+      },
+      "served_by": "claude-fable-5-1",
+      "ok": true,
+      "retimed": false,
+      "violations": "",
+      "scores": {
+        "readability": 4,
+        "silhouette": 4,
+        "energy_contrast": 4,
+        "timing": 4,
+        "safety_margin": 5
+      },
+      "satisfied": true,
+      "critique": "Valid and reads as a ripple: the spectator sees the body turn, then the shoulder lean, the elbow lift the hand 16 cm, the head nod and turn, and the gripper open at the tip; after a breath the same phrase comes back twice as big and slower, rising to a tall standing silhouette (hand at 66-71 cm) with the head turned to them and the gripper held open for almost a second, then folding back link by link to ready. Tempo varies (0.95 s vs 1.3 s steps, three holds), there is a small lean-back/head-dip anticipation before the big wave, and the second wave is clearly the peak. The only soft spots are the quiet base-only bookends (2-4 cm hand travel, inherent to turning the base from ready) and some residual foreshortening at the peak since the arm still points roughly toward the audience; neither undermines the intent. Caps at 77 %/70 %, hand never below 36 cm, every joint well inside its limits.",
+      "changelog": [
+        "Final: candidate unchanged (valid, every score >= 4)."
+      ]
+    }
+  ],
+  "route": {
+    "use_camera": false,
+    "method": "override",
+    "reason": "--camera never"
+  },
+  "stop_reason": "satisfied",
+  "latency_s": 388.61,
+  "model": "claude-fable-5-1",
+  "sheets_dir": "experiments/2026-10-30-ensemble-moves/runs/ripple",
+  "retimed": false
+}

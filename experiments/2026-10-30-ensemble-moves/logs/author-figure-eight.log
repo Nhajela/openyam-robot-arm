@@ -1,0 +1,18 @@
+... routing
+[route] camera=no (override): --camera never
+... drafting
+[drafting] 200.75s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 3, 'timing': 4, 'safety_margin': 4}
+... rendering pass 1
+... reviewing pass 1/3
+[reviewing pass 1/3] 46.4s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 3, 'timing': 3, 'safety_margin': 5}
+... rendering pass 2
+... reviewing pass 2/3
+[reviewing pass 2/3] 19.15s  VALID  scores {'readability': 4, 'silhouette': 4, 'energy_contrast': 4, 'timing': 4, 'safety_margin': 5}  satisfied
+... final
+
+model=claude-fable-5-1 3 call(s) 279.34 s  stop: satisfied
+OK  duration 24.5 s  (envelope: armctl.envelope (custom))
+  max |vel| rad/s: j1=0.31 j2=0.17 j3=0.28 j4=0.28 j5=0.25 j6=0.26
+  max |acc| rad/s2: j1=0.5 j2=0.4 j3=0.6 j4=0.6 j5=0.5 j6=0.5
+wrote experiments/2026-10-30-ensemble-moves/figure-eight.json
+sheets + CHANGELOG.md in experiments/2026-10-30-ensemble-moves/runs/figure-eight

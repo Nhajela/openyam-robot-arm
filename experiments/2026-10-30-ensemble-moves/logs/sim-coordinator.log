@@ -1,0 +1,19 @@
+armctl.dimos_coordinator: mode=SIMULATION adapter=mock_whole_body bus=224.0.0.124:7450 tasks=['eef_twist_arm', 'joint_trajectory', 'openyam_gripper'] ik_margin=0.1 joint_vel=0.3 traj_vel_limit=0.7 twist_timeout=0.3 planner=False gains[dimos-default]: kp=[80,80,80,10,10,10] kd=[5,5,5,1.5,1.5,1.5] gravity[dimos-default]
+08:55:39.556 [inf][dination/module_coordinator.py] Building the blueprint
+08:55:39.557 [inf][dination/module_coordinator.py] Starting the modules
+08:55:40.584 [inf][ation/worker_manager_python.py] Worker pool started. n_workers=2
+08:55:40.586 [inf][dimos/utils/data.py           ] Using local user data directory at '/home/naman/.local/share/dimos'
+08:55:41.677 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+08:55:41.693 [inf][dimos/control/coordinator.py  ] ControlCoordinator initialized at 100.0Hz
+08:55:41.694 [inf][/coordination/python_worker.py] Deployed module. module=ArmctlTwistCoordinator module_id=0 worker_id=0
+08:55:41.717 [inf][otocol/service/zenohservice.py] Zenoh session opened connect=[] gossip=True listen=['tcp/127.0.0.1:0'] mode=peer multicast_interface=lo
+08:55:41.729 [inf][dimos/control/coordinator.py  ] Added hardware openyam with joints: ['yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6', 'arm/gripper']
+08:55:43.378 [inf][dimos/control/coordinator.py  ] Added task eef_twist_arm
+08:55:43.378 [inf][ectory_task/trajectory_task.py] JointTrajectoryTask joint_trajectory initialized for joints: ('yam_joint1', 'yam_joint2', 'yam_joint3', 'yam_joint4', 'yam_joint5', 'yam_joint6')
+08:55:43.378 [inf][dimos/control/coordinator.py  ] Added task joint_trajectory
+08:55:43.380 [inf][dimos/control/coordinator.py  ] Added task openyam_gripper
+08:55:43.393 [inf][dimos/control/tick_loop.py    ] TickLoop started at 100.0Hz
+08:55:43.395 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=joint_command
+08:55:43.395 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=ee_twist_command
+08:55:43.395 [inf][dimos/control/coordinator.py  ] Subscribed to stream for card-bound tasks stream=gripper_command
+08:55:43.396 [inf][dimos/control/coordinator.py  ] ControlCoordinator started at 100.0Hz

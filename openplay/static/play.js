@@ -9,6 +9,7 @@
 
 import { openChess, chessMessage, chessInvolves } from './chess.js';
 import { openPick, pickMessage } from './pick.js';
+import { openCam, camMode, camArm, camRelease } from './camgames.js';
 
 const RATE_MS = 66;                 // ~15 Hz while a control is held
 const TILT_DEAD = 3, TILT_FULL = 25; // degrees from the saved start pose (same as tilt.html)
@@ -32,7 +33,8 @@ const END_REASONS = {
 //   id, emoji, title, pitch (one line on the card), tag (Easy | Creative | Skill),
 //   hue (card colour: green blue violet pink orange yellow teal red), on(features, welcome)
 //   -> shown?, drive (live control: shares speed/grip/Ready and needs the arm at Ready, so
-//   get set sends `ready`), how (the get-set steps), go (the start button's label).
+//   get set sends `ready`), ready (needs the arm at Ready without the drive extras), how (the
+//   get-set steps), go (the start button's label).
 const MODES = [
   { id: 'tilt', emoji: '📱', title: 'Tilt', pitch: 'Steer it like a steering wheel', tag: 'Easy', hue: 'green',
     drive: true, on: (f) => f.tilt,
@@ -56,6 +58,14 @@ const MODES = [
     on: (f) => f.poses,
     how: ['Drive the arm somewhere (Tilt, Sticks or Joints).', 'Come back here and tap <b>Save this pose</b>. Repeat.',
       'Play them all as one smooth move.'] },
+  { id: 'eyes', emoji: '👀', title: 'Robot Eyes', pitch: "See what the arm sees, snap a photo", tag: 'Creative', hue: 'teal',
+    ready: true, on: (f) => !!f.cam,
+    how: ['The wrist camera is on your phone.', '<b>Drag</b> on the picture to look around. Let go and it stops.',
+      'Pick a filter, then <b>📸 SNAP</b> for a photo to save or share.'], go: 'Open its eyes' },
+  { id: 'clawcam', emoji: '🎥', title: 'Claw Cam', pitch: "Drive from the claw's own eye", tag: 'Skill', hue: 'red',
+    ready: true, on: (f) => !!f.cam,
+    how: ['You see what the claw sees.', '<b>Drag</b> on the picture to steer.',
+      '<b>Hold DROP</b> to lower the claw. Let go and it grabs, then comes back up.'], go: "Let's drive" },
   { id: 'grab', emoji: '🦾', title: 'Grab', pitch: 'Pick up a block and move it', tag: 'Skill', hue: 'teal',
     on: (f, w) => f.grab && (w.spots || []).length > 1,
     how: ['Choose where the block is now.', 'Choose where it should go.', 'Tap <b>Grab it</b> and watch.'] },
@@ -99,7 +109,7 @@ const S = {
   speed: parseFloat(store.get('openplay-speed', '1')) || 1,
   wantJoin: false,
 };
-const features = () => Object.assign({ say: true, grab: true, tilt: true, joystick: true, poses: true }, (S.welcome && S.welcome.features) || {});
+const features = () => Object.assign({ say: true, grab: true, tilt: true, joystick: true, poses: true, cam: false }, (S.welcome && S.welcome.features) || {});
 const modeOn = (m) => !!m && !!m.on(features(), S.welcome || {});
 
 // ------------------------------------------------------------------ connection
@@ -214,7 +224,7 @@ function handle(m) {
     case 'turn_end':
       endTurnScreen(m.reason); break;
     case 'arm':
-      S.arm = m; renderFault(); renderArm(); break;
+      S.arm = m; camArm(m); renderFault(); renderArm(); break;
     case 'status':
       if (m.text === 'Ready' && S.view === 'getset') $('gsReady').textContent = '✅ The arm is at its ready pose.';
       // Say and Poses show their own progress card, so a "busy" echo there would just cover it.
@@ -273,7 +283,7 @@ function startTurnScreen(remaining) {
   buzz([120, 60, 120]);
 }
 function endTurnScreen(reason) {
-  releaseAll();
+  releaseAll(); camMode(null);
   $('thanksTitle').textContent = myName ? `Thanks for playing, ${myName}!` : 'Thanks for playing!';
   $('thanksWhy').textContent = END_REASONS[reason] || 'Your turn is over.';
   show('thanks');
@@ -403,6 +413,7 @@ function showView(v) {
   S.view = v;
   releaseAll();
   if (v !== 'getset') stopAim();
+  if (v !== 'play') camMode(null);
   for (const id of ['modes', 'getset', 'play']) $('view-' + id).hidden = id !== v;
   $('modesBtn').hidden = v === 'modes';
   document.body.dataset.view = v;
@@ -433,7 +444,7 @@ function openMode(id, opts = {}) {
   $('gsGo').textContent = tilt ? 'Keep my start pose' : m.go || "Let's go!";
   $('gsReady').hidden = true;
   showView('getset');
-  if ((m.drive && opts.ready !== false) || armFolded()) sendReady();
+  if (((m.drive || m.ready) && opts.ready !== false) || armFolded()) sendReady();
   if (tilt) startAim();
 }
 function startPlay() {
@@ -443,6 +454,7 @@ function startPlay() {
   for (const p of document.querySelectorAll('#view-play .panel')) p.hidden = p.id !== 'panel-' + m.id;
   $('driveExtras').hidden = !m.drive;
   showView('play');
+  camMode(m.id);
   buzz(25);
   if (S.mode === 'tilt') drawDot();
 }
@@ -549,6 +561,7 @@ function releaseAll(why) {
   for (const j of jogEls) j.reset();
   for (const id of ['tiltPad', 'tiltHold', 'zUp', 'zDown']) $(id).classList.remove('on');
   $('padGate').hidden = true;
+  camRelease(why);
   stopStream(why); drawDot();
 }
 function holdable(node, down, up) {
@@ -888,6 +901,8 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 show('lobby');
 for (const id of ['chessTurn', 'chessLobby']) openChess($(id), { send, toast });
 openPick($('pickTurn'), { send, toast });
+openCam({ eyes: $('panel-eyes'), clawcam: $('panel-clawcam'), grab: $('grabCam') },
+  { send, toast, buzz, canDrive, welcome: () => S.welcome, pid: () => pid, name: () => myName });
 applyFeatures();
 connect();
 // debugging / tests / screenshots

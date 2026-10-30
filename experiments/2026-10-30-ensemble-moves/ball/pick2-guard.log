@@ -1,0 +1,46 @@
+connected to ws://127.0.0.1:8091/armctl (backend dimos); asking for the lease: approve it in the console
+
+>>> MOVE : joints by up to 0.671 rad (j2); tip -> (0.289, -0.012, 0.100) m; q=[-0.0422, 1.1504, 0.5032, -0.089, 0.0274, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+[guard 15:42:21] y [j2 37 j3 51 j4 54] MOVE : joints by up to 0.671 rad (j2); tip -> (0.289, -0.012, 0.100) m; q=[-0.0422, 1.1504, 0.5032, -0.089, 0.0274, 0.0]; speed 0.25 rad/s
+
+>>> MOVE : joints by up to 0.150 rad (j2); tip -> (0.315, -0.028, 0.101) m; q=[-0.0886, 1.2828, 0.5844, -0.0372, 0.0274, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+[guard 15:42:29] y [j2 37 j3 50 j4 53] MOVE : joints by up to 0.150 rad (j2); tip -> (0.315, -0.028, 0.101) m; q=[-0.0886, 1.2828, 0.5844, -0.0372, 0.0274, 0.0]; speed 0.25 rad/s
+
+>>> MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.0909, 1.2836, 0.585, -0.0371, 0.0274, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+[guard 15:42:34] y [j2 37 j3 51 j4 53] MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.0909, 1.2836, 0.585, -0.0371, 0.0274, 0.0]; speed 0.25 rad/s
+
+>>> MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.0909, 1.2839, 0.5853, -0.037, 0.0274, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+[guard 15:42:37] y [j2 37 j3 51 j4 53] MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.0909, 1.2839, 0.5853, -0.037, 0.0274, 0.0]; speed 0.25 rad/s
+
+>>> MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.0909, 1.2834, 0.5849, -0.0371, 0.0274, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+[guard 15:42:41] y [j2 37 j3 51 j4 53] MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.0909, 1.2834, 0.5849, -0.0371, 0.0274, 0.0]; speed 0.25 rad/s
+
+>>> MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.0909, 1.2836, 0.585, -0.0371, 0.0274, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+[guard 15:42:44] y [j2 37 j3 51 j4 53] MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.0909, 1.2836, 0.585, -0.0371, 0.0274, 0.0]; speed 0.25 rad/s
+
+>>> MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.091, 1.284, 0.5853, -0.0369, 0.0274, 0.0]; speed 0.25 rad/s
+    type y + Enter to do it, anything else aborts: 
+[guard 15:42:48] y [j2 37 j3 51 j4 53] MOVE : joints by up to 0.024 rad (j3); tip -> (0.315, -0.029, 0.101) m; q=[-0.091, 1.284, 0.5853, -0.0369, 0.0274, 0.0]; speed 0.25 rad/s
+{
+ "ok": false,
+ "reason": "no convergence after 7 centring iterations",
+ "trace": [
+  "search",
+  "center",
+  "failed"
+ ],
+ "estimate_table": [
+  0.01576,
+  -0.06976
+ ],
+ "observations": 7,
+ "measured_width": null
+}
+log: experiments/2026-10-30-ensemble-moves/ball/pick2/run.jsonl
+program exited 1
