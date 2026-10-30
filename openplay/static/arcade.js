@@ -11,6 +11,12 @@
 //          machine. Lifting the finger is still what stops the descent.
 //   emote  tap a library move (`move`). ✨ Ask it is `say`.
 //
+// Two camera games when the server relays the wrist camera (welcome.features.cam, GET /cam.jpg):
+//   👀 Robot Eyes  the phone shows what the robot sees; drag to look around (joint velocities:
+//                  the base turns, the wrist tilts), pick a filter, SNAP a framed photo to keep.
+//   🎥 Claw Cam    the claw machine from the claw's own eye: the same steer and DROP, the camera
+//                  picture instead of the map.
+//
 // The game layer is phone-only and never moves anything: stars to fly the claw over (scored from
 // the arm's reported joints), a combo for quick chains, a score and a best score on this phone.
 // The walls (R_MIN/R_MAX) and the drop floor are phone-side conveniences computed from the arm's
@@ -33,6 +39,8 @@ const STAR_R = 0.045;                 // m: fly the tip this close (x/y) to coll
 const DIVE_Z = 0.17;                  // m: gold stars count only below this height
 const COMBO_S = 5;                    // s: collect again within this for the next multiplier
 const GRAB_MIN_DROP = 0.04;           // m: a DROP that went at least this far down scores a grab
+const LOOK_K = 0.6;                   // Robot Eyes: full drag = 0.6 x the server's joint speed (0.3 rad/s)
+const FILTERS = [['none', '🙂 Normal'], ['robot', '🤖 Robot'], ['thermal', '🔥 Thermal'], ['pixel', '👾 8-bit'], ['comic', '💥 Comic']];
 const CHIPS = ['wave hello', 'do a happy dance', 'bow to the audience', 'look around curiously', 'pretend to be a sleepy cat'];
 const END_REASONS = {
   time: "Time's up!", left: 'You ended your turn.', idle: 'Nothing happened for a minute.',
@@ -64,11 +72,13 @@ const S = {
   turnRemaining: 0, turnAt: 0, lastTurnMsg: 0, warning: false,
   flip: store.get('arcade-flip', '0') === '1', // the player stands across the table from the base
   wantJoin: false, started: false,
+  game: 'claw',                 // claw | eyes (Robot Eyes) | cam (Claw Cam)
+  filter: 'robot',
 };
 const G = { score: 0, combo: 0, lastAt: 0, stars: [], pops: [], stats: null, emotesDone: new Set(), trail: [] };
-const newStats = () => ({ stars: 0, dives: 0, grabs: 0, emotes: 0, bestCombo: 0 });
+const newStats = () => ({ stars: 0, dives: 0, grabs: 0, emotes: 0, bestCombo: 0, photos: 0 });
 G.stats = newStats();
-const features = () => Object.assign({ say: true, joystick: true }, (S.welcome && S.welcome.features) || {});
+const features = () => Object.assign({ say: true, joystick: true, cam: false }, (S.welcome && S.welcome.features) || {});
 // the base's allowed turn (the tip's angle on the map equals j1), from the daemon's soft limits
 function j1Range() {
   const l = S.welcome && S.welcome.limits && S.welcome.limits.j1;
@@ -165,7 +175,7 @@ function handle(m) {
       S.welcome = m;
       if (m.name && !myName) { myName = m.name; $('name').value = m.name; }
       if (m.turn_s) $('turnLen').textContent = m.turn_s % 60 ? `${fmtDur(m.turn_s)} min` : `${m.turn_s / 60} min`;
-      renderEmotes(); $('askBtn').disabled = !features().say; renderLobby(); break;
+      renderEmotes(); $('askBtn').disabled = !features().say; renderGames(); renderLobby(); break;
     case 'lobby':
       S.lobby = m; renderLobby();
       if (m.you_active && S.screen !== 'turn' && m.active) startTurn(m.active.remaining_s);
@@ -179,7 +189,7 @@ function handle(m) {
     case 'arm': S.arm = m; onArm(); break;
     case 'status':
       if (m.kind === 'error') toast(m.text, 'error');
-      else if (/^The arm can't go further/.test(m.text || '')) { ticker('🧱 Wall! Steer the other way'); buzz(30); }
+      else if (/^The arm can't go further/.test(m.text || '')) { ticker(S.game === 'eyes' ? "🧱 Can't turn further that way" : '🧱 Wall! Steer the other way'); buzz(30); }
       else ticker(m.text);
       break;
     case 'refused': {
@@ -201,7 +211,7 @@ function show(name) {
   S.screen = name;
   for (const id of ['lobby', 'turn', 'over']) $(id).hidden = id !== name;
   window.scrollTo(0, 0); clearToast();
-  if (name !== 'turn') { releaseAll(); for (const id of ['intro', 'pause', 'askSheet']) $(id).hidden = true; }
+  if (name !== 'turn') { releaseAll(); camStop(); for (const id of ['intro', 'pause', 'askSheet', 'photo']) $(id).hidden = true; }
   wakeLock(name === 'turn');
   if (name === 'turn') requestAnimationFrame(resizeMap);
 }
@@ -210,7 +220,8 @@ function startTurn(remaining) {
   S.lastTurnMsg = Date.now();
   G.score = 0; G.combo = 0; G.lastAt = 0; G.stats = newStats(); G.emotesDone.clear(); G.trail = []; G.pops = [];
   G.stars = []; S.started = false;
-  renderScore(); renderEmotes();
+  renderScore(); renderEmotes(); setGame('claw', true);
+  $('introMore').hidden = !features().cam;
   $('introName').textContent = myName || 'Player one';
   show('turn');
   $('intro').hidden = false; $('countdown').hidden = true;
@@ -228,7 +239,7 @@ function gameOver(reason) {
   ob.textContent = isBest && G.score > 0 ? '🏆 NEW HIGH SCORE!' : best ? `Best on this phone: ${best}` : '';
   ob.classList.toggle('new', isBest && G.score > 0);
   const st = $('overStats'); st.replaceChildren();
-  for (const [n, label] of [[G.stats.stars, 'stars'], [G.stats.dives, 'gold dives'], [G.stats.grabs, 'claw grabs'], [`x${Math.max(1, G.stats.bestCombo)}`, 'best combo']]) {
+  for (const [n, label] of [[G.stats.stars, 'stars'], [G.stats.dives, 'gold dives'], [G.stats.grabs, 'claw grabs'], [`x${Math.max(1, G.stats.bestCombo)}`, 'best combo']].concat(G.stats.photos ? [[G.stats.photos, 'robot photos']] : [])) {
     const li = el('li'); li.append(el('b', '', String(n)), label); st.append(li);
   }
   show('over');
@@ -298,6 +309,8 @@ function ticker(text) {
 }
 function idleTicker() {
   if (!S.started) return 'Press start!';
+  if (S.game === 'eyes') return 'Drag to look around · SNAP a photo';
+  if (S.game === 'cam') return "Claw's-eye view: steer, hold DROP, let go to grab";
   const gold = G.stars.some((s) => s.gold);
   return gold ? 'Gold ⬇ star: steer over it and hold DROP' : 'Fly the claw over the stars';
 }
@@ -373,6 +386,7 @@ function renderArm() {
   $('clawIcon').textContent = shut ? '✊' : '🖐️';
   $('clawLbl').textContent = shut ? 'Claw shut' : 'Claw open';
   $('dragHint').hidden = driving() || !S.started;
+  $('dragHint').textContent = S.game === 'eyes' ? 'drag to look around' : 'drag to steer';
 }
 
 // ------------------------------------------------------------------ stars (the game layer)
@@ -391,7 +405,7 @@ function spawnStars() {
   if (!G.stars.some((s) => s.gold) && G.stats.stars >= 2) { const s = spawnStar(true); if (s) G.stars.push(s); }
 }
 function collectStars() {
-  if (!S.started || S.screen !== 'turn' || !tipNow) return;
+  if (!S.started || S.screen !== 'turn' || !tipNow || S.game !== 'claw') return;
   const busy = S.arm && S.arm.busy;
   if (busy && busy !== 'ready') return; // emotes and Ask don't collect stars: you have to fly there
   const [x, y, z] = tipNow;
@@ -433,7 +447,7 @@ function resizeMap() {
   M.zs = Math.max(60, (M.far - 34) / (0.6 - TABLE_Z));    // px per metre of height
 }
 window.addEventListener('resize', resizeMap);
-const F = () => (S.flip ? -1 : 1);
+const F = () => (S.flip && S.game === 'claw' ? -1 : 1); // the camera games steer in the camera's frame
 // base frame (x, y, z) -> screen px
 function toScreen(x, y, z = TABLE_Z) {
   const fy = S.flip ? M.far + x * M.s * KD : M.near - x * M.s * KD;
@@ -445,7 +459,7 @@ function arcPts(r, a, b, n = 40) { const o = []; for (let i = 0; i <= n; i++) { 
 // ------------------------------------------------------------------ drawing
 function draw() {
   requestAnimationFrame(draw);
-  if (S.screen !== 'turn' || !M.w) return;
+  if (S.screen !== 'turn' || !M.w || S.game !== 'claw') return;
   const c = cx2d, now = performance.now();
   c.setTransform(M.dpr, 0, 0, M.dpr, 0, 0);
   c.clearRect(0, 0, M.w, M.h);
@@ -534,12 +548,12 @@ requestAnimationFrame(draw);
 
 // ------------------------------------------------------------------ live control (stream)
 const ctl = { steer: false, sx: 0, sy: 0, drop: false, dropFromZ: null, floorHit: false };
-let streamTimer = null, holdEp = 0, lastTick = 0;
+let streamTimer = null, holdEp = 0, lastTick = 0, streamKind = 'v';
 const grab = { state: null, seen: false }; // null | 'closing' (claw shutting) | 'returning' (ready sent)
 const driving = () => ctl.steer || ctl.drop;
 function canDrive() {
   if (S.screen !== 'turn' || !S.started) return false;
-  if (!$('pause').hidden || !$('askSheet').hidden || !$('intro').hidden) return false;
+  if (!$('pause').hidden || !$('askSheet').hidden || !$('intro').hidden || !$('photo').hidden) return false;
   if (!ws || ws.readyState !== 1) { toast('Not connected right now. Reconnecting…', 'error'); return false; }
   if (S.arm && S.arm.busy) { buzz(15); ticker(`Wait for it… (${S.arm.busy})`); return false; }
   if (armFolded()) { toast('The claw is parked. Tap "Unfold the claw".'); return false; }
@@ -571,6 +585,15 @@ function tick() {
   if (lastTick && now - lastTick > Math.max(250, 3 * RATE_MS)) diag('late_tick', { dt_ms: now - lastTick, ep: holdEp });
   lastTick = now;
   if (!driving()) { stopStream('up'); return; }
+  if (S.game === 'eyes') {
+    // look around: drag right = turn right (j1 -), drag up = tilt the camera up (j4 +; FK: at ready
+    // the camera looks down the table and +j4 raises it)
+    const ux = dz(ctl.sx), uy = dz(ctl.sy);
+    streamKind = 'qd';
+    send({ op: 'stream', qd: [r3(clamp(-ux * LOOK_K)), 0, 0, r3(clamp(-uy * LOOK_K)), 0, 0], ep: holdEp });
+    return;
+  }
+  streamKind = 'v';
   const v = { x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0 };
   if (ctl.steer) { const s = steerVel(); v.x = s.vx; v.y = s.vy; }
   if (ctl.drop) {
@@ -587,7 +610,9 @@ function startStream() {
 function stopStream(why) {
   if (!streamTimer) return;
   clearInterval(streamTimer); streamTimer = null; lastTick = 0;
-  send({ op: 'stream', v: { x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0 }, ep: holdEp, why: why || 'ui' });
+  // one explicit zero of the same kind, so the arm stops now rather than at the 300 ms deadman
+  if (streamKind === 'qd') send({ op: 'stream', qd: [0, 0, 0, 0, 0, 0], ep: holdEp, why: why || 'ui' });
+  else send({ op: 'stream', v: { x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0 }, ep: holdEp, why: why || 'ui' });
   renderArm();
 }
 let endWhy = null;
@@ -684,7 +709,7 @@ $('stopBtn').addEventListener('click', () => { releaseAll(); grab.state = null; 
 function renderEmotes() {
   const box = $('emotes'); box.replaceChildren();
   const moves = (S.welcome && S.welcome.moves) || [];
-  box.hidden = !moves.length;
+  box.hidden = !moves.length || S.game === 'eyes';
   for (const m of moves) {
     const b = el('button', 'emote' + (G.emotesDone.has(m.name) ? ' done' : ''), m.emoji || '🤖');
     b.dataset.name = m.name; b.dataset.title = m.title || m.name;
@@ -727,6 +752,202 @@ function onSay(m) {
   else if (m.stage === 'error') toast(m.note || "Couldn't do that one", 'error');
 }
 
+// ------------------------------------------------------------------ camera games
+function renderGames() {
+  const cam = features().cam;
+  $('games').hidden = !cam;
+  if (!cam && S.game !== 'claw') { setGame('claw'); toast('The camera went away: back to the claw game'); }
+}
+function setGame(g, quiet) {
+  if (g !== 'claw' && !features().cam) g = 'claw';
+  if (S.game !== g) releaseAll();
+  S.game = g;
+  for (const b of $('games').children) b.setAttribute('aria-pressed', String(b.dataset.game === g));
+  const eyes = g === 'eyes', claw = g === 'claw';
+  $('map').hidden = !claw; $('camView').hidden = claw;
+  $('emotes').hidden = eyes || !((S.welcome && S.welcome.moves) || []).length;
+  $('filters').hidden = !eyes;
+  for (const id of ['clawBtn', 'dropBtn', 'askBtn']) $(id).hidden = eyes;
+  for (const id of ['waveBtn', 'snapBtn', 'filterBtn']) $(id).hidden = !eyes;
+  $('waveBtn').hidden = !eyes || !waveMove();
+  if (!claw) camStart(); else camStop();
+  if (claw) requestAnimationFrame(resizeMap); else requestAnimationFrame(resizeCam);
+  renderArm();
+  if (!quiet) { buzz(15); ticker(idleTicker()); }
+}
+for (const b of $('games').children) b.addEventListener('click', () => setGame(b.dataset.game));
+
+// frames: GET /cam.jpg?pid=&after=<seq> (the server waits up to 1 s for a newer frame), one at a time
+const camCanvas = $('camView'), camCtx = camCanvas.getContext('2d');
+const C = { on: false, seq: 0, img: null, w: 0, h: 0, dpr: 1, err: null, gen: 0, fails: 0 };
+function resizeCam() {
+  const r = camCanvas.getBoundingClientRect(); if (!r.width) return;
+  C.dpr = Math.min(2, window.devicePixelRatio || 1);
+  C.w = r.width; C.h = r.height;
+  camCanvas.width = Math.round(r.width * C.dpr); camCanvas.height = Math.round(r.height * C.dpr);
+}
+window.addEventListener('resize', resizeCam);
+function camUrl() {
+  const k = new URLSearchParams(location.search).get('k');
+  return `/cam.jpg?pid=${encodeURIComponent(pid)}&after=${C.seq}` + (k ? `&k=${encodeURIComponent(k)}` : '');
+}
+function camStart() { if (C.on) return; C.on = true; C.gen++; C.fails = 0; camLoop(C.gen); }
+function camStop() { C.on = false; C.gen++; }
+async function camLoop(gen) {
+  while (C.on && gen === C.gen && S.screen === 'turn') {
+    try {
+      const r = await fetch(camUrl(), { cache: 'no-store', credentials: 'same-origin' });
+      if (!r.ok) throw new Error(r.status === 403 ? 'not your turn' : (await r.text()).slice(0, 120) || `HTTP ${r.status}`);
+      C.seq = parseInt(r.headers.get('X-Seq') || '0', 10) || C.seq;
+      const blob = await r.blob();
+      const img = await createImageBitmap(blob);
+      if (gen !== C.gen) break;
+      if (C.img && C.img.close) C.img.close();
+      C.img = img; C.err = null; C.fails = 0;
+    } catch (e) {
+      C.err = String(e.message || e); C.fails++;
+      await new Promise((ok) => setTimeout(ok, Math.min(3000, 500 * C.fails)));
+    }
+  }
+}
+// filters on a small copy (fast on any phone), drawn back scaled to the arena
+const fx = document.createElement('canvas'), fxc = fx.getContext('2d', { willReadFrequently: true });
+const THERMAL = [[0, 0, 40], [60, 0, 120], [180, 0, 120], [255, 60, 0], [255, 180, 0], [255, 255, 160]];
+function thermal(l) {
+  const x = l / 255 * (THERMAL.length - 1), i = Math.min(THERMAL.length - 2, Math.floor(x)), f = x - i, a = THERMAL[i], b = THERMAL[i + 1];
+  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
+}
+function filtered(img, filter) {
+  // the frame at its own aspect on a small canvas (fast on any phone), with the filter applied
+  const sw = filter === 'pixel' ? 64 : Math.min(img.width, 400), sh = Math.round(sw * img.height / img.width);
+  fx.width = sw; fx.height = sh;
+  fxc.imageSmoothingEnabled = true;
+  fxc.drawImage(img, 0, 0, sw, sh);
+  if (filter === 'thermal' || filter === 'robot' || filter === 'comic') {
+    const d = fxc.getImageData(0, 0, sw, sh), p = d.data;
+    for (let i = 0; i < p.length; i += 4) {
+      const l = 0.3 * p[i] + 0.59 * p[i + 1] + 0.11 * p[i + 2];
+      if (filter === 'thermal') { const c = thermal(l); p[i] = c[0]; p[i + 1] = c[1]; p[i + 2] = c[2]; }
+      else if (filter === 'robot') { const y = (i / 4 / sw) | 0, scan = y % 3 === 0 ? 0.55 : 1; p[i] = l * 0.25 * scan; p[i + 1] = Math.min(255, l * 1.15) * scan; p[i + 2] = l * 0.45 * scan; }
+      else { const q = l > 170 ? 255 : l > 95 ? 150 : l > 45 ? 70 : 10; p[i] = Math.min(255, q * 1.1); p[i + 1] = q * 0.85; p[i + 2] = q * 0.55 + 20; }
+    }
+    fxc.putImageData(d, 0, 0);
+  }
+  return fx;
+}
+// draw a (filtered) frame into the box x, y, w, h: "contain" shows all of it, "cover" fills the box
+function fitDraw(c, src, x, y, w, h, mode) {
+  const k = (mode === 'cover' ? Math.max : Math.min)(w / src.width, h / src.height);
+  const dw = src.width * k, dh = src.height * k;
+  c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip();
+  c.drawImage(src, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  c.restore();
+  return [x + Math.max(0, (w - dw) / 2), y + Math.max(0, (h - dh) / 2), Math.min(w, dw), Math.min(h, dh)];
+}
+function drawCam() {
+  requestAnimationFrame(drawCam);
+  if (S.screen !== 'turn' || S.game === 'claw' || !C.w) return;
+  const c = camCtx, w = C.w, h = C.h, now = performance.now();
+  c.setTransform(C.dpr, 0, 0, C.dpr, 0, 0);
+  c.fillStyle = '#000'; c.fillRect(0, 0, w, h);
+  let box = [0, 0, w, h];
+  if (C.img) {
+    const f = S.game === 'eyes' ? S.filter : 'none';
+    c.imageSmoothingEnabled = f !== 'pixel';
+    box = fitDraw(c, filtered(C.img, f), 0, 0, w, h, 'contain'); // the whole field of view
+  } else {
+    c.fillStyle = '#a99fd6'; c.font = '700 16px system-ui'; c.textAlign = 'center';
+    c.fillText(C.err ? `📷 ${C.err}` : '📷 Connecting to the camera…', w / 2, h / 2);
+  }
+  c.textAlign = 'left'; c.font = '800 13px system-ui'; c.lineWidth = 3; c.lineCap = 'round';
+  if (S.game === 'eyes') {
+    // a robot's HUD: corner brackets, a blinking REC, a reticle
+    c.strokeStyle = S.filter === 'robot' ? '#4dffa6' : 'rgba(255,255,255,.85)';
+    const [bx, by, bw, bh] = box, m = 10, L = 26;
+    for (const [x, y, sx, sy] of [[bx + m, by + m, 1, 1], [bx + bw - m, by + m, -1, 1], [bx + m, by + bh - m, 1, -1], [bx + bw - m, by + bh - m, -1, -1]]) {
+      c.beginPath(); c.moveTo(x, y + sy * L); c.lineTo(x, y); c.lineTo(x + sx * L, y); c.stroke();
+    }
+    if (Math.floor(now / 600) % 2) { c.fillStyle = '#ff3b5c'; c.beginPath(); c.arc(bx + m + 18, by + m + 22, 6, 0, 2 * Math.PI); c.fill(); }
+    c.fillStyle = '#fff'; c.fillText('ROBOT EYES', bx + m + 30, by + m + 27);
+    c.beginPath(); c.arc(w / 2, h / 2, 22, 0, 2 * Math.PI); c.stroke();
+    c.beginPath(); c.moveTo(w / 2 - 34, h / 2); c.lineTo(w / 2 - 12, h / 2); c.moveTo(w / 2 + 12, h / 2); c.lineTo(w / 2 + 34, h / 2); c.stroke();
+  } else {
+    // claw cam: crosshair and the claw's height over the table
+    c.strokeStyle = ctl.drop ? '#ffd23f' : '#3ee6ff';
+    c.beginPath(); c.moveTo(w / 2 - 20, h / 2); c.lineTo(w / 2 + 20, h / 2); c.moveTo(w / 2, h / 2 - 20); c.lineTo(w / 2, h / 2 + 20); c.stroke();
+    c.fillStyle = 'rgba(18,11,46,.7)'; c.fillRect(10, h - 38, 170, 26);
+    c.fillStyle = '#fff';
+    c.fillText(tipNow ? `CLAW CAM · ${Math.max(0, Math.round((tipNow[2] - TABLE_Z) * 100))} cm up` : 'CLAW CAM', 18, h - 20);
+  }
+}
+requestAnimationFrame(drawCam);
+
+// filters
+function renderFilters() {
+  const box = $('filters'); box.replaceChildren();
+  for (const [id, label] of FILTERS) {
+    const b = el('button', 'filter', label); b.setAttribute('aria-pressed', String(S.filter === id));
+    b.addEventListener('click', () => setFilter(id)); box.append(b);
+  }
+  $('filterLbl').textContent = (FILTERS.find((f) => f[0] === S.filter) || FILTERS[0])[1];
+}
+function setFilter(id) { S.filter = id; buzz(10); renderFilters(); }
+$('filterBtn').addEventListener('click', () => {
+  const i = FILTERS.findIndex((f) => f[0] === S.filter);
+  setFilter(FILTERS[(i + 1) % FILTERS.length][0]);
+});
+renderFilters();
+
+// wave at the person holding the phone (a library move named like "wave", if there is one)
+function waveMove() { return ((S.welcome && S.welcome.moves) || []).find((m) => /wave/i.test(m.name + ' ' + (m.title || ''))); }
+$('waveBtn').addEventListener('click', () => {
+  const m = waveMove(); if (!m || S.screen !== 'turn' || !S.started) return;
+  releaseAll(); buzz(15); send({ op: 'move', name: m.name });
+});
+
+// SNAP: 3-2-1, flash, then a framed photo to save or share
+let snapping = false;
+async function snap() {
+  if (snapping || !C.img || S.game !== 'eyes') { if (!C.img) toast('No picture from the camera yet'); return; }
+  snapping = true; releaseAll();
+  const cnt = $('camCount');
+  for (const n of ['3', '2', '1']) { cnt.hidden = false; cnt.textContent = n; buzz(20); await new Promise((ok) => setTimeout(ok, 650)); }
+  cnt.hidden = true;
+  const fl = $('camFlash'); fl.hidden = false; fl.style.animation = 'none'; void fl.offsetWidth; fl.style.animation = '';
+  setTimeout(() => { fl.hidden = true; }, 520);
+  buzz([40, 30, 80]);
+  const W = 1080, H = 1350, pad = 48, ph = 1000;
+  const out = document.createElement('canvas'); out.width = W; out.height = H;
+  const c = out.getContext('2d');
+  const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#3b1f8f'); g.addColorStop(1, '#120b2e');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.imageSmoothingEnabled = S.filter !== 'pixel';
+  fitDraw(c, filtered(C.img, S.filter), pad, pad, W - 2 * pad, ph, 'cover');
+  c.strokeStyle = '#ffd23f'; c.lineWidth = 8; c.strokeRect(pad, pad, W - 2 * pad, ph);
+  c.textAlign = 'center'; c.fillStyle = '#ffd23f'; c.font = '900 64px system-ui';
+  c.fillText('SEEN BY THE ROBOT 🤖', W / 2, pad + ph + 100);
+  c.fillStyle = '#f4f1ff'; c.font = '700 40px system-ui';
+  const when = new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  c.fillText(`${myName || 'A friend'} · OpenYAM arm · ${when}`, W / 2, pad + ph + 170);
+  const url = out.toDataURL('image/jpeg', 0.9);
+  $('photoImg').src = url; $('photoSave').href = url;
+  $('photoShare').hidden = !(navigator.canShare && navigator.share);
+  $('photo').hidden = false;
+  G.stats.photos++;
+  if (G.stats.photos <= 3) award(50, '+50 PHOTO');
+  snapping = false;
+}
+$('snapBtn').addEventListener('click', snap);
+$('photoClose').addEventListener('click', () => { $('photo').hidden = true; });
+$('photoShare').addEventListener('click', async () => {
+  try {
+    const blob = await (await fetch($('photoImg').src)).blob();
+    const file = new File([blob], 'robot-arm-photo.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'Seen by the robot' });
+    else toast('Sharing is not available here: use Save');
+  } catch (_) { /* cancelled */ }
+});
+
 // ------------------------------------------------------------------ toasts + wake lock
 let toastTimer = null;
 function toast(text, kind = 'info') {
@@ -752,4 +973,4 @@ renderBest();
 show('lobby');
 connect();
 // debugging / tests / screenshots
-window.openplay = { S, G, ctl, send, handle, ws: () => ws, startTurn, spawnStars, toScreen, tip: () => tipNow };
+window.openplay = { S, G, ctl, send, handle, ws: () => ws, startTurn, spawnStars, toScreen, tip: () => tipNow, setGame, snap };

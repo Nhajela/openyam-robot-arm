@@ -67,11 +67,19 @@
     <div class="hud-score"><span class="hud-star">★</span><b id="score">0</b><span class="combo" id="combo" hidden>x2</span></div>
     <button class="hud-btn" id="pauseBtn" aria-label="Menu">☰</button>
   </header>
+  <nav class="games" id="games" hidden>
+    <button class="gametab" data-game="claw" aria-pressed="true">🕹️ Claw</button>
+    <button class="gametab" data-game="eyes">👀 Robot Eyes</button>
+    <button class="gametab" data-game="cam">🎥 Claw Cam</button>
+  </nav>
   <div class="ticker" id="ticker">Ready, player one</div>
 
   <div class="arena-wrap">
     <div class="arena" id="arena">
       <canvas id="map"></canvas>
+      <canvas id="camView" hidden></canvas>
+      <div class="cam-flash" id="camFlash" hidden></div>
+      <div class="cam-count" id="camCount" hidden></div>
       <div class="thumb" id="thumb" hidden><i></i></div>
       <div class="arena-msg" id="arenaMsg" hidden><div class="am-icon" id="amIcon">🎁</div><div class="am-text" id="amText"></div><button class="btn pill" id="amBtn" hidden>▶ Unfold the claw</button></div>
       <div class="arena-msg low" id="lowBar" hidden><div class="am-icon">🫣</div><div class="am-text">Too low to steer!</div><button class="btn pill" id="lowReady">↺ Reset the claw</button></div>
@@ -80,11 +88,15 @@
   </div>
 
   <div class="emotes" id="emotes" aria-label="Emotes"></div>
+  <div class="filters" id="filters" aria-label="Camera filters" hidden></div>
 
   <div class="actions">
     <button class="act claw" id="clawBtn"><span class="ai" id="clawIcon">🖐️</span><span class="al" id="clawLbl">Claw open</span></button>
     <button class="act drop" id="dropBtn"><span class="ai">⬇</span><span class="al">HOLD TO DROP</span></button>
     <button class="act ask" id="askBtn"><span class="ai">✨</span><span class="al">Ask it</span></button>
+    <button class="act" id="waveBtn" hidden><span class="ai">👋</span><span class="al">Wave at me</span></button>
+    <button class="act drop snap" id="snapBtn" hidden><span class="ai">📸</span><span class="al">SNAP A PHOTO</span></button>
+    <button class="act" id="filterBtn" hidden><span class="ai">🎨</span><span class="al" id="filterLbl">Filter</span></button>
   </div>
 
   <button class="stop" id="stopBtn">■ STOP</button>
@@ -99,6 +111,7 @@
         <li><span>⭐</span><div><b>Fly over stars</b> for points. Gold ⬇ stars need a dive.</div></li>
         <li><span>⬇️</span><div><b>Hold DROP</b> to lower the claw. <b>Let go</b>: it grabs and comes back.</div></li>
       </ol>
+      <p class="intro-more" id="introMore" hidden>More games at the top: <b>👀 Robot Eyes</b> (see what the robot sees, snap a photo) and <b>🎥 Claw Cam</b> (drive from the claw's eye).</p>
       <button class="btn start" id="startBtn">▶ PRESS START</button>
     </div>
     <div class="countdown" id="countdown" hidden></div>
@@ -127,6 +140,18 @@
     </div>
   </div>
 </section>
+
+<!-- the photo from Robot Eyes: save or share it -->
+<div class="overlay" id="photo" hidden>
+  <div class="photo-card">
+    <img id="photoImg" alt="Your photo with the robot arm">
+    <div class="row2">
+      <a class="btn" id="photoSave" download="robot-arm-photo.jpg">⬇ Save</a>
+      <button class="btn start small" id="photoShare">Share</button>
+    </div>
+    <button class="btn ghost" id="photoClose">Keep playing</button>
+  </div>
+</div>
 
 <!-- ============================================================ game over -->
 <section id="over" class="screen" hidden>

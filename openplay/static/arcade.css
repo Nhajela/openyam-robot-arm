@@ -210,3 +210,24 @@ h1, h2 { margin: 0; }
 .stats { list-style: none; padding: 0; margin: 16px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .stats li { background: var(--panel); border-radius: 14px; padding: 10px; font-size: 14px; color: var(--muted); }
 .stats li b { display: block; font-size: 24px; color: var(--text); }
+
+/* ---------------------------------------------------------------- games: claw / robot eyes / claw cam */
+.games { display: flex; gap: 6px; padding: 2px 12px 4px; }
+.gametab {
+  flex: 1; border: 2px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 4px;
+  font-size: 13px; font-weight: 800; white-space: nowrap;
+}
+.gametab[aria-pressed="true"] { background: var(--cyan); color: #07202a; border-color: var(--cyan); box-shadow: 0 0 14px rgba(62, 230, 255, .4); }
+.arena canvas#camView { background: #000; }
+.cam-flash { position: absolute; inset: 0; background: #fff; animation: flash .5s ease-out forwards; pointer-events: none; }
+@keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+.cam-count { position: absolute; inset: 0; display: grid; place-items: center; font-size: 120px; font-weight: 900; color: #fff; text-shadow: 0 0 30px rgba(0, 0, 0, .8); pointer-events: none; }
+.filters { display: flex; gap: 8px; padding: 6px 10px 2px; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; }
+.filters::-webkit-scrollbar { display: none; }
+.filter { flex: none; border: 2px solid var(--line); background: var(--panel); border-radius: 14px; padding: 8px 12px; font-weight: 800; font-size: 14px; min-height: 52px; }
+.filter[aria-pressed="true"] { border-color: var(--yellow); color: var(--yellow); box-shadow: 0 0 12px rgba(255, 210, 63, .35); }
+.act.snap { background: linear-gradient(180deg, #6ff0ff, var(--cyan)); box-shadow: 0 5px 0 #0b7f8f; }
+.act.snap .ai, .act.snap .al { color: #07202a; }
+.intro-more { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
+.photo-card { width: 100%; max-width: 420px; text-align: center; }
+.photo-card img { width: 100%; border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, .6); display: block; }
