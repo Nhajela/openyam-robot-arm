@@ -122,7 +122,7 @@ function send(m) {
 }
 function hello() {
   helloName = myName;
-  send({ op: 'hello', pid, name: myName, rate_ms: RATE_MS, ua: (navigator.userAgent || '').slice(0, 120) });
+  send({ op: 'hello', pid, name: myName, rate_ms: RATE_MS, ui: 'classic', ua: (navigator.userAgent || '').slice(0, 120) });
 }
 // clock sync (NTP style): ping {t} -> pong {t0, t1, t2} -> sync {s: [t0, t1, t2, t3]}; the
 // server keeps the min-RTT estimate. A short burst after (re)connecting, then every 5 s.
