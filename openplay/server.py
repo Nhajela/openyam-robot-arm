@@ -36,6 +36,7 @@ import io
 import json
 import logging
 import os
+import html
 import re
 import secrets
 import signal
@@ -75,7 +76,8 @@ DISCRETE = {"move", "ready", "home", "pose.goto", "seq.play", "grab"}  # (say jo
 CHESS_OPS = {"chess.new", "chess.accept", "chess.clock", "chess.pick", "chess.move", "chess.resign"}
 CHESS_SENSORS = ("fake", "camera")
 MODE_CHOICES = ("auto", "on", "off")   # --chess / --pick
-EVENT_KINDS = ("move", "say", "seq", "grab", "chess", "pick")
+EVENT_KINDS = ("move", "say", "seq", "grab", "chess", "pick", "selfie")
+SELFIES_PER_TURN = 12
 LOOPBACK = {"127.0.0.1", "::1", "localhost", "testclient"}
 DAEMON_TTL_MAX_MS = 500   # armctl.daemon.TTL_MAX_MS: the daemon clips longer ttls
 LOOP_LAG_MS = 100.0       # a ticker sleep this much late is logged (server event loop stalled)
@@ -222,7 +224,8 @@ class OpenPlay:
                  chess_cameras: list[str] | None = None, chess_calib: str | None = None,
                  trace_log: Path | None = None, stream_ttl_ms: float = STREAM_TTL_MS,
                  pick_opts: dict | None = None, chess_mode: str = "auto", pick_mode: str = "auto",
-                 cam_source: str = "off", cam_url: str | None = None):
+                 cam_source: str = "off", cam_url: str | None = None,
+                 selfie_dir: Path | str | None = None, selfie_at: str | None = None):
         self.lobby = Lobby(turn_s=turn_s)
         self.stream_ttl_ms = float(min(max(stream_ttl_ms, 50.0), DAEMON_TTL_MAX_MS))
         # the time-synced trace (openplay/eventlog.py): phone -> server -> arm, one clock
@@ -287,6 +290,12 @@ class OpenPlay:
                             on_change=self._cam_changed)
         self.features["cam"] = self.cam.ok
         self._loop: asyncio.AbstractEventLoop | None = None
+        # 🤳 Selfie (openplay/selfie.py): photos saved on this laptop, outside the repo
+        from openplay.selfie import SelfieStore
+
+        self.selfies = SelfieStore(selfie_dir)
+        self.selfie_at = selfie_at                   # audience.json preset or "x,y,z"; None = its default
+        self.selfie_count: dict[str, int] = {}       # pid -> selfies this turn
 
     # ------------------------------------------------------------------ lifecycle
     async def start(self) -> None:
@@ -427,6 +436,7 @@ class OpenPlay:
         only while the camera answers. The server-side refusals are unchanged."""
         f = dict(self.features)
         f["cam"] = self.cam.ok
+        f["selfie"] = self.cam.ok
         try:
             if f.get("chess"):
                 f["chess"] = (self.chess_mode == "on" or self._rehearsal()) and not (self.chess_sensor_error or self.chess_refusal())
@@ -633,6 +643,7 @@ class OpenPlay:
             p["future"].set_result((False, why))
         if self.pick is not None:
             self.pick.cancel(pid, why)
+        self.selfie_count.pop(pid, None)
 
     def _arm_event(self, kind: str, data: dict) -> None:
         if kind == "connected":
@@ -712,6 +723,8 @@ class OpenPlay:
             return self._pose_edit(pid, op, m)
         if op in CHESS_OPS:
             return await self._chess_msg(c, pid, op, m)
+        if op.startswith("selfie."):                             # openplay/selfie.py
+            return self._selfie_msg(c, pid, op, m)
         if op.startswith("pick.") and self.pick is not None:   # openplay/pick_play.py
             if not self.features.get("pick"):
                 return self.refuse(c, "Pick it up is switched off (open play --pick off)")
@@ -979,6 +992,64 @@ class OpenPlay:
             if found:
                 del lst[found[0]]
         self.to_pid(pid, {"op": "poses", "list": self._pose_list(pid)})
+
+    # ---- selfie (openplay/selfie.py)
+    def _selfie_msg(self, c: Conn, pid: str, op: str, m: dict) -> None:
+        if not self.lobby.is_active(pid):
+            return self.refuse(c, "not your turn")
+        if not self.cam.ok:
+            return self.refuse(c, self.cam.error or "the camera isn't available")
+        if op == "selfie.aim":
+            if self.busy:
+                return self.refuse(c, f"busy: {self.busy['doing']}")
+            self._begin(pid, "selfie", "selfie pose", "turning to look at you", self._do_selfie_aim(pid))
+        elif op == "selfie.snap":
+            if self.selfie_count.get(pid, 0) >= SELFIES_PER_TURN:
+                return self.refuse(c, f"that's {SELFIES_PER_TURN} photos this turn: save your favourites")
+            self.selfie_count[pid] = self.selfie_count.get(pid, 0) + 1
+            asyncio.get_running_loop().create_task(self._do_selfie_snap(pid))
+        else:
+            self.refuse(c, f"unknown op {op!r}")
+
+    async def _do_selfie_aim(self, pid: str) -> None:
+        from openplay import selfie as SF
+
+        limits = (self.arm.hello.get("envelope") or {}).get("soft_limits")
+        try:
+            eye, where = SF.audience_eye(self.selfie_at)
+            q, off = await asyncio.to_thread(SF.aim_pose, eye, limits)
+        except Exception as e:
+            self.to_pid(pid, {"op": "selfie", "stage": "error", "text": f"can't aim: {e}"})
+            raise ActionError(f"Selfie: can't work out where to look ({e})") from None
+        self.to_pid(pid, {"op": "selfie", "stage": "aiming", "text": "Turning to look at you…"})
+        q0 = list(self.arm.state.get("q") or SF.READY)
+        dur = max(1.5, max(abs(a - b) for a, b in zip(q, q0)) / 0.3 + 0.5)   # 0.3 rad/s, as pick_play
+        await self._approve(pid, "selfie", "Selfie: turn to look at the player", dur,
+                            [{"t": 0.0, "q": q0}, {"t": round(dur, 2), "q": q}])
+        self.status(pid, "Turning to look at you", "busy")
+        await self.arm.do("move_joints", q=q, speed=0.3, timeout=30.0)
+        self.to_pid(pid, {"op": "selfie", "stage": "aimed", "off_deg": off,
+                          "text": f"Looking at you ({where}). Strike a pose!"})
+        self.status(pid, "Looking at you: strike a pose!", "done")
+
+    async def _do_selfie_snap(self, pid: str) -> None:
+        who = self.name(pid)
+        try:
+            jpeg = await asyncio.to_thread(self.cam.grab_full)
+            rec = await asyncio.to_thread(self.selfies.new, jpeg, pid, who, self.arm.state.get("q"))
+        except Exception as e:
+            self.selfie_count[pid] = max(0, self.selfie_count.get(pid, 1) - 1)
+            self.to_pid(pid, {"op": "selfie", "stage": "error", "text": f"couldn't take the photo ({type(e).__name__}: {e})"[:160]})
+            return
+        self.event("selfie", f"{who} took a selfie with the arm 📸", who)
+        log.info("selfie saved: %s", self.selfies.dir / rec["original"])
+        self.to_pid(pid, {"op": "selfie", "stage": "taken", "id": rec["id"], "text": "Got it!"})
+        self.to_displays({"op": "selfie", "who": who, "file": rec["original"]})
+
+    def _selfie_framed(self, sid: str, pid: str, jpeg: bytes) -> dict:
+        rec = self.selfies.framed(sid, pid, jpeg)
+        self.to_displays({"op": "selfie", "who": rec["who"], "file": rec["framed"]})
+        return rec
 
     # ---- discrete actions
     def _start_discrete(self, c: Conn, pid: str, op: str, m: dict) -> None:
@@ -1734,6 +1805,27 @@ class OpenPlay:
         def favicon():
             return Response(status_code=204)
 
+        @app.get("/selfie/{sid}.jpg")
+        def selfie_jpg(sid: str, pid: str = ""):
+            # the camera's original, for the phone that took it (it frames it and offers to save it)
+            rec = self.selfies.items.get(sid)
+            f = self.selfies.path(sid)
+            if rec is None or f is None or rec["pid"] != pid or not f.is_file():
+                raise HTTPException(404, "no such selfie")
+            return Response(f.read_bytes(), media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+
+        @app.post("/selfie/{sid}/framed")
+        async def selfie_framed(sid: str, request: Request, pid: str = ""):
+            # the phone's framed copy, saved on the laptop next to the original
+            body = await request.body()
+            try:
+                rec = await asyncio.to_thread(self._selfie_framed, sid, pid, body)
+            except KeyError:
+                raise HTTPException(404, "no such selfie") from None
+            except ValueError as e:
+                raise HTTPException(400, str(e)) from None
+            return {"ok": True, "saved": rec["framed"]}
+
         @app.get("/cam.jpg")
         async def cam_jpg(pid: str = "", after: int = 0):
             # the wrist camera for the arcade's camera games: the player whose turn it is only
@@ -1771,6 +1863,31 @@ class OpenPlay:
         def page(request: Request):
             loopback(request.client.host if request.client else None)
             return HTMLResponse(_page("display.html", "The display page"), headers={"Cache-Control": "no-store"})
+
+        @app.get("/selfies")
+        def selfies_page(request: Request):
+            # every selfie saved on this laptop, newest first (loopback only: photos of people)
+            loopback(request.client.host if request.client else None)
+            files = self.selfies.files()
+            tiles = "".join(f'<a href="/selfies/{n}" target="_blank"><img src="/selfies/{n}" loading="lazy"><span>{n}</span></a>'
+                            for n in files)
+            return HTMLResponse(
+                '<!doctype html><meta charset="utf-8"><title>Selfies</title><style>body{background:#120b2e;color:#f4f1ff;'
+                'font:15px system-ui;margin:20px}h1{font-size:22px}div{display:grid;grid-template-columns:repeat(auto-fill,'
+                'minmax(220px,1fr));gap:12px}a{color:#a99fd6;text-decoration:none}img{width:100%;border-radius:10px;display:block}'
+                'span{font-size:11px}</style>'
+                f'<h1>📸 Selfies ({len(files)}) · saved in {html.escape(str(self.selfies.dir))}</h1><div>{tiles}</div>',
+                headers={"Cache-Control": "no-store"})
+
+        @app.get("/selfies/{name}")
+        def selfie_file(name: str, request: Request):
+            loopback(request.client.host if request.client else None)
+            if not re.fullmatch(r"[0-9]{8}-[0-9]{6}-[a-f0-9]{6}-[a-z0-9-]{1,40}\.jpg", name):
+                raise HTTPException(404, "no such file")
+            f = self.selfies.dir / name
+            if not f.is_file():
+                raise HTTPException(404, "no such file")
+            return Response(f.read_bytes(), media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
         @app.get("/qr.png")
         def qr(request: Request):
@@ -2033,7 +2150,8 @@ async def serve(args) -> None:
                   chess_cameras=args.chess_camera, chess_calib=args.chess_calib, trace_log=trace,
                   stream_ttl_ms=args.stream_ttl_ms,
                   pick_opts={"detector_kind": "" if args.pick_detector == "none" else args.pick_detector},
-                  chess_mode=args.chess, pick_mode=args.pick, cam_source=args.cam, cam_url=args.cam_url)
+                  chess_mode=args.chess, pick_mode=args.pick, cam_source=args.cam, cam_url=args.cam_url,
+                  selfie_dir=args.selfie_dir, selfie_at=args.selfie_at)
     # The room key is a secret: only on an interactive terminal (and on the loopback display).
     shown = join_url if os.isatty(1) else join_url.split("?k=")[0] + f"?k=<key: see http://127.0.0.1:{args.local_port}>"
     print(f"open play: phones join at {shown} ({args.phone_ui} page; /classic and /arcade both work)", flush=True)
@@ -2086,6 +2204,11 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--cam", choices=["console", "test", "off"], default="console",
                     help="wrist camera for the arcade camera games: the lab console's /camera.jpg, a synthetic "
                          "test picture, or off")
+    ap.add_argument("--selfie-dir", default=None,
+                    help="where selfies are saved on this laptop (default ~/Pictures/openyam-selfies; never the repo)")
+    ap.add_argument("--selfie-at", default=None,
+                    help="where the player stands for a selfie: a preset in armctl/audience.json "
+                         "(standing, seated, down-table) or x,y,z in the base frame (m)")
     ap.add_argument("--cam-url", default=None, help="camera JPEG URL (default $VISION_DASHBOARD_URL or the console's)")
     ap.add_argument("--phone-ui", choices=["classic", "arcade"], default="classic",
                     help="the phone page the QR opens: classic (modes) or arcade (claw game); "
