@@ -5,7 +5,7 @@
 // mock arm's tip moved the right way; with a camera (--cam test) also Robot Eyes (look, filter, snap)
 // and Claw Cam. Screenshots: lobby, intro, play, drop, menu, game over, camera games.
 const { chromium } = require('playwright');
-const [url, out = '.'] = process.argv.slice(2);
+const [url, out = '.', displayUrl] = process.argv.slice(2);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 (async () => {
   const browser = await chromium.launch({ args: ['--ignore-certificate-errors'], executablePath: process.env.CHROME_PATH || undefined });
@@ -63,7 +63,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const after = await page.evaluate(() => window.openplay.G.score);
   await page.screenshot({ path: `${out}/6-score.png` });
   // camera games (server started with --cam test or a real console camera)
-  let eyes = null;
+  let eyes = null, selfieRes = null;
   if (await page.evaluate(() => !document.getElementById('games').hidden)) {
     await page.click('.gametab[data-game="eyes"]');
     await page.waitForFunction(() => window.openplay.S.game === 'eyes');
@@ -85,6 +85,30 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     await page.click('#photoClose');
     await page.click('.gametab[data-game="cam"]'); await sleep(1500);
     await page.screenshot({ path: `${out}/12-claw-cam.png` });
+    // 🤳 Selfie: one tap aims the arm, counts down 5-4-3-2-1, snaps; the photo comes back framed
+    const disp = displayUrl ? await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage() : null;
+    if (disp) { await disp.goto(displayUrl); await sleep(1500); }
+    await page.click('.gametab[data-game="selfie"]'); await sleep(1200);
+    await page.screenshot({ path: `${out}/13-selfie.png` });
+    const q0s = await page.evaluate(() => window.openplay.S.arm.q.slice());
+    await page.click('#selfieBtn');
+    await page.waitForFunction(() => window.openplay.selfie.aimed, null, { timeout: 30000 });
+    const q1s = await page.evaluate(() => window.openplay.S.arm.q.slice());
+    await sleep(2000);
+    await page.screenshot({ path: `${out}/14-selfie-countdown.png` });
+    await page.waitForSelector('#photo:not([hidden])', { timeout: 20000 });
+    await page.waitForFunction(() => /Also saved/.test(document.getElementById('photoLaptop').textContent), null, { timeout: 10000 });
+    await sleep(300);
+    await page.screenshot({ path: `${out}/15-selfie-photo.png` });
+    const lap = await page.evaluate(() => document.getElementById('photoLaptop').textContent);
+    if (disp) {
+      await sleep(800);
+      await disp.screenshot({ path: `${out}/16-laptop-display-selfie.png` });
+      await disp.goto(displayUrl.replace(/\/?$/, '/selfies')); await sleep(800);
+      await disp.screenshot({ path: `${out}/17-laptop-gallery.png` });
+    }
+    await page.click('#photoClose');
+    selfieRes = { dj1: q1s[0] - q0s[0], j1: q1s[0], dj4: q1s[3] - q0s[3], laptop: lap };
     await page.click('.gametab[data-game="claw"]'); await sleep(300);
     eyes = { dj1: q1[0] - q0[0], dj4: q1[3] - q0[3], photos: await page.evaluate(() => window.openplay.G.stats.photos) };
   }
@@ -95,6 +119,6 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await page.waitForSelector('#over:not([hidden])', { timeout: 10000 });
   await sleep(300);
   await page.screenshot({ path: `${out}/8-game-over.png` });
-  console.log(JSON.stringify({ t0, t1, dx_away: t1[0] - t0[0], z0, z1, dropped: z0 - z1, busyAfterDrop, gripAfter: grip, scoreBefore: before, scoreAfter: after, eyes, errors }, null, 1));
+  console.log(JSON.stringify({ t0, t1, dx_away: t1[0] - t0[0], z0, z1, dropped: z0 - z1, busyAfterDrop, gripAfter: grip, scoreBefore: before, scoreAfter: after, eyes, selfie: selfieRes, errors }, null, 1));
   await browser.close();
 })().catch((e) => { console.error(e); process.exit(1); });
